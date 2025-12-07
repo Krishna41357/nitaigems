@@ -222,7 +222,6 @@ const ProductDetailPage = () => {
     return (
       <>
         <MainHeader />
-        <Navigation />
         <div className="min-h-screen w-screen bg-black/95 backdrop-blur-sm flex items-center justify-center relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-radial from-yellow-500/5 via-transparent to-transparent"></div>
           <div className="text-center relative z-10">
