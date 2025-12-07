@@ -8,7 +8,7 @@ import { Label } from "../components/ui/label";
 import { Alert, AlertDescription } from "../components/ui/alert";
 import { Loader2, Phone, Lock, ShieldCheck } from 'lucide-react';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://nitai-gems-backend.nitai-gems-backend.workers.dev';
+const API_BASE_URL = import.meta.env.VITE_APP_BASE_URL || import.meta.env.VITE_API_BASE_URL || 'https://nitai-gems-backend.nitai-gems-backend.workers.dev';
 
 export default function Login() {
   const [step, setStep] = useState('phone'); // 'phone' or 'otp'

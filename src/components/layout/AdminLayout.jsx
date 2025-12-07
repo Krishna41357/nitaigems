@@ -13,6 +13,7 @@ export function AdminLayout() {
     { name: 'Products', href: '/admin/products', icon: Package },
     { name: 'Events', href: '/admin/events', icon: Calendar },
     { name: 'Coupons', href: '/admin/coupons', icon: Tag },
+    {name:'Collections', href:'/admin/collections', icon:Tag}
   ];
 
   const isActive = (path) => {

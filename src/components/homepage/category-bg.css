@@ -1,86 +1,236 @@
-/* CategoryCardsSection background: elegant cream palette with parallax scroll animations */
-.category-bg-section {
+/* Category Section Container - Fixed height showing 3 rows */
+.category-parallax-container {
   position: relative;
-  --progress: 0;
-  background: linear-gradient(180deg, #fffaf6 0%, #fff7f0 30%, #fff4e6 100%);
-  overflow: visible;
+  height: 100vh; /* Full viewport height */
+  overflow: hidden;
+  --scroll-progress: 0;
 }
 
-.category-bg { /* container for decorative layers */
+/* Fixed background image with parallax effect */
+.category-parallax-bg {
   position: absolute;
-  inset: 0;
-  pointer-events: none;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('/bg6.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   z-index: 0;
+  /* Parallax effect - moves slower than content */
+  transform: translateY(calc(var(--scroll-progress) * -100px));
+  transition: transform 0.1s linear;
+  will-change: transform;
+}
+
+/* Scrollable container - shows 3 rows at a time */
+.category-scroll-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  z-index: 10;
+  padding: 3rem 0 4rem 0;
+  
+  /* Custom scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(139, 69, 19, 0.3) transparent;
+}
+
+.category-scroll-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.category-scroll-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.category-scroll-container::-webkit-scrollbar-thumb {
+  background: rgba(139, 69, 19, 0.3);
+  border-radius: 10px;
+}
+
+.category-scroll-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(139, 69, 19, 0.5);
+}
+
+/* Category Cards */
+.category-card {
+  position: relative;
+  z-index: 15;
+  animation: fadeInUp 0.6s ease-out backwards;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Enhanced card styles - transparent background, no border */
+.category-card {
+  background-color: transparent;
+  border: none;
+}
+
+.category-card:hover {
+  z-index: 20;
+}
+
+/* Special styling for view-all card (white with border) */
+.category-card.group.bg-white {
+  background-color: #ffffff;
+  border: 2px solid #e5e7eb;
+  box-shadow: 
+    0 4px 6px rgba(0, 0, 0, 0.1),
+    0 10px 20px rgba(0, 0, 0, 0.08);
+}
+
+.category-card.group.bg-white:hover {
+  box-shadow: 
+    0 10px 25px rgba(0, 0, 0, 0.15),
+    0 20px 40px rgba(0, 0, 0, 0.12);
+}
+
+/* Scroll Indicator on the right */
+.scroll-indicator {
+  position: fixed;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 30;
+  opacity: 0.6;
+  transition: opacity 0.3s;
+}
+
+.scroll-indicator:hover {
+  opacity: 1;
+}
+
+.scroll-indicator-track {
+  width: 4px;
+  height: 200px;
+  background: rgba(139, 69, 19, 0.2);
+  border-radius: 2px;
+  position: relative;
   overflow: hidden;
 }
 
-.category-gradient {
+.scroll-indicator-thumb {
   position: absolute;
-  inset: -20% -10% auto -10%;
-  height: 140%;
-  background: radial-gradient(circle at 10% 20%, rgba(255,243,205,0.9), transparent 12%),
-              radial-gradient(circle at 90% 80%, rgba(255,250,240,0.8), transparent 18%);
-  filter: blur(32px) saturate(110%);
-  transform: translateY(calc(var(--progress) * -24px));
-  transition: transform 0.12s linear;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 30%;
+  background: rgba(139, 69, 19, 0.6);
+  border-radius: 2px;
+  transition: transform 0.1s linear;
+  will-change: transform;
 }
 
-/* gentle light sheen that sweeps across the section */
-.light-sheen {
-  position: absolute;
-  left: -30%;
-  top: -30%;
-  width: 160%;
-  height: 160%;
-  pointer-events: none;
-  background: linear-gradient(120deg, rgba(255,255,255,0.0) 0%, rgba(255,255,255,0.06) 45%, rgba(255,255,255,0.0) 60%);
-  transform: translateX(-100%) rotate(4deg);
-  animation: sheenMove 8s ease-in-out infinite;
-  opacity: 0.9;
-  mix-blend-mode: overlay;
+/* Grid adjustments to show exactly 3 rows */
+.category-scroll-container .grid {
+  max-width: 1280px;
+  margin: 0 auto;
 }
 
-@keyframes sheenMove {
-  0% { transform: translateX(-100%) rotate(4deg); opacity: 0; }
-  30% { opacity: 0.7; }
-  50% { transform: translateX(8%) rotate(4deg); opacity: 0.9; }
-  80% { opacity: 0.3; }
-  100% { transform: translateX(110%) rotate(4deg); opacity: 0; }
+/* Responsive - 3 cards per row on large screens */
+@media (min-width: 1024px) {
+  .category-scroll-container .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .category-card:nth-child(n+10) {
+    margin-bottom: 0;
+  }
 }
 
-.ornament {
-  position: absolute;
-  border-radius: 14px;
-  mix-blend-mode: soft-light;
-  opacity: 0.28;
-  filter: blur(8px) saturate(120%);
-  transform-origin: center;
-}
-.orn-1 { width: 420px; height: 220px; background: rgba(255,234,179,0.18); top: 6%; left: -6%; transform: translateY(calc(var(--progress) * -18px)); }
-.orn-2 { width: 320px; height: 160px; background: rgba(255,248,236,0.14); top: 24%; right: -8%; transform: translateY(calc(var(--progress) * -10px)); }
-.orn-3 { width: 260px; height: 260px; background: rgba(255,226,170,0.12); bottom: 6%; left: 8%; transform: translateY(calc(var(--progress) * -22px)); }
-.orn-4 { width: 520px; height: 260px; background: rgba(255,244,210,0.12); bottom: -8%; right: -12%; transform: translateY(calc(var(--progress) * -12px)); }
-
-.sparkles { position: absolute; inset: 0; z-index: 0; }
-.sparkle {
-  position: absolute;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.9);
-  box-shadow: 0 0 12px rgba(255,255,255,0.9);
-  opacity: 0.95;
-  transform: translateY(calc(var(--progress) * 10vh)) translateX(0) scale(1);
-  transition: transform 0.12s linear;
+/* Tablet - 2 cards per row */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .category-scroll-container .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
-/* ensure content appears above background */
-.category-bg-section > .container { position: relative; z-index: 10; transform: translateY(calc(var(--progress) * -8px)); transition: transform 220ms linear; will-change: transform; }
+/* Mobile - 1 card per row */
+@media (max-width: 767px) {
+  .category-parallax-container {
+    height: auto;
+    min-height: 100vh;
+  }
+  
+  .category-scroll-container {
+    position: relative;
+    top: 0;
+    height: auto;
+    overflow-y: visible;
+    padding: 2rem 0;
+  }
+  
+  .category-parallax-bg {
+    position: absolute;
+    transform: none;
+  }
+  
+  .scroll-indicator {
+    display: none;
+  }
+  
+  .category-scroll-container .grid {
+    grid-template-columns: 1fr;
+  }
+}
 
+/* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
-  .category-gradient, .ornament, .sparkle { transition: none; transform: none !important; }
+  .category-parallax-bg {
+    transform: none !important;
+    transition: none !important;
+  }
+  
+  .category-card {
+    animation: none !important;
+  }
+  
+  .scroll-indicator-thumb {
+    transition: none !important;
+  }
 }
 
-/* responsive: hide large ornaments on small screens */
-@media (max-width: 768px) {
-  .orn-1, .orn-4 { display: none; }
-  .category-gradient { filter: blur(24px); }
+/* Loading state adjustments */
+.category-scroll-container:empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Smooth scrolling */
+.category-scroll-container {
+  scroll-behavior: smooth;
+}
+
+/* Focus styles for accessibility */
+.category-card:focus {
+  outline: 2px solid rgba(139, 69, 19, 0.5);
+  outline-offset: 4px;
+}
+
+/* Hide scrollbar on touch devices but keep functionality */
+@media (hover: none) and (pointer: coarse) {
+  .category-scroll-container {
+    scrollbar-width: none;
+  }
+  
+  .category-scroll-container::-webkit-scrollbar {
+    display: none;
+  }
 }

@@ -3,11 +3,12 @@ import { Toaster as Sonner } from "./components/ui/sonner";
 import { TooltipProvider } from "./components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider } from "./contexts/AuthContext";
-import { CartProvider, WishlistProvider, AuthProvider as HomeAuthProvider } from "./contexts/CartContext";
-import { ProtectedRoute } from "./components/ProtectedRoute";
+import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import { CartProvider, WishlistProvider } from "./contexts/CartContext";
 import { AdminLayout } from "./components/layout/AdminLayout";
-import Login from "./pages/Login";
+import AdminLogin from "./pages/AdminLogin";            // renamed
+import UserLoginModal from "./pages/UserLogin";    // renamed
+import CartPage from "./pages/CartPage";
 import Dashboard from "./pages/admin/Dashboard";
 import Users from "./pages/admin/Users";
 import Products from "./pages/admin/Products";
@@ -17,42 +18,58 @@ import NotFound from "./pages/NotFound";
 import HomePage from "./pages/HomePage";
 import ProductsListingPage from "./pages/ProductsListingPage";
 import ProductDetailPage from "./pages/ProductDetailPage";
+import CheckoutPage from "./pages/CheckoutPage";
+import PaymentCallbackPage from "./pages/PaymentCallbackPage";
+import CollectionsTab from "./pages/admin/CollectionsTab";
+import OrdersPage from "./pages/OrdersPage";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <AuthProvider>
-          <HomeAuthProvider>
+/* ---------- lazy helper ---------- */
+const AdminGuard = ({ children }) => {
+  const { isAuthenticated, user } = useAuth();
+  return isAuthenticated && user?.isAdmin
+    ? children
+    : <Navigate to="/admin/login" replace />;
+};
+
+export default function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AuthProvider>
             <CartProvider>
               <WishlistProvider>
                 <Routes>
+                  {/* ----- PUBLIC ----- */}
                   <Route path="/" element={<HomePage />} />
-                  
-                  {/* Product Routes - Order matters! Most specific routes first */}
                   <Route path="/products" element={<ProductsListingPage />} />
+                  <Route path="/products/collection/:collectionSlug" element={<ProductsListingPage />} />
                   <Route path="/products/category/:categorySlug/:subCategorySlug" element={<ProductsListingPage />} />
                   <Route path="/products/category/:categorySlug" element={<ProductsListingPage />} />
-                  <Route path="/products/collection/:collectionSlug" element={<ProductsListingPage />} />
-                  
-                  {/* Product Detail Route - Fixed to match ProductCard link */}
                   <Route path="/product/:slug" element={<ProductDetailPage />} />
                   <Route path="/products/category/:categorySlug/:subCategorySlug/:slug" element={<ProductDetailPage />} />
                   <Route path="/products/category/:categorySlug/:slug" element={<ProductDetailPage />} />
-                  
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/adminauth" element={<Navigate to="/admin" replace />} />
-                  
+                  <Route path="/products/collection/:collectionSlug/:slug" element={<ProductDetailPage />} />
+                  <Route path="/cart" element={<CartPage />} />
+                  <Route path="/checkout" element={<CheckoutPage />} />
+                  <Route path="/orders" element={<OrdersPage />} />
+                  <Route path="/payment/callback" element={<PaymentCallbackPage />} />
+
+                  {/* ----- AUTH ----- */}
+                  <Route path="/login" element={<UserLoginModal open onClose={() => {}} />} />
+                  <Route path="/admin/login" element={<AdminLogin />} />
+
+                  {/* ----- ADMIN ----- */}
                   <Route
-                    path="/admin"
+                    path="/admin/*"
                     element={
-                      <ProtectedRoute>
+                      <AdminGuard>
                         <AdminLayout />
-                      </ProtectedRoute>
+                      </AdminGuard>
                     }
                   >
                     <Route index element={<Dashboard />} />
@@ -60,17 +77,16 @@ const App = () => (
                     <Route path="products" element={<Products />} />
                     <Route path="events" element={<Events />} />
                     <Route path="coupons" element={<Coupons />} />
+                    <Route path="collections" element={<CollectionsTab/>}/>
                   </Route>
-                  
+
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </WishlistProvider>
             </CartProvider>
-          </HomeAuthProvider>
-        </AuthProvider>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
-
-export default App;
+          </AuthProvider>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+}

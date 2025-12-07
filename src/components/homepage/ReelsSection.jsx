@@ -6,13 +6,15 @@ import './category-bg.css';
 const ReelsSection = () => {
   const [reels, setReels] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [currentReelIndex, setCurrentReelIndex] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(true);
   const [progress, setProgress] = useState(0);
   const [showModal, setShowModal] = useState(false);
   const videoRef = useRef(null);
   const progressIntervalRef = useRef(null);
+  const autoplayRef = useRef(true);
+  const [stackMode, setStackMode] = useState('spread'); // 'spread' | 'stack'
+  const stackRef = useRef(null);
 
   useEffect(() => {
     fetchReels();
@@ -41,43 +43,69 @@ const ReelsSection = () => {
     }
   };
 
-  const loadLocalReels = () => {
-    const localReels = [
-      {
-        id: 'local-1',
-        videoUrl: new URL('../media/videos/video1.mp4', import.meta.url).href,
-        title: 'Diamond Styling Tips',
-        description: 'Exquisite Vines Diamond Necklace Set',
-        duration: 45,
-        isActive: true,
-      },
-      {
-        id: 'local-2',
-        videoUrl: new URL('../media/videos/video2.mp4', import.meta.url).href,
-        title: 'Elegant Diamond Jewellery',
-        description: 'Every Day Diamond Collection',
-        duration: 60,
-        isActive: true,
-      },
-{
-        id: 'local-3',
-        videoUrl: new URL('../media/videos/video3.mp4', import.meta.url).href,
-        title: 'Precious Necklace Jewellery',
-        description: 'Precious Stones Collection',
-        duration: 60,
-        isActive: true,
-      },
+ const loadLocalReels = () => {
+  const localReels = [
+    {
+      id: 'reel-local-1',
+      videoUrl: 'https://res.cloudinary.com/dxoxbnptl/video/upload/v1765112697/video1_hieygd.mp4',
+      title: 'Diamond Styling Tips',
+      description: 'Exquisite Vines Diamond Necklace Set',
+      duration: 45,
+      isActive: true
+    },
+    {
+      id: 'reel-local-2',
+      videoUrl: 'https://res.cloudinary.com/dxoxbnptl/video/upload/v1765112696/video3_miynta.mp4',
+      title: 'Elegant Diamond Jewellery',
+      description: 'Every Day Diamond Collection',
+      duration: 60,
+      isActive: true,
+    },
+    {
+      id: 'reel-local-3',
+      videoUrl: 'https://res.cloudinary.com/dxoxbnptl/video/upload/v1765112694/video2_a54fyn.mp4',
+      title: 'Precious Necklace Jewellery',
+      description: 'Precious Stones Collection',
+      duration: 60,
+      isActive: true,
+    },
+  ];
 
-    ];
+  setReels(localReels);
+};
+
+  // animate from a spread line into an overlapping stack for visual accuracy
+  useEffect(() => {
+    // short delay so layout is visible as a line first then collapses
+    const t = setTimeout(() => setStackMode('stack'), 450);
+    return () => clearTimeout(t);
+  }, []);
+
+  // 🔧 FIX: Move condition INSIDE the useEffect
+  useEffect(() => {
+    // Condition is now inside the hook, not wrapping it
+    if (!stackRef.current) return;
     
-    setReels(localReels);
-  };
+    const vids = stackRef.current.querySelectorAll('video');
+    vids.forEach(v => {
+      try {
+        if (v !== videoRef.current) {
+          v.pause();
+          v.currentTime = 0;
+        }
+      } catch (e) {}
+    });
+    
+    // attempt to play the front video
+    if (videoRef.current && autoplayRef.current) {
+      videoRef.current.muted = isMuted;
+      videoRef.current.play().catch(() => {});
+    }
+  }, [reels, stackMode, isMuted]);
 
   const openModal = (index) => {
-    setCurrentReelIndex(index);
+    // open modal for larger view (inline autoplay remains)
     setShowModal(true);
-    setProgress(0);
-    setIsPlaying(true);
   };
 
   const closeModal = () => {
@@ -108,31 +136,37 @@ const ReelsSection = () => {
   };
 
   const goToNextReel = () => {
-    if (currentReelIndex < reels.length - 1) {
-      setCurrentReelIndex(prev => prev + 1);
-      setProgress(0);
-      setIsPlaying(false);
-    } else {
-      closeModal();
-    }
+    // rotate array to bring next reel to front
+    setReels(prev => {
+      if (!prev || prev.length === 0) return prev;
+      const [first, ...rest] = prev;
+      return [...rest, first];
+    });
+    setProgress(0);
+    // keep playing
+    setIsPlaying(true);
   };
 
   const goToPreviousReel = () => {
-    if (currentReelIndex > 0) {
-      setCurrentReelIndex(prev => prev - 1);
-      setProgress(0);
-      setIsPlaying(false);
-    }
+    // rotate array backward to bring last reel to front
+    setReels(prev => {
+      if (!prev || prev.length === 0) return prev;
+      const last = prev[prev.length - 1];
+      const rest = prev.slice(0, prev.length - 1);
+      return [last, ...rest];
+    });
+    setProgress(0);
+    setIsPlaying(true);
   };
 
   const handleVideoPlay = () => {
     setIsPlaying(true);
-    const duration = videoRef.current?.duration || reels[currentReelIndex]?.duration || 10;
-    
+    const duration = videoRef.current?.duration || 10;
+
     if (progressIntervalRef.current) {
       clearInterval(progressIntervalRef.current);
     }
-    
+
     progressIntervalRef.current = setInterval(() => {
       setProgress(prev => {
         if (prev >= 100) {
@@ -156,18 +190,6 @@ const ReelsSection = () => {
     goToNextReel();
   };
 
-  useEffect(() => {
-    if (showModal && videoRef.current) {
-      videoRef.current.muted = isMuted;
-      videoRef.current.play().catch(err => console.log('Auto-play prevented:', err));
-    }
-    return () => {
-      if (progressIntervalRef.current) {
-        clearInterval(progressIntervalRef.current);
-      }
-    };
-  }, [showModal, currentReelIndex]);
-
   if (loading) {
     return (
       <section className="py-16 bg-white">
@@ -187,14 +209,25 @@ const ReelsSection = () => {
   if (reels.length === 0) return null;
 
   const getStackPosition = (index) => {
-    const positions = [
-      { rotate: 0, scale: 1, zIndex: 50, x: 0 },
-      { rotate: -3, scale: 0.95, zIndex: 40, x: -30 },
-      { rotate: 3, scale: 0.9, zIndex: 30, x: 30 },
-      { rotate: -2, scale: 0.85, zIndex: 20, x: -40 },
-      { rotate: 2, scale: 0.8, zIndex: 10, x: 40 },
-    ];
-    return positions[index] || { rotate: 0, scale: 0.75, zIndex: 0, x: 0 };
+    // when spread, place boxes in a wide line; when stacked, bring them closer
+    // tuned values: make side reels smaller and push them further out
+    const spreadXs = [-420, -270, 0, 270, 420];
+    const stackXs = [-240, -120, 0, 120, 240];
+    const spreadYs = [-70, -35, 0, 35, 70];
+    // both sides sit slightly above the center (same upward direction), and remain behind via z-index
+    const stackYs = [-20, -12, 0, -12, -20];
+    // keep behind reels straight (no tilt)
+    const rotates = [0, 0, 0, 0, 0];
+    // slightly smaller overall sizes so outer reels feel more distant
+    const scales = [0.78, 0.88, 0.98, 0.88, 0.78];
+    const zIndices = [5, 25, 60, 25, 5];
+
+    const x = stackMode === 'spread' ? (spreadXs[index] ?? 0) : (stackXs[index] ?? 0);
+    const y = stackMode === 'spread' ? (spreadYs[index] ?? 0) : (stackYs[index] ?? 0);
+    const rotate = rotates[index] ?? 0;
+    const scale = scales[index] ?? 0.8;
+    const zIndex = zIndices[index] ?? 0;
+    return { rotate, scale, zIndex, x, y };
   };
 
   return (
@@ -240,35 +273,50 @@ const ReelsSection = () => {
           </div>
 
           {/* Stacked Reels */}
-          <div className="relative h-[550px] max-w-md mx-auto perspective-1000">
-            {reels.slice(0, 5).map((reel, index) => {
+          <div ref={stackRef} className="relative h-[550px] max-w-md mx-auto perspective-1000">
+            {Array.from({ length: 5 }).map((_, index) => {
+              // Map slots so that the center slot (index 2) displays the active reel (reels[0]).
+              // This keeps `reels[0]` as the front/active reel while allowing circular neighbors.
+              const centerSlot = 2;
+              const reel = reels.length > 0 ? reels[(index - centerSlot + reels.length) % reels.length] : undefined;
               const position = getStackPosition(index);
               return (
                 <div
-                  key={reel.id}
+                  key={`${reel?.id ?? 'placeholder'}-${index}`}
                   onClick={() => openModal(index)}
-                  className="absolute inset-0 cursor-pointer transition-all duration-500 ease-out"
+                  className="absolute inset-0 cursor-pointer transition-all duration-700 ease-out"
                   style={{
-                    transform: `translateX(${position.x}px) scale(${position.scale}) rotate(${position.rotate}deg)`,
+                    transform: `translateX(${position.x}px) translateY(${position.y ?? 0}px) scale(${position.scale}) rotate(${position.rotate}deg)`,
                     zIndex: position.zIndex,
                     transformOrigin: 'center center',
                   }}
                 >
-                  <div className="relative h-full rounded-3xl overflow-hidden shadow-2xl hover:shadow-3xl transition-shadow">
+                  <div style={{ width: '300px', height: '100%', margin: '0 auto' }} className="relative rounded-3xl overflow-hidden shadow-2xl hover:shadow-3xl transition-shadow">
                     {/* Video Thumbnail (first frame) */}
-                    <video
-                      src={reel.videoUrl}
-                      className="w-full h-full object-cover"
-                      preload="metadata"
-                      muted
-                      playsInline
-                    />
+                    {reel ? (
+                      <video
+                        ref={index === 2 ? videoRef : undefined}
+                        src={reel.videoUrl}
+                        className="w-full h-full object-cover"
+                        preload="metadata"
+                        muted
+                        playsInline
+                        autoPlay={index === 2}
+                        onPlay={index === 2 ? handleVideoPlay : undefined}
+                        onPause={index === 2 ? handleVideoPause : undefined}
+                        onEnded={index === 2 ? handleVideoEnded : undefined}
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-white/5 flex items-center justify-center">
+                        <div className="w-3/4 h-3/4 bg-white/10 rounded-2xl border border-white/6" />
+                      </div>
+                    )}
 
                     {/* Gradient Overlay */}
                     <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/80" />
 
                     {/* Top Controls (only on front card) */}
-                    {index === 0 && (
+                    {index === 2 && (
                       <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-10">
                         <div className="flex items-center gap-2">
                           <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
@@ -287,7 +335,7 @@ const ReelsSection = () => {
                     {/* Center Play Button - Removed for auto-play */}
                     
                     {/* Bottom Info (only on front card) */}
-                    {index === 0 && (
+                    {index === 2 && reel && (
                       <div className="absolute bottom-0 left-0 right-0 p-6">
                         <h3 className="text-white font-semibold text-xl mb-1">
                           {reel.title}
@@ -302,16 +350,16 @@ const ReelsSection = () => {
               );
             })}
 
-            {/* Progress Indicators */}
+            {/* Progress Indicators (always 5) */}
             <div className="absolute bottom-[-60px] left-1/2 -translate-x-1/2 flex gap-2">
-              {reels.map((_, index) => (
-                <div
-                  key={index}
-                  className={`h-1 rounded-full transition-all ${
-                    index < reels.length ? 'w-12' : 'w-8'
-                  } ${index === 0 ? 'bg-gray-900' : 'bg-gray-300'}`}
-                />
-              ))}
+              {Array.from({ length: 5 }).map((_, index) => (
+                  <div
+                    key={index}
+                    className={`h-1 rounded-full transition-all ${
+                      index === 2 ? 'w-12' : 'w-8'
+                    } ${index === 2 ? 'bg-gray-900' : 'bg-gray-300'}`}
+                  />
+                ))}
             </div>
           </div>
         </div>
@@ -327,7 +375,7 @@ const ReelsSection = () => {
                 <div
                   className="h-full bg-white transition-all duration-100"
                   style={{
-                    width: index < currentReelIndex ? '100%' : index === currentReelIndex ? `${progress}%` : '0%'
+                    width: index === 0 ? `${progress}%` : '0%'
                   }}
                 />
               </div>
@@ -335,25 +383,24 @@ const ReelsSection = () => {
           </div>
 
           {/* Close Button */}
-        <button
-  onClick={closeModal}
-  className="absolute top-4 right-4 z-50 w-10 h-10 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-black/70  transition-colors"
-> X
+          <button
+            onClick={closeModal}
+            className="absolute top-4 right-4 z-50 w-10 h-10 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-black/70 transition-colors"
+          >
+            X
+          </button>
 
-</button>
-
-{/* Prev arrow */}
-{currentReelIndex > 0 && (
-  <button
-    onClick={goToPreviousReel}
-    className="absolute left-4 top-1/2 -translate-y-1/2 z-50 w-20 h-20 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-black/70 transition-colors"
-  >
-    
-    <ChevronLeft size={48} className="text-white stroke-white " />
-  </button>
-)}
+          {/* Prev arrow */}
+          {reels.length > 1 && (
+            <button
+              onClick={goToPreviousReel}
+              className="absolute left-4 top-1/2 -translate-y-1/2 z-50 w-20 h-20 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-black/70 transition-colors"
+            >
+              <ChevronLeft size={48} className="text-white stroke-white" />
+            </button>
+          )}
           
-          {currentReelIndex < reels.length - 1 && (
+          {reels.length > 1 && (
             <button
               onClick={goToNextReel}
               className="absolute right-4 top-1/2 -translate-y-1/2 z-50 w-20 h-20 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-black/70 transition-colors"
@@ -365,8 +412,7 @@ const ReelsSection = () => {
           {/* Video Container */}
           <div className="relative w-full max-w-md h-full max-h-[90vh] flex items-center justify-center">
             <video
-              ref={videoRef}
-              src={reels[currentReelIndex]?.videoUrl}
+              src={reels[0]?.videoUrl}
               className="w-full h-full object-contain"
               loop={false}
               muted={isMuted}
@@ -391,11 +437,11 @@ const ReelsSection = () => {
             {/* Video Info */}
             <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 to-transparent">
               <h3 className="text-white font-semibold text-xl mb-1">
-                {reels[currentReelIndex]?.title}
+                {reels[0]?.title}
               </h3>
-              {reels[currentReelIndex]?.description && (
+              {reels[0]?.description && (
                 <p className="text-white/90 text-sm mb-3">
-                  {reels[currentReelIndex]?.description}
+                  {reels[0]?.description}
                 </p>
               )}
               <button className="bg-white text-gray-900 px-6 py-2 rounded-full font-medium hover:bg-gray-100 transition-colors flex items-center gap-2">

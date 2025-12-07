@@ -21,40 +21,81 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const checkAuth = () => {
-    const token = localStorage.getItem('adminToken');
-    const userData = localStorage.getItem('adminUser');
+    // Check for user auth (regular users)
+    const userToken = localStorage.getItem('authToken');
+    const userData = localStorage.getItem('user');
     
-    if (token && userData) {
+    // Check for admin auth (admin users)
+    const adminToken = localStorage.getItem('adminToken');
+    const adminData = localStorage.getItem('adminUser');
+    
+    // Prioritize admin auth if available
+    if (adminToken && adminData) {
       try {
-        const parsedUser = JSON.parse(userData);
+        const parsedUser = JSON.parse(adminData);
         if (parsedUser.isAdmin) {
           setUser(parsedUser);
         } else {
           logout();
         }
       } catch (error) {
+        console.error('Error parsing admin data:', error);
+        logout();
+      }
+    } 
+    // Otherwise check for regular user auth
+    else if (userToken && userData) {
+      try {
+        const parsedUser = JSON.parse(userData);
+        setUser(parsedUser);
+      } catch (error) {
         console.error('Error parsing user data:', error);
         logout();
       }
     }
+    
     setLoading(false);
   };
 
   const login = (token, userData) => {
-    localStorage.setItem('adminToken', token);
-    localStorage.setItem('adminUser', JSON.stringify(userData));
+    // Store based on user type
+    if (userData.isAdmin) {
+      localStorage.setItem('adminToken', token);
+      localStorage.setItem('adminUser', JSON.stringify(userData));
+    } else {
+      localStorage.setItem('authToken', token);
+      localStorage.setItem('user', JSON.stringify(userData));
+    }
     setUser(userData);
   };
 
   const logout = () => {
+    // Clear both user and admin tokens
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('user');
     localStorage.removeItem('adminToken');
     localStorage.removeItem('adminUser');
     setUser(null);
-    navigate('/login');
+    
+    // Navigate based on user type
+    if (user?.isAdmin) {
+      navigate('/admin/login');
+    } else {
+      navigate('/');
+    }
+  };
+
+  const value = {
+    user,
+    loading,
+    login,
+    logout,
+    isAuthenticated: !!user,
+    isAdmin: user?.isAdmin || false
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, isAuthenticated: !!user }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );

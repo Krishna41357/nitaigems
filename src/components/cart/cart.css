@@ -1,0 +1,130 @@
+/* Custom scrollbar for cart items list */
+.cart-items-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.cart-items-container::-webkit-scrollbar-track {
+  background: #fbf6ef;
+  border-radius: 10px;
+}
+
+.cart-items-container::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, #b8860b, #d4a055);
+  border-radius: 10px;
+  transition: background 0.3s ease;
+}
+
+.cart-items-container::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(to bottom, #a06f09, #b8860b);
+}
+
+/* Firefox scrollbar */
+.cart-items-container {
+  scrollbar-color: #b8860b #fbf6ef;
+  scrollbar-width: thin;
+}
+
+/* Product card hover effect */
+.cart-product-card {
+  transition: all 0.3s ease;
+}
+
+.cart-product-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+/* Quantity button styles */
+.qty-btn {
+  transition: all 0.2s ease;
+}
+
+.qty-btn:hover {
+  background-color: #fbf6ef;
+  color: #b8860b;
+}
+
+.qty-btn:active {
+  transform: scale(0.95);
+}
+
+/* Remove button with animation */
+.remove-btn {
+  opacity: 0.6;
+  transition: all 0.2s ease;
+}
+
+.remove-btn:hover {
+  opacity: 1;
+  color: #e74c3c;
+}
+
+/* Order summary box */
+.order-summary {
+  background: linear-gradient(135deg, #fbf6ef 0%, #fffaf3 100%);
+  border: 2px solid #efe6d9;
+}
+
+/* Checkout button gradient */
+.checkout-btn {
+  background: linear-gradient(135deg, #b8860b 0%, #d4a055 100%);
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(184, 134, 11, 0.2);
+}
+
+.checkout-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(184, 134, 11, 0.3);
+}
+
+.checkout-btn:active {
+  transform: translateY(0);
+}
+
+/* Empty cart illustration */
+.empty-cart-icon {
+  opacity: 0.3;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Breadcrumb styling */
+.breadcrumb-item {
+  transition: color 0.2s ease;
+}
+
+.breadcrumb-item:hover {
+  color: #b8860b;
+}
+
+/* Fade in animation for cart items */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.cart-item-enter {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Price highlight */
+.price-highlight {
+  background: linear-gradient(120deg, #fbf6ef, #fffaf3);
+  padding: 1rem;
+  border-radius: 12px;
+  border-left: 4px solid #b8860b;
+}

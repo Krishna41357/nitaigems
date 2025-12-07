@@ -10,10 +10,6 @@ const ProductCard = ({ product }) => {
 
   const hasDiscount = product.pricing?.discountedPrice && 
     product.pricing.discountedPrice < product.pricing.basePrice;
-  
-  const discountPercent = hasDiscount
-    ? Math.round(((product.pricing.basePrice - product.pricing.discountedPrice) / product.pricing.basePrice) * 100)
-    : 0;
 
   const formatPrice = (price) => {
     if (!price) return '₹0';
@@ -39,13 +35,11 @@ const ProductCard = ({ product }) => {
 
   // Generate product URL based on current route context
   const getProductUrl = () => {
-    // If we have category context from the listing page, include it
     if (categorySlug && subCategorySlug) {
       return `/products/category/${categorySlug}/${subCategorySlug}/${product.slug}`;
     } else if (categorySlug) {
       return `/products/category/${categorySlug}/${product.slug}`;
     } else {
-      // Fallback to simple product URL
       return `/product/${product.slug}`;
     }
   };
@@ -53,12 +47,12 @@ const ProductCard = ({ product }) => {
   return (
     <Link 
       to={getProductUrl()}
-      className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden cursor-pointer block"
+      className="block group"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Image Section */}
-      <div className="relative aspect-square overflow-hidden bg-gray-50">
+      <div className="relative aspect-[4/5] overflow-hidden rounded-3xl bg-gray-50 mb-5">
         {/* First Image */}
         <img
           src={product.images?.[0] || '/placeholder.jpg'}
@@ -81,31 +75,30 @@ const ProductCard = ({ product }) => {
           />
         )}
 
-        {/* Discount Badge */}
-        {hasDiscount && (
-          <div className="absolute top-3 left-3 bg-red-600 text-white text-xs px-2 py-1 rounded font-semibold z-10">
-            {discountPercent}% OFF
-          </div>
-        )}
-
-        {/* Wishlist Button */}
+        {/* Wishlist Button - Minimal Transparent */}
         <button
           onClick={handleWishlistToggle}
           disabled={isTogglingWishlist}
-          className="absolute top-3 right-3 w-9 h-9 bg-white/95 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white transition-all shadow-sm z-10 disabled:opacity-50"
+          className={`absolute top-4 right-4 w-10 h-10 backdrop-blur-sm rounded-full flex items-center justify-center transition-all z-10 disabled:opacity-50 ${
+            isInWishlist 
+              ? 'bg-white/90' 
+              : 'bg-transparent hover:bg-white/40'
+          }`}
           aria-label={isInWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
         >
           <Heart
-            className={`w-4.5 h-4.5 transition-all ${
-              isInWishlist ? 'fill-red-500 text-red-500' : 'text-gray-600'
+            className={`w-5 h-5 transition-all ${
+              isInWishlist 
+                ? 'fill-red-500 text-red-500' 
+                : 'text-white stroke-2 drop-shadow-md'
             }`}
           />
         </button>
 
         {/* Out of Stock Overlay */}
         {!product.inventory?.inStock && (
-          <div className="absolute inset-0 bg-black/40 flex items-center justify-center z-10">
-            <span className="bg-white px-4 py-1 rounded-full text-sm font-semibold text-gray-900">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-10">
+            <span className="bg-white px-5 py-2 rounded-full text-sm font-medium text-gray-900">
               Out of Stock
             </span>
           </div>
@@ -113,26 +106,25 @@ const ProductCard = ({ product }) => {
       </div>
 
       {/* Content Section */}
-      <div className="p-4">
-        <h3 className="font-normal text-[15px] leading-snug mb-3 line-clamp-2 text-gray-800 min-h-[42px]">
+      <div className="text-center px-3">
+        {/* Product Name */}
+        <h3 className="font-serif text-lg text-gray-900 mb-3 line-clamp-2 min-h-[56px] group-hover:text-gray-600 transition-colors">
           {product.name}
         </h3>
 
         {/* Price Section */}
-        <div>
+        <div className="flex items-center justify-center gap-3">
           {hasDiscount ? (
-            <div>
-              <p className="text-sm text-gray-400 line-through mb-1">
+            <>
+              <p className="text-base text-gray-400 line-through">
                 {formatPrice(product.pricing.basePrice)}
               </p>
-              <div className="flex items-center gap-2 flex-wrap">
-                <p className="text-lg font-semibold text-gray-900">
-                  {formatPrice(product.pricing.discountedPrice)}
-                </p>
-              </div>
-            </div>
+              <p className="text-xl font-semibold text-gray-900">
+                {formatPrice(product.pricing.discountedPrice)}
+              </p>
+            </>
           ) : (
-            <p className="text-lg font-semibold text-gray-900">
+            <p className="text-xl font-semibold text-gray-900">
               {formatPrice(product.pricing?.basePrice)}
             </p>
           )}

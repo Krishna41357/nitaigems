@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
-import { Plus, Pencil, Trash2, Search, Loader2, X, Package, Tag } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, Loader2, X, Package, Tag, Image as ImageIcon } from "lucide-react";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL_ADMIN || 'http://localhost:8787/admin';
 
 async function handleResponse(response) {
   if (!response.ok) {
     const error = await response.json().catch(() => ({ error: 'Request failed' }));
-    throw new Error(error.error || `HTTP ${response.status}: ${response.statusText}`);
+    throw new Error(error.message || error.error || `HTTP ${response.status}: ${response.statusText}`);
   }
   return response.json();
 }
@@ -86,6 +86,41 @@ const subcategoryAPI = {
   },
 };
 
+const initialFormData = {
+  name: "",
+  slug: "",
+  categorySlug: "",
+  subCategorySlug: "",
+  sku: "",
+  pricing: {
+    basePrice: 0,
+    discountedPrice: 0,
+    couponApplicable: false,
+    couponList: [],
+  },
+  necklaceLayers: [],
+  details: {
+    metal: "",
+    metalPurity: "",
+    stone: "",
+    stoneType: "",
+    weight: 0,
+    stoneWeight: 0,
+    metalWeight: 0,
+    size: "",
+    color: "",
+    clarity: "",
+    certification: "",
+  },
+  images: [],
+  tags: [],
+  inventory: {
+    stock: 0,
+    inStock: true,
+  },
+  isActive: true,
+};
+
 export default function ProductsTab() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -95,40 +130,11 @@ export default function ProductsTab() {
   const [showModal, setShowModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [error, setError] = useState("");
+  const [currentImageUrl, setCurrentImageUrl] = useState("");
+  const [currentTag, setCurrentTag] = useState("");
 
-  const [formData, setFormData] = useState({
-    name: "",
-    slug: "",
-    categorySlug: "",
-    subCategorySlug: "",
-    sku: "",
-    pricing: {
-      basePrice: 0,
-      discountedPrice: 0,
-      couponApplicable: true,
-      couponList: [],
-    },
-    details: {
-      metal: "",
-      metalPurity: "",
-      stone: "",
-      stoneType: "",
-      weight: 0,
-      stoneWeight: 0,
-      metalWeight: 0,
-      size: "",
-      color: "",
-      clarity: "",
-      certification: "",
-    },
-    images: [],
-    tags: [],
-    inventory: {
-      stock: 0,
-      inStock: true,
-    },
-    isActive: true,
-  });
+  const [formData, setFormData] = useState(initialFormData);
 
   useEffect(() => {
     fetchData();
@@ -147,6 +153,7 @@ export default function ProductsTab() {
 
   const fetchData = async () => {
     setLoading(true);
+    setError("");
     try {
       const [productsData, catsData, subcatsData] = await Promise.all([
         productAPI.getAll(),
@@ -158,6 +165,7 @@ export default function ProductsTab() {
       setSubcategories(subcatsData);
     } catch (error) {
       console.error('Error fetching data:', error);
+      setError(error.message);
     }
     setLoading(false);
   };
@@ -167,64 +175,72 @@ export default function ProductsTab() {
   };
 
   const handleSubmit = async () => {
-    if (!formData.name || !formData.slug || !formData.categorySlug || !formData.sku) return;
+    if (!formData.name || !formData.slug || !formData.categorySlug || !formData.sku) {
+      setError("Please fill in all required fields");
+      return;
+    }
     
+    setError("");
     try {
       if (editingProduct) {
         await productAPI.update(editingProduct.id, formData);
       } else {
         await productAPI.create(formData);
       }
-      fetchData();
+      await fetchData();
       handleCloseModal();
     } catch (error) {
       console.error('Error saving product:', error);
+      setError(error.message);
     }
   };
 
   const handleDelete = async (id) => {
     if (!confirm('Are you sure you want to delete this product?')) return;
     
+    setError("");
     try {
       await productAPI.delete(id);
-      fetchData();
+      await fetchData();
     } catch (error) {
       console.error('Error deleting product:', error);
+      setError(error.message);
     }
   };
 
   const handleEdit = (product) => {
     setEditingProduct(product);
     setFormData({
-      name: product.name,
-      slug: product.slug,
-      categorySlug: product.categorySlug,
+      name: product.name || "",
+      slug: product.slug || "",
+      categorySlug: product.categorySlug || "",
       subCategorySlug: product.subCategorySlug || "",
-      sku: product.sku,
-      pricing: product.pricing || {
-        basePrice: 0,
-        discountedPrice: 0,
-        couponApplicable: true,
-        couponList: [],
+      sku: product.sku || "",
+      pricing: {
+        basePrice: product.pricing?.basePrice || 0,
+        discountedPrice: product.pricing?.discountedPrice || 0,
+        couponApplicable: product.pricing?.couponApplicable ?? false,
+        couponList: product.pricing?.couponList || [],
       },
-      details: product.details || {
-        metal: "",
-        metalPurity: "",
-        stone: "",
-        stoneType: "",
-        weight: 0,
-        stoneWeight: 0,
-        metalWeight: 0,
-        size: "",
-        color: "",
-        clarity: "",
-        certification: "",
+      necklaceLayers: product.necklaceLayers || [],
+      details: {
+        metal: product.details?.metal || "",
+        metalPurity: product.details?.metalPurity || "",
+        stone: product.details?.stone || "",
+        stoneType: product.details?.stoneType || "",
+        weight: product.details?.weight || 0,
+        stoneWeight: product.details?.stoneWeight || 0,
+        metalWeight: product.details?.metalWeight || 0,
+        size: product.details?.size || "",
+        color: product.details?.color || "",
+        clarity: product.details?.clarity || "",
+        certification: product.details?.certification || "",
       },
       images: product.images || [],
       tags: product.tags || [],
-      inventory: product.inventory || {
-        stock: 0,
-        inStock: true,
+      inventory: {
+        stock: product.inventory?.stock || 0,
+        inStock: product.inventory?.inStock ?? true,
       },
       isActive: product.isActive ?? true
     });
@@ -234,38 +250,43 @@ export default function ProductsTab() {
   const handleCloseModal = () => {
     setShowModal(false);
     setEditingProduct(null);
+    setFormData(initialFormData);
+    setError("");
+    setCurrentImageUrl("");
+    setCurrentTag("");
+  };
+
+  const addImage = () => {
+    if (currentImageUrl.trim()) {
+      setFormData({
+        ...formData,
+        images: [...formData.images, currentImageUrl.trim()]
+      });
+      setCurrentImageUrl("");
+    }
+  };
+
+  const removeImage = (index) => {
     setFormData({
-      name: "",
-      slug: "",
-      categorySlug: "",
-      subCategorySlug: "",
-      sku: "",
-      pricing: {
-        basePrice: 0,
-        discountedPrice: 0,
-        couponApplicable: true,
-        couponList: [],
-      },
-      details: {
-        metal: "",
-        metalPurity: "",
-        stone: "",
-        stoneType: "",
-        weight: 0,
-        stoneWeight: 0,
-        metalWeight: 0,
-        size: "",
-        color: "",
-        clarity: "",
-        certification: "",
-      },
-      images: [],
-      tags: [],
-      inventory: {
-        stock: 0,
-        inStock: true,
-      },
-      isActive: true,
+      ...formData,
+      images: formData.images.filter((_, i) => i !== index)
+    });
+  };
+
+  const addTag = () => {
+    if (currentTag.trim() && !formData.tags.includes(currentTag.trim())) {
+      setFormData({
+        ...formData,
+        tags: [...formData.tags, currentTag.trim()]
+      });
+      setCurrentTag("");
+    }
+  };
+
+  const removeTag = (tag) => {
+    setFormData({
+      ...formData,
+      tags: formData.tags.filter(t => t !== tag)
     });
   };
 
@@ -320,6 +341,12 @@ export default function ProductsTab() {
               className="w-full pl-10 sm:pl-12 pr-4 py-2.5 sm:py-3 text-sm sm:text-base rounded-lg bg-slate-700 border border-slate-600 text-white placeholder-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
             />
           </div>
+
+          {error && (
+            <div className="mt-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">
+              {error}
+            </div>
+          )}
         </div>
 
         {/* Products Grid - Scrollable */}
@@ -412,7 +439,7 @@ export default function ProductsTab() {
         {/* Modal */}
         {showModal && (
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
-            <div className="bg-slate-800 rounded-t-2xl sm:rounded-lg shadow-2xl w-full sm:max-w-2xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden border-t sm:border border-slate-700 animate-slide-up sm:animate-none">
+            <div className="bg-slate-800 rounded-t-2xl sm:rounded-lg shadow-2xl w-full sm:max-w-4xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden border-t sm:border border-slate-700 animate-slide-up sm:animate-none">
               <div className="bg-blue-600 p-4 sm:p-6 text-white flex items-center justify-between sticky top-0 z-10">
                 <h2 className="text-lg sm:text-xl lg:text-2xl font-bold">
                   {editingProduct ? 'Edit Product' : 'Add Product'}
@@ -425,110 +452,432 @@ export default function ProductsTab() {
                 </button>
               </div>
 
-              <div className="p-4 sm:p-6 space-y-3 sm:space-y-4 overflow-y-auto max-h-[calc(95vh-80px)] sm:max-h-[calc(90vh-160px)]">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 overflow-y-auto max-h-[calc(95vh-80px)] sm:max-h-[calc(90vh-160px)]">
+                {error && (
+                  <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">
+                    {error}
+                  </div>
+                )}
+
+                {/* Basic Information */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-white border-b border-slate-700 pb-2">Basic Information</h3>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                    <div>
+                      <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1.5 sm:mb-2">Name *</label>
+                      <input
+                        type="text"
+                        required
+                        value={formData.name}
+                        onChange={(e) => setFormData({
+                          ...formData,
+                          name: e.target.value,
+                          slug: editingProduct ? formData.slug : generateSlug(e.target.value)
+                        })}
+                        className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1.5 sm:mb-2">SKU *</label>
+                      <input
+                        type="text"
+                        required
+                        value={formData.sku}
+                        onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
+                        className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
+                      />
+                    </div>
+                  </div>
+
                   <div>
-                    <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1.5 sm:mb-2">Name *</label>
+                    <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1.5 sm:mb-2">Slug *</label>
                     <input
                       type="text"
                       required
-                      value={formData.name}
-                      onChange={(e) => setFormData({
-                        ...formData,
-                        name: e.target.value,
-                        slug: editingProduct ? formData.slug : generateSlug(e.target.value)
-                      })}
+                      value={formData.slug}
+                      onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
                       className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
                     />
                   </div>
 
-                  <div>
-                    <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1.5 sm:mb-2">SKU *</label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                    <div>
+                      <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1.5 sm:mb-2">Category *</label>
+                      <select
+                        required
+                        value={formData.categorySlug}
+                        onChange={(e) => setFormData({ ...formData, categorySlug: e.target.value, subCategorySlug: "" })}
+                        className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
+                      >
+                        <option value="">Select category</option>
+                        {categories.map((cat) => (
+                          <option key={cat.id} value={cat.slug}>{cat.name}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1.5 sm:mb-2">Subcategory</label>
+                      <select
+                        value={formData.subCategorySlug}
+                        onChange={(e) => setFormData({ ...formData, subCategorySlug: e.target.value })}
+                        disabled={!formData.categorySlug}
+                        className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none disabled:opacity-50"
+                      >
+                        <option value="">Select subcategory</option>
+                        {filteredSubcategories.map((sub) => (
+                          <option key={sub.id} value={sub.slug}>{sub.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Pricing */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-white border-b border-slate-700 pb-2">Pricing</h3>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                    <div>
+                      <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1.5 sm:mb-2">Base Price</label>
+                      <input
+                        type="number"
+                        value={formData.pricing.basePrice}
+                        onChange={(e) => setFormData({ ...formData, pricing: { ...formData.pricing, basePrice: parseFloat(e.target.value) || 0 } })}
+                        className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1.5 sm:mb-2">Discounted Price</label>
+                      <input
+                        type="number"
+                        value={formData.pricing.discountedPrice || ""}
+                        onChange={(e) => setFormData({ ...formData, pricing: { ...formData.pricing, discountedPrice: parseFloat(e.target.value) || 0 } })}
+                        className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="couponApplicable"
+                      checked={formData.pricing.couponApplicable}
+                      onChange={(e) => setFormData({ ...formData, pricing: { ...formData.pricing, couponApplicable: e.target.checked } })}
+                      className="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500/20 bg-slate-700 border-slate-600"
+                    />
+                    <label htmlFor="couponApplicable" className="text-xs sm:text-sm font-medium text-slate-300">Coupon Applicable</label>
+                  </div>
+                </div>
+
+                {/* Necklace Layers with Pricing */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-white border-b border-slate-700 pb-2">Necklace Layer Pricing</h3>
+                  
+                  <div className="space-y-3">
+                    <p className="text-xs text-slate-400">Configure different prices for each layer option. Leave empty if not a necklace product.</p>
+                    
+                    {['1-layer', '2-layer', '3-layer', '4-layer', '5-layer'].map((layerOption) => {
+                      const existingLayer = formData.necklaceLayers.find(l => l.layer === layerOption);
+                      const isEnabled = !!existingLayer;
+                      const price = existingLayer?.price || 0;
+                      
+                      return (
+                        <div key={layerOption} className="flex items-center gap-3 bg-slate-700/30 p-3 rounded-lg">
+                          <input
+                            type="checkbox"
+                            id={layerOption}
+                            checked={isEnabled}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setFormData({
+                                  ...formData,
+                                  necklaceLayers: [...formData.necklaceLayers, { layer: layerOption, price: 0 }]
+                                });
+                              } else {
+                                setFormData({
+                                  ...formData,
+                                  necklaceLayers: formData.necklaceLayers.filter(l => l.layer !== layerOption)
+                                });
+                              }
+                            }}
+                            className="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500/20 bg-slate-700 border-slate-600"
+                          />
+                          <label htmlFor={layerOption} className="text-sm font-medium text-slate-300 w-24">
+                            {layerOption.replace('-', ' ').toUpperCase()}
+                          </label>
+                          <input
+                            type="number"
+                            placeholder="Price"
+                            disabled={!isEnabled}
+                            value={isEnabled ? price : ''}
+                            onChange={(e) => {
+                              const newPrice = parseFloat(e.target.value) || 0;
+                              setFormData({
+                                ...formData,
+                                necklaceLayers: formData.necklaceLayers.map(l => 
+                                  l.layer === layerOption ? { ...l, price: newPrice } : l
+                                )
+                              });
+                            }}
+                            className="flex-1 px-3 py-2 text-sm bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+                          />
+                          <span className="text-slate-500 text-sm">₹</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  
+                  {formData.necklaceLayers.length > 0 && (
+                    <div className="bg-blue-600/10 border border-blue-600/30 rounded-lg p-3">
+                      <p className="text-xs text-blue-400">
+                        <strong>Active Layers:</strong> {formData.necklaceLayers.map(l => l.layer.replace('-', ' ')).join(', ')}
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Product Details */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-white border-b border-slate-700 pb-2">Product Details</h3>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                    <div>
+                      <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1.5 sm:mb-2">Metal</label>
+                      <input
+                        type="text"
+                        value={formData.details.metal}
+                        onChange={(e) => setFormData({ ...formData, details: { ...formData.details, metal: e.target.value } })}
+                        className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1.5 sm:mb-2">Metal Purity</label>
+                      <input
+                        type="text"
+                        value={formData.details.metalPurity}
+                        onChange={(e) => setFormData({ ...formData, details: { ...formData.details, metalPurity: e.target.value } })}
+                        className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1.5 sm:mb-2">Stone</label>
+                      <input
+                        type="text"
+                        value={formData.details.stone}
+                        onChange={(e) => setFormData({ ...formData, details: { ...formData.details, stone: e.target.value } })}
+                        className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1.5 sm:mb-2">Stone Type</label>
+                      <input
+                        type="text"
+                        value={formData.details.stoneType}
+                        onChange={(e) => setFormData({ ...formData, details: { ...formData.details, stoneType: e.target.value } })}
+                        className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1.5 sm:mb-2">Weight (g)</label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={formData.details.weight}
+                        onChange={(e) => setFormData({ ...formData, details: { ...formData.details, weight: parseFloat(e.target.value) || 0 } })}
+                        className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1.5 sm:mb-2">Stone Weight (g)</label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={formData.details.stoneWeight}
+                        onChange={(e) => setFormData({ ...formData, details: { ...formData.details, stoneWeight: parseFloat(e.target.value) || 0 } })}
+                        className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1.5 sm:mb-2">Metal Weight (g)</label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={formData.details.metalWeight}
+                        onChange={(e) => setFormData({ ...formData, details: { ...formData.details, metalWeight: parseFloat(e.target.value) || 0 } })}
+                        className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1.5 sm:mb-2">Size</label>
+                      <input
+                        type="text"
+                        value={formData.details.size}
+                        onChange={(e) => setFormData({ ...formData, details: { ...formData.details, size: e.target.value } })}
+                        className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1.5 sm:mb-2">Color</label>
+                      <input
+                        type="text"
+                        value={formData.details.color}
+                        onChange={(e) => setFormData({ ...formData, details: { ...formData.details, color: e.target.value } })}
+                        className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1.5 sm:mb-2">Clarity</label>
+                      <input
+                        type="text"
+                        value={formData.details.clarity}
+                        onChange={(e) => setFormData({ ...formData, details: { ...formData.details, clarity: e.target.value } })}
+                        className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1.5 sm:mb-2">Certification</label>
+                      <input
+                        type="text"
+                        value={formData.details.certification}
+                        onChange={(e) => setFormData({ ...formData, details: { ...formData.details, certification: e.target.value } })}
+                        className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Images */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-white border-b border-slate-700 pb-2">Images</h3>
+                  
+                  <div className="flex gap-2">
+                    <input
+                      type="url"
+                      placeholder="Enter image URL"
+                      value={currentImageUrl}
+                      onChange={(e) => setCurrentImageUrl(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && addImage()}
+                      className="flex-1 px-3 sm:px-4 py-2 text-sm sm:text-base bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={addImage}
+                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white font-medium"
+                    >
+                      <Plus className="w-5 h-5" />
+                    </button>
+                  </div>
+
+                  {formData.images.length > 0 && (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                      {formData.images.map((img, index) => (
+                        <div key={index} className="relative group">
+                          <img 
+                            src={img} 
+                            alt={`Product ${index + 1}`}
+                            className="w-full h-24 object-cover rounded-lg border border-slate-600"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeImage(index)}
+                            className="absolute top-1 right-1 bg-red-600 hover:bg-red-700 p-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <X className="w-4 h-4 text-white" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Tags */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-white border-b border-slate-700 pb-2">Tags</h3>
+                  
+                  <div className="flex gap-2">
                     <input
                       type="text"
-                      required
-                      value={formData.sku}
-                      onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
-                      className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
+                      placeholder="Enter tag"
+                      value={currentTag}
+                      onChange={(e) => setCurrentTag(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && addTag()}
+                      className="flex-1 px-3 sm:px-4 py-2 text-sm sm:text-base bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
                     />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1.5 sm:mb-2">Slug *</label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.slug}
-                    onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                    className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                  <div>
-                    <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1.5 sm:mb-2">Category *</label>
-                    <select
-                      required
-                      value={formData.categorySlug}
-                      onChange={(e) => setFormData({ ...formData, categorySlug: e.target.value, subCategorySlug: "" })}
-                      className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
+                    <button
+                      type="button"
+                      onClick={addTag}
+                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white font-medium"
                     >
-                      <option value="">Select category</option>
-                      {categories.map((cat) => (
-                        <option key={cat.id} value={cat.slug}>{cat.name}</option>
+                      <Plus className="w-5 h-5" />
+                    </button>
+                  </div>
+
+                  {formData.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {formData.tags.map((tag, index) => (
+                        <span 
+                          key={index}
+                          className="px-3 py-1 bg-blue-600/20 border border-blue-600/30 rounded-full text-sm text-blue-400 flex items-center gap-2"
+                        >
+                          {tag}
+                          <button
+                            type="button"
+                            onClick={() => removeTag(tag)}
+                            className="hover:text-red-400"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </span>
                       ))}
-                    </select>
-                  </div>
+                    </div>
+                  )}
+                </div>
 
-                  <div>
-                    <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1.5 sm:mb-2">Subcategory</label>
-                    <select
-                      value={formData.subCategorySlug}
-                      onChange={(e) => setFormData({ ...formData, subCategorySlug: e.target.value })}
-                      disabled={!formData.categorySlug}
-                      className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none disabled:opacity-50"
-                    >
-                      <option value="">Select subcategory</option>
-                      {filteredSubcategories.map((sub) => (
-                        <option key={sub.id} value={sub.slug}>{sub.name}</option>
-                      ))}
-                    </select>
+                {/* Inventory */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-white border-b border-slate-700 pb-2">Inventory</h3>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                    <div>
+                      <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1.5 sm:mb-2">Stock</label>
+                      <input
+                        type="number"
+                        value={formData.inventory.stock}
+                        onChange={(e) => setFormData({ ...formData, inventory: { ...formData.inventory, stock: parseInt(e.target.value) || 0 } })}
+                        className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
+                      />
+                    </div>
+
+                    <div className="flex items-end">
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          id="inStock"
+                          checked={formData.inventory.inStock}
+                          onChange={(e) => setFormData({ ...formData, inventory: { ...formData.inventory, inStock: e.target.checked } })}
+                          className="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500/20 bg-slate-700 border-slate-600"
+                        />
+                        <label htmlFor="inStock" className="text-xs sm:text-sm font-medium text-slate-300">In Stock</label>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                  <div>
-                    <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1.5 sm:mb-2">Base Price</label>
-                    <input
-                      type="number"
-                      value={formData.pricing.basePrice}
-                      onChange={(e) => setFormData({ ...formData, pricing: { ...formData.pricing, basePrice: parseFloat(e.target.value) || 0 } })}
-                      className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1.5 sm:mb-2">Stock</label>
-                    <input
-                      type="number"
-                      value={formData.inventory.stock}
-                      onChange={(e) => setFormData({ ...formData, inventory: { ...formData.inventory, stock: parseInt(e.target.value) || 0 } })}
-                      className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1.5 sm:mb-2">Metal</label>
-                  <input
-                    type="text"
-                    value={formData.details.metal}
-                    onChange={(e) => setFormData({ ...formData, details: { ...formData.details, metal: e.target.value } })}
-                    className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
-                  />
-                </div>
-
+                {/* Status */}
                 <div className="flex items-center gap-2">
                   <input
                     type="checkbox"
@@ -537,10 +886,10 @@ export default function ProductsTab() {
                     onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
                     className="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500/20 bg-slate-700 border-slate-600"
                   />
-                  <label htmlFor="isActive" className="text-xs sm:text-sm font-medium text-slate-300">Active</label>
+                  <label htmlFor="isActive" className="text-xs sm:text-sm font-medium text-slate-300">Active Product</label>
                 </div>
 
-                <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3 pt-3 sm:pt-4 border-t border-slate-700">
+                <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3 pt-3 sm:pt-4 border-t border-slate-700 sticky bottom-0 bg-slate-800 pb-4">
                   <button
                     onClick={handleCloseModal}
                     className="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-2 border border-slate-600 rounded-lg hover:bg-slate-700 active:bg-slate-600 transition-colors text-slate-300 font-medium text-sm sm:text-base touch-manipulation"
@@ -552,7 +901,7 @@ export default function ProductsTab() {
                     disabled={!formData.categorySlug || !formData.name || !formData.slug || !formData.sku}
                     className="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-2 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white rounded-lg transition-colors font-medium shadow-lg text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
                   >
-                    {editingProduct ? 'Update' : 'Create'}
+                    {editingProduct ? 'Update Product' : 'Create Product'}
                   </button>
                 </div>
               </div>
