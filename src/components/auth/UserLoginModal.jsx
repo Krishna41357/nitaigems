@@ -81,7 +81,7 @@ export default function UserLoginModal({ open, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40">
+    <<div className="fixed inset-0 z-[60] flex items-start md:items-center justify-center bg-black/40">
       <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-6">
         <div className="mb-4 text-center">
           <h3 className="text-lg font-semibold">Sign in to your account</h3>
