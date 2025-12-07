@@ -2,15 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { ChevronRight, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-/**
- * COLOR SCHEME: SOFT CHAMPAGNE GOLD
- * Best Overall Pick - Elegant + Premium Luxury Theme
- * Header: #E8DEC9 (Champagne)
- * Text: #5A4638 (Warm Chocolate)
- * Hover: #8A6B52 (Bronze)
- * Accent: #CFAF68 (Gold)
- */
-
 const Navigation = () => {
   const [categories, setCategories] = useState([]);
   const [hoveredCategory, setHoveredCategory] = useState(null);
@@ -142,7 +133,7 @@ const Navigation = () => {
           <span className="text-[#CFAF68] text-xl" aria-hidden>✦</span>
         </div>
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-center gap-6 h-14 py-1 flex-nowrap whitespace-nowrap overflow-x-auto">
+          <div className="flex items-center justify-center gap-6 h-14 py-1">
             {mainCategories.map((category) => (
               <div
                 key={category.id}
@@ -152,7 +143,7 @@ const Navigation = () => {
               >
                 <button
                   onClick={() => handleNavigation(`/category/${category.slug}`)}
-                  className="text-[#5A4638] bg-transparent hover:border-none font-semibold text-sm tracking-wide transition-all hover:text-[#8A6B52] hover:scale-105 transform-gpu relative py-2 px-2 group"
+                  className="text-[#5A4638] bg-transparent hover:border-none font-semibold text-sm tracking-wide transition-all hover:text-[#8A6B52] hover:scale-105 transform-gpu relative py-2 px-2 group whitespace-nowrap"
                 >
                   <span style={{ textShadow: '0 0 20px rgba(255, 250, 240, 0.6), 0 0 10px rgba(244, 239, 230, 0.4)' }}>
                     {category.name}
@@ -164,13 +155,13 @@ const Navigation = () => {
 
             {moreCategories.length > 0 && (
               <div className="relative group">
-                <button className="text-[#5A4638] font-medium text-sm transition-all relative py-2 px-2 hover:text-[#8A6B52]">
+                <button className="text-[#5A4638] font-medium text-sm transition-all relative py-2 px-2 hover:text-[#8A6B52] whitespace-nowrap">
                   <span style={{ textShadow: '0 0 20px rgba(255, 250, 240, 0.6), 0 0 10px rgba(244, 239, 230, 0.4)' }}>
                     More
                   </span>
                   <span className="absolute bottom-2 left-1/2 w-0 h-0.5 bg-[#CFAF68] transition-all duration-300 group-hover:w-full group-hover:left-0"></span>
                 </button>
-                <div className="absolute top-full right-0 mt-2 w-56 bg-white border border-[#D4C5B0] rounded-lg shadow-lg py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                <div className="absolute top-full right-0 mt-2 w-56 bg-white border border-[#D4C5B0] rounded-lg shadow-lg py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-[100]">
                   {moreCategories.map((category) => (
                     <button
                       key={category.id}
@@ -185,96 +176,105 @@ const Navigation = () => {
             )}
           </div>
         </div>
+      </nav>
 
-        {/* Mega Menu */}
-        {hoveredCategory && (
-          <div
-            ref={megaMenuRef}
-            onMouseEnter={() => handleCategoryHover(hoveredCategory)}
-            onMouseLeave={handleMouseLeave}
-            className="absolute left-0 right-0 bg-white border-t-2 border-[#CFAF68] shadow-lg animate-fadeIn rounded-b-xl"
-          >
-            <div className="container mx-auto px-4 py-8">
-              <div className="flex gap-8">
-                {/* Left Sidebar */}
-                <div className="w-64 flex-shrink-0">
-                  <div className="space-y-4">
-                    <button className="w-full text-left px-4 py-3 bg-[#E8DEC9] text-[#5A4638] font-medium rounded-lg shadow-sm">
-                      Category
-                    </button>
-                    <button className="w-full text-left px-4 py-3 bg-transparent text-[#5A4638] hover:bg-[#F4EFE6] rounded-lg transition-colors">
-                      Price
-                    </button>
-                    <button className="w-full text-left px-4 py-3 bg-transparent text-[#5A4638] hover:bg-[#F4EFE6] rounded-lg transition-colors">
-                      Gender
-                    </button>
-                    <button className="w-full text-left px-4 py-3 bg-transparent text-[#5A4638] hover:bg-[#F4EFE6] rounded-lg transition-colors">
-                      Metal & Stones
-                    </button>
+      {/* Mega Menu - Outside nav to avoid overflow restrictions */}
+      {hoveredCategory && (
+        <div
+          ref={megaMenuRef}
+          onMouseEnter={() => handleCategoryHover(hoveredCategory)}
+          onMouseLeave={handleMouseLeave}
+          style={{
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            top: '3%',
+            zIndex: 100,
+            maxWidth: '100vw',
+            width: '100%'
+          }}
+          className="hidden md:block bg-white border-t-2 border-[#CFAF68] shadow-lg animate-fadeIn rounded-b-xl"
+        >
+          <div className="container mx-auto px-4 py-8">
+            <div className="flex gap-8">
+              {/* Left Sidebar */}
+              <div className="w-64 flex-shrink-0">
+                <div className="space-y-4">
+                  <button className="w-full text-left px-4 py-3 bg-[#E8DEC9] text-[#5A4638] font-medium rounded-lg shadow-sm">
+                    Category
+                  </button>
+                  <button className="w-full text-left px-4 py-3 bg-transparent text-[#5A4638] hover:bg-[#F4EFE6] rounded-lg transition-colors">
+                    Price
+                  </button>
+                  <button className="w-full text-left px-4 py-3 bg-transparent text-[#5A4638] hover:bg-[#F4EFE6] rounded-lg transition-colors">
+                    Gender
+                  </button>
+                  <button className="w-full text-left px-4 py-3 bg-transparent text-[#5A4638] hover:bg-[#F4EFE6] rounded-lg transition-colors">
+                    Metal & Stones
+                  </button>
+                </div>
+              </div>
+
+              {/* Main Content */}
+              <div className="flex-1 flex gap-6">
+                {/* Subcategories Grid */}
+                <div className="flex-1">
+                  <div className="grid grid-cols-4 gap-3 max-h-[400px]  overflow-y-auto pr-2 heritage-scroll">
+                    {subcategories[hoveredCategory.slug]?.map((subcategory) => (
+                      <button
+                        key={subcategory.id}
+                        onClick={() => handleNavigation(`/category/${hoveredCategory.slug}/${subcategory.slug}`)}
+                        className="flex items-center gap-2 p-2 bg-white border-none hover:shadow-md hover:border-[#CFAF68] rounded-lg transition-all group text-left"
+                      >
+                        {subcategory.image ? (
+                          <img
+                            src={subcategory.image}
+                            alt={subcategory.name}
+                            className="w-10 h-10 object-cover rounded-full flex-shrink-0"
+                          />
+                        ) : (
+                          <div className="w-10 h-10 bg-[#E8DEC9] rounded-full flex-shrink-0 flex items-center justify-center text-xs text-[#8A6B52] font-semibold">
+                            {subcategory.name.substring(0, 2).toUpperCase()}
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-medium text-xs text-[#5A4638] group-hover:text-[#8A6B52] transition-colors truncate">
+                            {subcategory.name}
+                          </h3>
+                        </div>
+                      </button>
+                    ))}
                   </div>
                 </div>
 
-                {/* Main Content */}
-                <div className="flex-1 flex gap-6">
-                  {/* Subcategories Grid */}
-                  <div className="flex-1">
-                    <div className="grid grid-cols-4 gap-3 max-h-[400px] overflow-y-auto pr-2">
-                      {subcategories[hoveredCategory.slug]?.map((subcategory) => (
-                        <button
-                          key={subcategory.id}
-                          onClick={() => handleNavigation(`/category/${hoveredCategory.slug}/${subcategory.slug}`)}
-                          className="flex items-center gap-2 p-2 bg-white border border-[#E8DEC9] hover:shadow-md hover:border-[#CFAF68] rounded-lg transition-all group text-left"
-                        >
-                          {subcategory.image ? (
-                            <img
-                              src={subcategory.image}
-                              alt={subcategory.name}
-                              className="w-10 h-10 object-cover rounded-full flex-shrink-0"
-                            />
-                          ) : (
-                            <div className="w-10 h-10 bg-[#E8DEC9] rounded-full flex-shrink-0 flex items-center justify-center text-xs text-[#8A6B52] font-semibold">
-                              {subcategory.name.substring(0, 2).toUpperCase()}
-                            </div>
-                          )}
-                          <div className="flex-1 min-w-0">
-                            <h3 className="font-medium text-xs text-[#5A4638] group-hover:text-[#8A6B52] transition-colors truncate">
-                              {subcategory.name}
-                            </h3>
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Banner - Right Side */}
-                  <div className="w-64 flex-shrink-0">
-                    <div className="bg-[#FFFAF3] rounded-lg p-4 border border-[#E8DEC9] h-full flex flex-col justify-between">
-                      <div>
-                        <div className="flex gap-2 mb-3">
-                          {[1, 2, 3].map((i) => (
-                            <div key={i} className="w-16 h-16 bg-[#E8DEC9] rounded-lg"></div>
-                          ))}
-                        </div>
-                        <h3 className="text-sm font-semibold text-[#5A4638] mb-2 leading-tight">
-                          {hoveredCategory.name} for You — Crafted with Precision, Designed for Elegance.
-                        </h3>
-                        <p className="text-xs text-[#8A6B52]">Explore 3500+ Stunning Styles.</p>
+                {/* Banner - Right Side */}
+                <div className="w-64 flex-shrink-0">
+                  <div className="bg-[#FFFAF3] rounded-lg p-4 border border-[#E8DEC9] h-full flex flex-col justify-between">
+                    <div>
+                      <div className="flex gap-2 mb-3">
+                        {[1, 2, 3].map((i) => (
+                          <div key={i} className="w-16 h-16 bg-[#E8DEC9] rounded-lg"></div>
+                        ))}
                       </div>
-                      <button
-                        onClick={() => handleNavigation(`/category/${hoveredCategory.slug}`)}
-                        className="w-full bg-gradient-to-r from-[#CFAF68] to-[#D4A055] text-white px-4 py-2 rounded-full text-sm font-medium hover:from-[#B8860B] hover:to-[#CFAF68] transition-colors shadow-md mt-3"
-                        style={{letterSpacing: '0.6px'}}
-                      >
-                        View All
-                      </button>
+                      <h3 className="text-sm font-semibold text-[#5A4638] mb-2 leading-tight">
+                        {hoveredCategory.name} for You — Crafted with Precision, Designed for Elegance.
+                      </h3>
+                      <p className="text-xs text-[#8A6B52]">Explore 3500+ Stunning Styles.</p>
                     </div>
+                    <button
+                      onClick={() => handleNavigation(`/category/${hoveredCategory.slug}`)}
+                      className="w-full bg-gradient-to-r from-[#CFAF68] to-[#D4A055] text-white px-4 py-2 rounded-full text-sm font-medium hover:from-[#B8860B] hover:to-[#CFAF68] transition-colors shadow-md mt-3"
+                      style={{letterSpacing: '0.6px'}}
+                    >
+                      View All
+                    </button>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        )}
-      </nav>
+        </div>
+      )}
 
       {/* Mobile Sidebar */}
       {showMobileSidebar && (
@@ -367,40 +367,10 @@ const Navigation = () => {
         .animate-slideIn {
           animation: slideIn 0.3s ease-out;
         }
-          nav {
-  max-width: 100vw;
-  overflow-x: hidden;
-}
-
-/* Fix the navigation flex container */
-.nav-flex-container {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE/Edge */
-}
-
-.nav-flex-container::-webkit-scrollbar {
-  display: none; /* Chrome/Safari */
-}
-
-/* Prevent text from breaking layout */
-.nav-flex-container button {
-  flex-shrink: 0;
-  white-space: nowrap;
-}
-
-/* Mobile fixes */
-@media (max-width: 768px) {
-  .container {
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
-  }
-  
-  nav {
-    overflow-x: hidden;
-  }
-}
+        
+        :root {
+          --nav-height: 120px;
+        }
       `}</style>
     </>
   );
