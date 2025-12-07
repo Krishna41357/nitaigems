@@ -249,7 +249,7 @@ const CartPage = () => {
       <MainHeader />
       <div className="bg-[#fbf6ef] min-h-screen w-screen overflow-x-hidden">
         <div className="max-w-[1400px] mx-auto px-3 sm:px-4 md:px-6 py-4 md:py-6">
-          <Navigation />
+          
           
           {/* Breadcrumbs */}
           <div style={{ fontFamily: headerFont }} className="flex mt-4 items-center gap-1.5 mb-4 md:mb-6 text-xs md:text-sm overflow-x-auto pb-2">

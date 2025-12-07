@@ -53,10 +53,7 @@ const HomePage = () => {
         />
 
         {/* Navigation with Mega Menu */}
-        <Navigation 
-          showMobileSidebar={showMobileMenu}
-          onCloseSidebar={() => setShowMobileMenu(false)}
-        />
+        
 
         {/* Hero Carousel */}
         <HeroCarousel />

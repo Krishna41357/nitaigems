@@ -3,7 +3,7 @@ import { useState, useEffect, useMemo } from "react";
 import { ChevronDown, ChevronLeft, ChevronRight, X, SearchX } from "lucide-react";
 import ProductCard from "../components/products/ProductCard";
 import MainHeader from "../components/homepage/MainHeader";
-import Navigation from "../components/homepage/Navigation";
+
 
 
 const ProductsListingPage = () => {
@@ -614,7 +614,6 @@ if (loading) {
   return (
     <>
     <MainHeader/>
-    <Navigation/>
   <div className="min-h-screen w-screen bg-white">
   <div className="w-screen px-4 md:px-8 lg:px-12 py-6 md:py-8">
       {/* Elegant Page Header */}

@@ -15,7 +15,7 @@ import {
   Package,
 } from "lucide-react";
 import MainHeader from "../components/homepage/MainHeader";
-import Navigation from "../components/homepage/Navigation";
+
 import Footer from "../components/homepage/Footer";
 import { useAuth } from "../contexts/AuthContext";
 
@@ -277,7 +277,6 @@ const ProductDetailPage = () => {
   return (
     <>
       <MainHeader />
-      <Navigation />
       <div className="min-h-screen bg-white">
         <div className="w-screen px-4 md:px-8 lg:px-12 py-6 md:py-8">
           {/* ===== Breadcrumbs – CartPage style ===== */}
