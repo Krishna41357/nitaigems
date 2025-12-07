@@ -51,7 +51,7 @@ const loadLocalBanners = () => {
     {
       id: `local-banner-2-${Date.now()}-1`,
       imageUrl: 'https://res.cloudinary.com/dxoxbnptl/image/upload/v1765112673/banner2_cwmsnw.jpg',
-      mobileImageUrl: 'https://res.cloudinary.com/dxoxbnptl/image/upload/v1765112673/banner2_cwmsnw.jpg',
+      mobileImageUrl: '',
       title: 'New Arrivals',
       subtitle: 'Trending diamond jewellery',
       ctaText: 'Explore',
@@ -62,7 +62,7 @@ const loadLocalBanners = () => {
     {
       id: `local-banner-3-${Date.now()}-2`,
       imageUrl: 'https://res.cloudinary.com/dxoxbnptl/image/upload/v1765112672/banner3_fdtnxs.jpg',
-      mobileImageUrl: 'https://res.cloudinary.com/dxoxbnptl/image/upload/v1765112672/banner3_fdtnxs.jpg',
+      mobileImageUrl: '',
       title: 'New Arrivals',
       subtitle: 'Trending diamond jewellery',
       ctaText: 'Explore',
@@ -73,7 +73,7 @@ const loadLocalBanners = () => {
     {
       id: `local-banner-4-${Date.now()}-3`,
       imageUrl: 'https://res.cloudinary.com/dxoxbnptl/image/upload/v1765112673/banner2_cwmsnw.jpg',
-      mobileImageUrl: 'https://res.cloudinary.com/dxoxbnptl/image/upload/v1765112673/banner2_cwmsnw.jpg',
+      mobileImageUrl: '',
       title: 'New Arrivals',
       subtitle: 'Trending diamond jewellery',
       ctaLink: '/new-arrivals',
