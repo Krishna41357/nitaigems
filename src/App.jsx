@@ -60,7 +60,7 @@ export default function App() {
                   <Route path="/payment/callback" element={<PaymentCallbackPage />} />
 
                   {/* ----- AUTH ----- */}
-                  <Route path="/login" element={<UserLoginModal open onClose={() => {}} />} />
+                  
                   <Route path="/admin/login" element={<AdminLogin />} />
 
                   {/* ----- ADMIN ----- */}

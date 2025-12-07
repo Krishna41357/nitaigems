@@ -50,8 +50,8 @@ const OrdersPage = () => {
       }
     } catch (err) {
       console.error('Error fetching orders:', err);
-      // Demo data for testing
-      toast(error.message || 'An error occurred while fetching orders');
+      // Demo data for testinga
+      alert(error.message || 'An error occurred while fetching orders');
     } finally {
       setLoading(false);
     }
@@ -159,7 +159,6 @@ const OrdersPage = () => {
       <MainHeader />
       <div className="bg-[#fbf6ef] min-h-screen w-screen overflow-x-hidden flex flex-col">
         <div className="w-screen max-w-7xl mx-auto px-3 md:px-6 py-4 h-full flex flex-col">
-          <Navigation />
           
           {/* Breadcrumb */}
           <div style={{ fontFamily: headerFont }} className="flex items-center gap-1.5 mb-4 md:mb-6 text-xs md:text-sm overflow-x-auto pb-2">

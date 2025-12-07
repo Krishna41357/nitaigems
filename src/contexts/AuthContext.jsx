@@ -70,20 +70,19 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
-    // Clear both user and admin tokens
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('user');
-    localStorage.removeItem('adminToken');
-    localStorage.removeItem('adminUser');
-    setUser(null);
-    
-    // Navigate based on user type
-    if (user?.isAdmin) {
-      navigate('/admin/login');
-    } else {
-      navigate('/');
-    }
-  };
+  // Check user type BEFORE clearing data
+  const isAdminUser = user?.isAdmin;
+  
+  // Clear both user and admin tokens
+  localStorage.removeItem('authToken');
+  localStorage.removeItem('user');
+  localStorage.removeItem('adminToken');
+  localStorage.removeItem('adminUser');
+  setUser(null);
+  
+  // Return user type so component can handle navigation
+  return isAdminUser;
+};
 
   const value = {
     user,

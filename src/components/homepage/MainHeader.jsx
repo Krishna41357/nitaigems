@@ -12,7 +12,8 @@ const MainHeader = () => {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showMobileSearch, setShowMobileSearch] = useState(false);
   const [showMobileSidebar, setShowMobileSidebar] = useState(false);
-  const logoUrl = 'https://res.cloudinary.com/dxoxbnptl/image/upload/v1765111345/logo_vbpjqx.png' ;
+  const logoUrl = 'https://res.cloudinary.com/dxoxbnptl/image/upload/v1765111345/logo_vbpjqx.png';
+  
   // Navigation states
   const [categories, setCategories] = useState([]);
   const [hoveredCategory, setHoveredCategory] = useState(null);
@@ -34,6 +35,7 @@ const MainHeader = () => {
   const MAX_MAIN_CATEGORIES = 7;
   const API_BASE = import.meta.env.VITE_APP_BASE_URL;
 
+  // Scroll handler
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
@@ -42,16 +44,24 @@ const MainHeader = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setShowUserDropdown(false);
       }
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+    
+    if (showUserDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showUserDropdown]);
 
+  // Fetch categories on mount
   useEffect(() => {
     fetchCategories();
   }, []);
@@ -112,42 +122,92 @@ const MainHeader = () => {
   };
 
   const handleNavigation = (path) => {
-    if (path === '/cart') {
-      navigate('/cart', { state: { from: location.pathname } });
+    // Protected routes - require authentication
+    const protectedRoutes = ['/account', '/orders', '/wishlist', '/cart'];
+    
+    if (protectedRoutes.includes(path) && !isAuthenticated) {
+      setShowLoginModal(true);
+      setHoveredCategory(null);
+      setShowMobileSidebar(false);
       return;
     }
 
+    // Handle cart navigation with state
+    if (path === '/cart') {
+      navigate('/cart', { state: { from: location.pathname } });
+      setHoveredCategory(null);
+      setShowMobileSidebar(false);
+      return;
+    }
+
+    // Handle category paths
     if (path.startsWith('/category/')) {
       navigate(`/products${path}`);
     } else {
       navigate(path);
     }
     
+    // Clean up UI states
     setHoveredCategory(null);
     setShowMobileSidebar(false);
   };
 
   const handleUserAction = (action) => {
+    console.log('=== handleUserAction called ===');
+    console.log('Action:', action);
+    console.log('isAuthenticated:', isAuthenticated);
+    console.log('user:', user);
+    
+    // Close dropdown immediately for all actions
     setShowUserDropdown(false);
-
+    
     switch (action) {
       case 'account':
+        console.log('Account clicked');
+        if (!isAuthenticated) {
+          console.log('Not authenticated, showing login modal');
+          setShowLoginModal(true);
+          return;
+        }
+        console.log('Authenticated, navigating to account');
         handleNavigation('/account');
         break;
+        
       case 'orders':
+        console.log('Orders clicked');
+        if (!isAuthenticated) {
+          console.log('Not authenticated, showing login modal');
+          setShowLoginModal(true);
+          return;
+        }
+        console.log('Authenticated, navigating to orders');
         handleNavigation('/orders');
         break;
+        
       case 'logout':
-        logout();
-        handleNavigation('/');
+        console.log('Logout clicked');
+        console.log('User before logout:', user);
+        
+        const wasAdmin = logout();
+        console.log('Was admin?', wasAdmin);
+        console.log('Navigating to:', wasAdmin ? '/admin/login' : '/');
+        
+        // Navigate based on user type
+        if (wasAdmin) {
+          navigate('/admin/login');
+        } else {
+          navigate('/');
+        }
         break;
+        
       case 'login':
+        console.log('Login clicked');
         setShowLoginModal(true);
+        console.log('Login modal should open, showLoginModal:', showLoginModal);
         break;
-      case 'signup':
-        handleNavigation('/signup');
-        break;
+        
       default:
+        console.log('Unknown action:', action);
         break;
     }
   };
@@ -221,7 +281,11 @@ const MainHeader = () => {
                 </button>
 
                 <div className="relative" ref={dropdownRef}>
-                  <button onClick={() => setShowUserDropdown(!showUserDropdown)} className="p-1.5 lg:p-2 bg-transparent relative group hover:scale-105 transition-transform" aria-label="Account">
+                  <button
+                    onClick={() => setShowUserDropdown(v => !v)}
+                    className="p-1.5 lg:p-2 bg-transparent relative group hover:scale-105 transition-transform"
+                    aria-label="Account"
+                  >
                     <User size={18} color={iconColor} strokeWidth={1.5} className="lg:w-5 lg:h-5" />
                   </button>
                 </div>
@@ -258,6 +322,13 @@ const MainHeader = () => {
                   {wishlistCount > 0 && (
                     <span className="absolute -top-0.5 -right-0.5 bg-red-600 text-white text-[10px] w-3.5 h-3.5 flex items-center justify-center rounded-full font-medium">{wishlistCount}</span>
                   )}
+                </button>
+                <button
+                  onClick={() => setShowUserDropdown(v => !v)}
+                  className="p-1.5 bg-transparent hover:bg-[#E8DEC9] rounded-lg transition-colors"
+                  aria-label="Account"
+                >
+                  <User size={18} color={iconColor} strokeWidth={1.5} />
                 </button>
                 <button onClick={() => handleNavigation('/cart')} className="p-1.5 bg-transparent relative hover:bg-[#E8DEC9] rounded-lg transition-colors" aria-label="Cart">
                   <ShoppingCart size={19} color={iconColor} strokeWidth={1.5} />
@@ -331,24 +402,74 @@ const MainHeader = () => {
           </div>
         </nav>
       </div>
-      {/* User Dropdown */}
+
+      {/* User Dropdown - Positioned absolutely relative to viewport */}
       {showUserDropdown && (
-        <div style={{ position: 'fixed', right: '1rem', top: '5rem', zIndex: 100 }} className="w-44 lg:w-48 bg-white border border-[#efe6d9] rounded-lg shadow-lg py-2 animate-fadeIn">
-          {isAuthenticated ? (
-            <>
-              {user && (
-                <div className="px-3 lg:px-4 py-2 border-b border-gray-200">
-                  <p className="text-xs lg:text-sm font-medium text-gray-900 truncate">{user.name || user.email}</p>
-                </div>
-              )}
-              <button onClick={() => handleUserAction('account')} className="w-full text-left px-3 lg:px-4 py-2 hover:bg-gray-50 text-xs lg:text-sm transition-colors">My Account</button>
-              <button onClick={() => handleUserAction('orders')} className="w-full text-left px-3 lg:px-4 py-2 hover:bg-gray-50 text-xs lg:text-sm transition-colors">My Orders</button>
-              <button onClick={() => handleUserAction('logout')} className="w-full text-left px-3 lg:px-4 py-2 bg-red-100 hover:bg-[#fff4ee] text-xs lg:text-sm text-red-600 transition-colors">Sign Out</button>
-            </>
-          ) : (
-            <button onClick={() => handleUserAction('login')} className="w-full text-left px-3 lg:px-4 py-2 hover:bg-gray-50 text-xs lg:text-sm transition-colors">Login</button>
-          )}
-        </div>
+        <>
+          {/* Backdrop overlay with lower z-index */}
+          <div 
+            className="fixed inset-0 z-[55]" 
+            onClick={() => setShowUserDropdown(false)}
+          />
+          
+          {/* Dropdown menu with higher z-index */}
+          <div 
+            ref={dropdownRef}
+            className="fixed right-4 top-16 lg:top-[5.5rem] z-[100] w-44 lg:w-48 bg-white border border-[#efe6d9] rounded-lg shadow-xl py-2"
+            style={{ pointerEvents: 'all' }}
+          >
+            {isAuthenticated ? (
+              <>
+                {user && (
+                  <div className="px-3 lg:px-4 py-2 border-b border-gray-200">
+                    <p className="text-xs lg:text-sm font-medium text-gray-900 truncate">
+                      {user.name || user.email}
+                    </p>
+                  </div>
+                )}
+                <button 
+                  onClick={() => {
+                    console.log('Desktop - Account clicked');
+                    handleUserAction('account');
+                  }} 
+                  className="w-full text-left px-3 lg:px-4 py-2 hover:bg-gray-50 text-xs lg:text-sm transition-colors text-gray-900"
+                >
+                  My Account
+                </button>
+                <button 
+                  onClick={() => {
+                    console.log('Desktop - Orders clicked');
+                    handleUserAction('orders');
+                  }} 
+                  className="w-full text-left px-3 lg:px-4 py-2 hover:bg-gray-50 text-xs lg:text-sm transition-colors text-gray-900"
+                >
+                  My Orders
+                </button>
+                <button 
+                  onClick={() => {
+                    console.log('Desktop - Logout clicked');
+                    handleUserAction('logout');
+                  }} 
+                  className="w-full text-left px-3 lg:px-4 py-2 hover:bg-red-50 text-xs lg:text-sm text-red-600 transition-colors"
+                >
+                  Sign Out
+                </button>
+              </>
+            ) : (
+              <>
+                <button 
+                  onClick={() => {
+                    console.log('Desktop - Login clicked');
+                    handleUserAction('login');
+                  }} 
+                  className="w-full text-left px-3 lg:px-4 py-2 hover:bg-gray-50 text-xs lg:text-sm transition-colors text-gray-900"
+                >
+                  Login
+                </button>
+              </>
+            )}
+          </div>
+        </>
       )}
 
       {/* Mega Menu */}
@@ -432,18 +553,77 @@ const MainHeader = () => {
           <div className="fixed inset-0 bg-black bg-opacity-50 z-50 md:hidden" onClick={() => setShowMobileSidebar(false)} />
           <div className="fixed left-0 top-0 bottom-0 w-[85vw] max-w-xs bg-white z-50 overflow-y-auto md:hidden animate-slideIn shadow-xl">
             <div className="sticky top-0 bg-[#E8DEC9] border-b border-[#D4C5B0] px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between">
-              <h2 className="text-lg sm:text-xl font-serif font-semibold text-[#5A4638]">Categories</h2>
+              <h2 className="text-lg sm:text-xl font-serif font-semibold text-[#5A4638]">Menu</h2>
               <button onClick={() => setShowMobileSidebar(false)} className="p-1.5 sm:p-2 hover:bg-[#D4C5B0] bg-transparent rounded-lg transition-colors">
                 <X size={20} className="text-[#5A4638]" />
               </button>
             </div>
 
+            {/* User Profile Section in Mobile */}
+            <div className="border-b border-[#D4C5B0] bg-[#FFFAF3] px-3 sm:px-4 py-3">
+              {isAuthenticated ? (
+                <>
+                  <div className="mb-3 pb-3 border-b border-[#E8DEC9]">
+                    <p className="text-sm font-semibold text-[#5A4638] truncate">
+                      {user?.name || user?.email || 'User'}
+                    </p>
+                    <p className="text-xs text-[#8A6B52] mt-1">Welcome back!</p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      console.log('Mobile - Account clicked');
+                      handleUserAction('account');
+                    }}
+                    className="w-full text-left px-3 py-2.5 mb-2 bg-white hover:bg-[#E8DEC9] rounded-lg text-sm text-[#5A4638] transition-colors flex items-center gap-2"
+                  >
+                    <User size={16} className="text-[#8A6B52]" />
+                    My Account
+                  </button>
+                  <button
+                    onClick={() => {
+                      console.log('Mobile - Orders clicked');
+                      handleUserAction('orders');
+                    }}
+                    className="w-full text-left px-3 py-2.5 mb-2 bg-white hover:bg-[#E8DEC9] rounded-lg text-sm text-[#5A4638] transition-colors flex items-center gap-2"
+                  >
+                    <ShoppingCart size={16} className="text-[#8A6B52]" />
+                    My Orders
+                  </button>
+                  <button
+                    onClick={() => {
+                      console.log('Mobile - Logout clicked');
+                      handleUserAction('logout');
+                    }}
+                    className="w-full text-left px-3 py-2.5 bg-red-50 hover:bg-red-100 rounded-lg text-sm text-red-600 transition-colors flex items-center gap-2"
+                  >
+                    <X size={16} />
+                    Sign Out
+                  </button>
+                </>
+              ) : (
+                <>
+                  <p className="text-xs text-[#8A6B52] mb-3">Sign in to access your account</p>
+                  <button
+                    onClick={() => {
+                      console.log('Mobile - Login clicked');
+                      setShowMobileSidebar(false);
+                      setShowLoginModal(true);
+                    }}
+                    className="w-full text-center px-3 py-2.5 bg-gradient-to-r from-[#CFAF68] to-[#D4A055] hover:from-[#B8860B] hover:to-[#CFAF68] text-white rounded-lg text-sm font-medium transition-colors"
+                  >
+                    Login
+                  </button>
+                </>
+              )}
+            </div>
+
+            {/* Categories Section */}
             <div className="py-2">
               {categories.map((category) => (
                 <div key={category.id} className="border-b border-[#E8DEC9]">
                   <button
                     onClick={() => toggleMobileCategory(category.slug)}
-                    className="w-full flex items-center justify-between px-3 sm:px-4 py-2.5 sm:py-3 bg-transparent "
+                    className="w-full flex items-center justify-between px-3 sm:px-4 py-2.5 sm:py-3 bg-transparent"
                   >
                     <span className="font-medium text-sm sm:text-base text-[#5A4638]">{category.name}</span>
                     <ChevronRight size={18} className={`transition-transform text-[#8A6B52] ${expandedMobileCategory === category.slug ? 'rotate-90' : ''}`} />
@@ -482,7 +662,10 @@ const MainHeader = () => {
       )}
 
       {/* User Login Modal */}
-      <UserLoginModal open={showLoginModal} onClose={() => setShowLoginModal(false)} />
+      <UserLoginModal
+        open={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+      />
 
       <style jsx>{`
         @keyframes fadeIn {
