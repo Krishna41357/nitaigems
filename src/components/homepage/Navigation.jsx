@@ -367,6 +367,40 @@ const Navigation = () => {
         .animate-slideIn {
           animation: slideIn 0.3s ease-out;
         }
+          nav {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+/* Fix the navigation flex container */
+.nav-flex-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+
+.nav-flex-container::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
+/* Prevent text from breaking layout */
+.nav-flex-container button {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* Mobile fixes */
+@media (max-width: 768px) {
+  .container {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+  
+  nav {
+    overflow-x: hidden;
+  }
+}
       `}</style>
     </>
   );

@@ -35,56 +35,56 @@ const HeroCarousel = () => {
       setLoading(false);
     }
   };
-const loadLocalBanners = () => {
-  const localBanners = [
-    {
-      id: `local-banner-1-${Date.now()}`,
-      imageUrl: 'https://res.cloudinary.com/dxoxbnptl/image/upload/v1765112672/banner3_fdtnxs.jpg',
-      mobileImageUrl: 'https://res.cloudinary.com/dxoxbnptl/image/upload/v1765112672/banner3_fdtnxs.jpg',
-      title: 'Exquisite Diamond Collection',
-      subtitle: 'Discover timeless elegance',
-      ctaText: 'Shop Now',
-      ctaLink: '/collections',
-      order: 1,
-      isActive: true,
-    },
-    {
-      id: `local-banner-2-${Date.now()}-1`,
-      imageUrl: 'https://res.cloudinary.com/dxoxbnptl/image/upload/v1765112673/banner2_cwmsnw.jpg',
-      mobileImageUrl: '',
-      title: 'New Arrivals',
-      subtitle: 'Trending diamond jewellery',
-      ctaText: 'Explore',
-      ctaLink: '/new-arrivals',
-      order: 2,
-      isActive: true,
-    },
-    {
-      id: `local-banner-3-${Date.now()}-2`,
-      imageUrl: 'https://res.cloudinary.com/dxoxbnptl/image/upload/v1765112672/banner3_fdtnxs.jpg',
-      mobileImageUrl: '',
-      title: 'New Arrivals',
-      subtitle: 'Trending diamond jewellery',
-      ctaText: 'Explore',
-      ctaLink: '/new-arrivals',
-      order: 3,
-      isActive: true,
-    },
-    {
-      id: `local-banner-4-${Date.now()}-3`,
-      imageUrl: 'https://res.cloudinary.com/dxoxbnptl/image/upload/v1765112673/banner2_cwmsnw.jpg',
-      mobileImageUrl: '',
-      title: 'New Arrivals',
-      subtitle: 'Trending diamond jewellery',
-      ctaLink: '/new-arrivals',
-      order: 4,
-      isActive: true,
-    },
-  ];
 
-  setBanners(localBanners);
-};
+  const loadLocalBanners = () => {
+    const localBanners = [
+      {
+        id: `local-banner-1-${Date.now()}`,
+        imageUrl: 'https://res.cloudinary.com/dxoxbnptl/image/upload/v1765112672/banner3_fdtnxs.jpg',
+        mobileImageUrl: 'https://res.cloudinary.com/dxoxbnptl/image/upload/v1765112672/banner3_fdtnxs.jpg',
+        title: 'Exquisite Diamond Collection',
+        subtitle: 'Discover timeless elegance',
+        ctaText: 'Shop Now',
+        ctaLink: '/collections',
+        order: 1,
+        isActive: true,
+      },
+      {
+        id: `local-banner-2-${Date.now()}-1`,
+        imageUrl: 'https://res.cloudinary.com/dxoxbnptl/image/upload/v1765112673/banner2_cwmsnw.jpg',
+        mobileImageUrl: '',
+        title: 'New Arrivals',
+        subtitle: 'Trending diamond jewellery',
+        ctaText: 'Explore',
+        ctaLink: '/new-arrivals',
+        order: 2,
+        isActive: true,
+      },
+      {
+        id: `local-banner-3-${Date.now()}-2`,
+        imageUrl: 'https://res.cloudinary.com/dxoxbnptl/image/upload/v1765112672/banner3_fdtnxs.jpg',
+        mobileImageUrl: '',
+        title: 'New Arrivals',
+        subtitle: 'Trending diamond jewellery',
+        ctaText: 'Explore',
+        ctaLink: '/new-arrivals',
+        order: 3,
+        isActive: true,
+      },
+      {
+        id: `local-banner-4-${Date.now()}-3`,
+        imageUrl: 'https://res.cloudinary.com/dxoxbnptl/image/upload/v1765112673/banner2_cwmsnw.jpg',
+        mobileImageUrl: '',
+        title: 'New Arrivals',
+        subtitle: 'Trending diamond jewellery',
+        ctaLink: '/new-arrivals',
+        order: 4,
+        isActive: true,
+      },
+    ];
 
+    setBanners(localBanners);
+  };
 
   const nextSlide = useCallback(() => {
     setCurrentIndex(prev => (prev + 1) % banners.length);
@@ -129,7 +129,7 @@ const loadLocalBanners = () => {
   if (banners.length === 0) return null;
 
   return (
-    <div className="relative w-full max-w-full overflow-hidden bg-gradient-to-b from-amber-50 via-amber-100 to-amber-50">
+    <div className="relative w-full overflow-hidden bg-gradient-to-b from-amber-50 via-amber-100 to-amber-50">
       <div 
         className="relative w-full h-[250px] sm:h-[300px] md:h-[380px] lg:h-[450px] flex items-center justify-center py-2 sm:py-3 px-2 sm:px-3"
         onMouseEnter={() => setIsPaused(true)}
@@ -141,8 +141,8 @@ const loadLocalBanners = () => {
           <div className="absolute bottom-4 sm:bottom-8 right-4 sm:right-8 w-24 h-24 sm:w-36 sm:h-36 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 blur-2xl sm:blur-3xl" />
         </div>
 
-        {/* Container for all banners */}
-        <div className="relative w-full h-full flex items-center justify-center gap-2 sm:gap-3 lg:gap-4 max-w-full">
+        {/* Container for all banners - FIXED: Added max-w-7xl and proper centering */}
+        <div className="relative w-full max-w-7xl mx-auto h-full flex items-center justify-center gap-2 sm:gap-3 lg:gap-4">
           {/* Left Banner (Previous) - Hidden on mobile and tablet */}
           {banners.length > 1 && (
             <div className="w-[15%] h-[85%] opacity-25 hidden xl:block flex-shrink-0 transform hover:opacity-35 transition-opacity">
@@ -154,8 +154,8 @@ const loadLocalBanners = () => {
             </div>
           )}
 
-          {/* Main Banner (Current) */}
-          <div className="relative w-full xl:w-[70%] h-full flex-shrink-0 max-w-full">
+          {/* Main Banner (Current) - FIXED: Better responsive sizing */}
+          <div className="relative w-full xl:w-[70%] h-full flex-shrink-0">
             {banners.map((banner, index) => (
               <div
                 key={banner.id}
@@ -179,18 +179,18 @@ const loadLocalBanners = () => {
                 {/* Gradient overlay */}
                 <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-black/40 rounded-lg" />
 
-                {/* Overlay Content */}
+                {/* Overlay Content - FIXED: Better responsive text sizing */}
                 {(banner.title || banner.subtitle || banner.ctaText) && (
                   <div className="absolute inset-0 flex items-center">
                     <div className="w-full px-4 sm:px-6 md:px-10 lg:px-14">
                       <div className="max-w-xl">
                         {banner.title && (
-                          <h1 className="text-xl sm:text-2xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-2 sm:mb-3 animate-fadeIn text-white drop-shadow-2xl" style={{ fontFamily: 'serif' }}>
+                          <h1 className="text-lg sm:text-xl md:text-3xl lg:text-4xl xl:text-5xl font-bold mb-2 sm:mb-3 animate-fadeIn text-white drop-shadow-2xl" style={{ fontFamily: 'serif' }}>
                             {banner.title}
                           </h1>
                         )}
                         {banner.subtitle && (
-                          <p className="text-sm sm:text-base md:text-xl lg:text-2xl xl:text-3xl mb-3 sm:mb-4 md:mb-6 animate-fadeIn delay-100 italic text-amber-100 drop-shadow-lg" style={{ fontFamily: 'cursive' }}>
+                          <p className="text-xs sm:text-sm md:text-lg lg:text-xl xl:text-2xl mb-3 sm:mb-4 md:mb-6 animate-fadeIn delay-100 italic text-amber-100 drop-shadow-lg" style={{ fontFamily: 'cursive' }}>
                             {banner.subtitle}
                           </p>
                         )}
