@@ -454,7 +454,7 @@ const CheckoutPage = () => {
     return (
       <>
         <MainHeader />
-        <Navigation />
+       
         <div className="min-h-[calc(100vh-120px)] bg-[#fbf6ef] flex flex-col items-center justify-center px-4">
           <div className="text-center">
             <h2 style={{ fontFamily: headerFont }} className="text-2xl md:text-3xl font-bold text-[#3b1b12] mb-4">
@@ -479,7 +479,7 @@ const CheckoutPage = () => {
       <MainHeader />
       <div className="bg-[#fbf6ef] min-h-screen w-screen overflow-x-hidden flex flex-col">
         <div className="w-screen max-w-7xl mx-auto px-3 md:px-6 py-4 h-full flex flex-col">
-          <Navigation />
+   
           
           {/* Breadcrumb - YOUR ORIGINAL CODE */}
           <div style={{ fontFamily: headerFont }} className="flex items-center gap-1.5 mb-4 md:mb-6 text-xs md:text-sm overflow-x-auto pb-2">
