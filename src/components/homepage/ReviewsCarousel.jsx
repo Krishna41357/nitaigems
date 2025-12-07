@@ -1,5 +1,5 @@
 import React from 'react';
-import { Star, CheckCircle } from 'lucide-react';
+import { Star, CheckCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const reviews = [
   {
@@ -59,13 +59,10 @@ const reviews = [
 ];
 
 const ReviewsCarousel = () => {
-  const [translateY, setTranslateY] = React.useState(0);
-  const [translateX, setTranslateX] = React.useState(0);
+  const [currentIndex, setCurrentIndex] = React.useState(0);
+  const [isAutoPlaying, setIsAutoPlaying] = React.useState(true);
   const [isMobile, setIsMobile] = React.useState(false);
-  const animationRef = React.useRef(null);
-
-  // Create an extended array for infinite loop effect
-  const extendedReviews = [...reviews, ...reviews, ...reviews];
+  const autoPlayRef = React.useRef(null);
 
   // Check screen size
   React.useEffect(() => {
@@ -79,43 +76,33 @@ const ReviewsCarousel = () => {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  // Auto-play functionality for mobile
   React.useEffect(() => {
-    const cardHeight = 360;
-    const cardWidth = 384; // w-96 = 384px
-    const gap = 32; // gap-8 = 32px
-    const totalHeightDesktop = (cardHeight + gap) * reviews.length;
-    const totalWidthMobile = (cardWidth + gap) * reviews.length;
-    
-    let currentTranslate = 0;
-    
-    const animate = () => {
-      currentTranslate -= 0.4; // Smooth scroll speed
-      
-      if (isMobile) {
-        // Horizontal scroll for mobile
-        if (Math.abs(currentTranslate) >= totalWidthMobile) {
-          currentTranslate = 0;
-        }
-        setTranslateX(currentTranslate);
-      } else {
-        // Vertical scroll for desktop
-        if (Math.abs(currentTranslate) >= totalHeightDesktop) {
-          currentTranslate = 0;
-        }
-        setTranslateY(currentTranslate);
-      }
-      
-      animationRef.current = requestAnimationFrame(animate);
-    };
-    
-    animationRef.current = requestAnimationFrame(animate);
-    
+    if (isAutoPlaying && isMobile) {
+      autoPlayRef.current = setInterval(() => {
+        setCurrentIndex((prev) => (prev + 1) % reviews.length);
+      }, 4000);
+    }
+
     return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
+      if (autoPlayRef.current) {
+        clearInterval(autoPlayRef.current);
       }
     };
-  }, [isMobile]);
+  }, [isAutoPlaying, isMobile]);
+
+  const goToNext = () => {
+    setCurrentIndex((prev) => (prev + 1) % reviews.length);
+  };
+
+  const goToPrev = () => {
+    setCurrentIndex((prev) => (prev - 1 + reviews.length) % reviews.length);
+  };
+
+  const goToSlide = (index) => {
+    setCurrentIndex(index);
+    setIsAutoPlaying(false);
+  };
 
   const getInitials = (name) => {
     return name
@@ -140,9 +127,122 @@ const ReviewsCarousel = () => {
     return `${Math.floor(diffInDays / 365)} years ago`;
   };
 
+  // Desktop: Infinite vertical scroll
+  const [translateY, setTranslateY] = React.useState(0);
+  const animationRef = React.useRef(null);
+
+  React.useEffect(() => {
+    if (!isMobile) {
+      const cardHeight = 360;
+      const gap = 32;
+      const totalHeight = (cardHeight + gap) * reviews.length;
+      
+      let currentTranslate = 0;
+      
+      const animate = () => {
+        currentTranslate -= 0.4;
+        
+        if (Math.abs(currentTranslate) >= totalHeight) {
+          currentTranslate = 0;
+        }
+        setTranslateY(currentTranslate);
+        
+        animationRef.current = requestAnimationFrame(animate);
+      };
+      
+      animationRef.current = requestAnimationFrame(animate);
+      
+      return () => {
+        if (animationRef.current) {
+          cancelAnimationFrame(animationRef.current);
+        }
+      };
+    }
+  }, [isMobile]);
+
+  const extendedReviews = [...reviews, ...reviews, ...reviews];
+
+  const ReviewCard = ({ review, className = "" }) => (
+    <div 
+      className={`review-card rounded-3xl p-6 md:p-8 flex flex-col justify-between backdrop-blur-md ${className}`}
+      style={{
+        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.85) 100%)',
+        boxShadow: '0 20px 60px rgba(0, 0, 0, 0.15), 0 8px 20px rgba(0, 0, 0, 0.1), inset 0 1px 2px rgba(255, 255, 255, 0.8)',
+        border: '1px solid rgba(255, 255, 255, 0.5)',
+        minHeight: '360px'
+      }}
+    >
+      <div>
+        {/* Avatar and Name */}
+        <div className="flex items-center mb-4 md:mb-6">
+          {review.customerAvatar ? (
+            <img
+              src={review.customerAvatar}
+              alt={review.customerName}
+              className="w-14 h-14 md:w-16 md:h-16 rounded-full object-cover ring-4 ring-white/60"
+              style={{
+                boxShadow: '0 8px 16px rgba(0, 0, 0, 0.1)'
+              }}
+            />
+          ) : (
+            <div 
+              className="w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center text-white font-bold text-base md:text-lg ring-4 ring-white/60"
+              style={{
+                background: 'linear-gradient(135deg, #d4af37 0%, #f4e5c3 100%)',
+                boxShadow: '0 8px 16px rgba(0, 0, 0, 0.1)'
+              }}
+            >
+              {getInitials(review.customerName)}
+            </div>
+          )}
+          <div className="ml-3 md:ml-4">
+            <div className="flex items-center gap-2 mb-1">
+              <h4 className="font-bold text-base md:text-lg text-gray-900">
+                {review.customerName}
+              </h4>
+              {review.isVerified && (
+                <CheckCircle className="w-4 h-4 md:w-5 md:h-5 text-emerald-500" />
+              )}
+            </div>
+            {review.isVerified && (
+              <p className="text-xs text-emerald-600 font-semibold">Verified Purchase</p>
+            )}
+          </div>
+        </div>
+
+        {/* Rating */}
+        <div className="flex mb-4 md:mb-5">
+          {[...Array(5)].map((_, i) => (
+            <Star
+              key={i}
+              className={`w-4 h-4 md:w-5 md:h-5 ${
+                i < review.rating
+                  ? 'text-yellow-500 fill-yellow-500'
+                  : 'text-gray-300 fill-gray-300'
+              }`}
+            />
+          ))}
+        </div>
+
+        {/* Review Text */}
+        <p className="text-gray-700 text-sm md:text-base leading-relaxed mb-4 md:mb-5 font-normal">
+          {review.reviewText}
+        </p>
+      </div>
+
+      {/* Date */}
+      <div className="flex items-center justify-between pt-3 md:pt-4 border-t border-gray-200/50">
+        <p className="text-xs md:text-sm text-gray-500 font-medium">
+          {getRelativeTime(review.date)}
+        </p>
+        <div className="w-8 h-1 rounded-full bg-gradient-to-r from-gray-300 to-gray-200"></div>
+      </div>
+    </div>
+  );
+
   return (
     <section className="min-h-screen lg:h-screen relative overflow-hidden">
-      {/* High-quality background image using img tag */}
+      {/* High-quality background image */}
       <img 
         src="https://res.cloudinary.com/dxoxbnptl/image/upload/v1765110920/bg7_ulxrnt.jpg" 
         alt="Background"
@@ -155,7 +255,7 @@ const ReviewsCarousel = () => {
           willChange: 'transform'
         }}
       />
-      {/* Dark gradient overlay on left for better text visibility */}
+      {/* Dark gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-black/20 to-transparent" />
       
       <div className="container mx-auto px-4 min-h-screen lg:h-screen relative z-10">
@@ -193,97 +293,70 @@ const ReviewsCarousel = () => {
             </p>
           </div>
 
-          {/* Right Section - Carousel (Vertical on desktop, Horizontal on mobile) */}
+          {/* Right Section - Carousel */}
           <div className="w-full lg:w-1/2 flex items-center justify-center">
-            <div className={`overflow-hidden flex items-center ${isMobile ? 'w-full' : 'h-screen'}`}>
-              <div 
-                className={`flex gap-8 ${isMobile ? 'flex-row' : 'flex-col'}`}
-                style={{
-                  transform: isMobile 
-                    ? `translateX(${translateX}px)` 
-                    : `translateY(${translateY}px)`
-                }}
-              >
-                {extendedReviews.map((review, idx) => (
-                  <div 
-                    key={`${review.id}-${idx}`}
-                    className="review-card rounded-3xl p-6 md:p-8 w-80 md:w-96 flex flex-col justify-between backdrop-blur-md flex-shrink-0"
-                    style={{
-                      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.85) 100%)',
-                      boxShadow: '0 20px 60px rgba(0, 0, 0, 0.15), 0 8px 20px rgba(0, 0, 0, 0.1), inset 0 1px 2px rgba(255, 255, 255, 0.8)',
-                      border: '1px solid rgba(255, 255, 255, 0.5)',
-                      minHeight: '360px'
-                    }}
-                  >
-                    <div>
-                      {/* Avatar and Name */}
-                      <div className="flex items-center mb-4 md:mb-6">
-                        {review.customerAvatar ? (
-                          <img
-                            src={review.customerAvatar}
-                            alt={review.customerName}
-                            className="w-14 h-14 md:w-16 md:h-16 rounded-full object-cover ring-4 ring-white/60"
-                            style={{
-                              boxShadow: '0 8px 16px rgba(0, 0, 0, 0.1)'
-                            }}
-                          />
-                        ) : (
-                          <div 
-                            className="w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center text-white font-bold text-base md:text-lg ring-4 ring-white/60"
-                            style={{
-                              background: 'linear-gradient(135deg, #d4af37 0%, #f4e5c3 100%)',
-                              boxShadow: '0 8px 16px rgba(0, 0, 0, 0.1)'
-                            }}
-                          >
-                            {getInitials(review.customerName)}
-                          </div>
-                        )}
-                        <div className="ml-3 md:ml-4">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h4 className="font-bold text-base md:text-lg text-gray-900">
-                              {review.customerName}
-                            </h4>
-                            {review.isVerified && (
-                              <CheckCircle className="w-4 h-4 md:w-5 md:h-5 text-emerald-500" />
-                            )}
-                          </div>
-                          {review.isVerified && (
-                            <p className="text-xs text-emerald-600 font-semibold">Verified Purchase</p>
-                          )}
-                        </div>
+            {isMobile ? (
+              // MOBILE: Hero Carousel Style - One card with transitions
+              <div className="relative w-full max-w-md">
+                <div className="relative h-[420px] flex items-center justify-center px-8">
+                  {/* Cards Container */}
+                  <div className="relative w-full h-full">
+                    {reviews.map((review, index) => (
+                      <div
+                        key={review.id}
+                        className={`absolute inset-0 transition-all duration-1000 ${
+                          index === currentIndex 
+                            ? 'opacity-100 scale-100 z-10' 
+                            : 'opacity-0 scale-95 z-0'
+                        }`}
+                      >
+                        <ReviewCard review={review} />
                       </div>
-
-                      {/* Rating */}
-                      <div className="flex mb-4 md:mb-5">
-                        {[...Array(5)].map((_, i) => (
-                          <Star
-                            key={i}
-                            className={`w-4 h-4 md:w-5 md:h-5 ${
-                              i < review.rating
-                                ? 'text-yellow-500 fill-yellow-500'
-                                : 'text-gray-300 fill-gray-300'
-                            }`}
-                          />
-                        ))}
-                      </div>
-
-                      {/* Review Text */}
-                      <p className="text-gray-700 text-sm md:text-base leading-relaxed mb-4 md:mb-5 font-normal">
-                        {review.reviewText}
-                      </p>
-                    </div>
-
-                    {/* Date */}
-                    <div className="flex items-center justify-between pt-3 md:pt-4 border-t border-gray-200/50">
-                      <p className="text-xs md:text-sm text-gray-500 font-medium">
-                        {getRelativeTime(review.date)}
-                      </p>
-                      <div className="w-8 h-1 rounded-full bg-gradient-to-r from-gray-300 to-gray-200"></div>
-                    </div>
+                    ))}
                   </div>
-                ))}
+
+                  {/* Navigation Arrows */}
+                 
+                </div>
+
+                {/* Dots Indicator */}
+                {reviews.length > 1 && (
+                  <div className="flex justify-center gap-2 mt-6">
+                    {reviews.map((_, index) => (
+                      <button
+                        key={index}
+                        onClick={() => goToSlide(index)}
+                        className={`transition-all duration-300 rounded-full ${
+                          index === currentIndex 
+                            ? 'w-8 h-2 bg-white' 
+                            : 'w-2 h-2 bg-white/50 hover:bg-white/70'
+                        }`}
+                        aria-label={`Go to review ${index + 1}`}
+                      />
+                    ))}
+                  </div>
+                )}
               </div>
-            </div>
+            ) : (
+              // DESKTOP: Vertical infinite scroll
+              <div className="overflow-hidden flex items-center h-screen">
+                <div 
+                  className="flex flex-col gap-8"
+                  style={{
+                    transform: `translateY(${translateY}px)`,
+                    willChange: 'transform'
+                  }}
+                >
+                  {extendedReviews.map((review, idx) => (
+                    <ReviewCard 
+                      key={`${review.id}-${idx}`} 
+                      review={review} 
+                      className="w-96 flex-shrink-0"
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
