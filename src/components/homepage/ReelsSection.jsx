@@ -43,36 +43,36 @@ const ReelsSection = () => {
     }
   };
 
- const loadLocalReels = () => {
-  const localReels = [
-    {
-      id: 'reel-local-1',
-      videoUrl: 'https://res.cloudinary.com/dxoxbnptl/video/upload/v1765112697/video1_hieygd.mp4',
-      title: 'Diamond Styling Tips',
-      description: 'Exquisite Vines Diamond Necklace Set',
-      duration: 45,
-      isActive: true
-    },
-    {
-      id: 'reel-local-2',
-      videoUrl: 'https://res.cloudinary.com/dxoxbnptl/video/upload/v1765112696/video3_miynta.mp4',
-      title: 'Elegant Diamond Jewellery',
-      description: 'Every Day Diamond Collection',
-      duration: 60,
-      isActive: true,
-    },
-    {
-      id: 'reel-local-3',
-      videoUrl: 'https://res.cloudinary.com/dxoxbnptl/video/upload/v1765112694/video2_a54fyn.mp4',
-      title: 'Precious Necklace Jewellery',
-      description: 'Precious Stones Collection',
-      duration: 60,
-      isActive: true,
-    },
-  ];
+  const loadLocalReels = () => {
+    const localReels = [
+      {
+        id: 'reel-local-1',
+        videoUrl: 'https://res.cloudinary.com/dxoxbnptl/video/upload/v1765112697/video1_hieygd.mp4',
+        title: 'Diamond Styling Tips',
+        description: 'Exquisite Vines Diamond Necklace Set',
+        duration: 45,
+        isActive: true
+      },
+      {
+        id: 'reel-local-2',
+        videoUrl: 'https://res.cloudinary.com/dxoxbnptl/video/upload/v1765112696/video3_miynta.mp4',
+        title: 'Elegant Diamond Jewellery',
+        description: 'Every Day Diamond Collection',
+        duration: 60,
+        isActive: true,
+      },
+      {
+        id: 'reel-local-3',
+        videoUrl: 'https://res.cloudinary.com/dxoxbnptl/video/upload/v1765112694/video2_a54fyn.mp4',
+        title: 'Precious Necklace Jewellery',
+        description: 'Precious Stones Collection',
+        duration: 60,
+        isActive: true,
+      },
+    ];
 
-  setReels(localReels);
-};
+    setReels(localReels);
+  };
 
   // animate from a spread line into an overlapping stack for visual accuracy
   useEffect(() => {
@@ -272,94 +272,116 @@ const ReelsSection = () => {
             </p>
           </div>
 
-          {/* Stacked Reels */}
-          <div ref={stackRef} className="relative h-[550px] max-w-md mx-auto perspective-1000">
-            {Array.from({ length: 5 }).map((_, index) => {
-              // Map slots so that the center slot (index 2) displays the active reel (reels[0]).
-              // This keeps `reels[0]` as the front/active reel while allowing circular neighbors.
-              const centerSlot = 2;
-              const reel = reels.length > 0 ? reels[(index - centerSlot + reels.length) % reels.length] : undefined;
-              const position = getStackPosition(index);
-              return (
-                <div
-                  key={`${reel?.id ?? 'placeholder'}-${index}`}
-                  onClick={() => openModal(index)}
-                  className="absolute inset-0 cursor-pointer transition-all duration-700 ease-out"
-                  style={{
-                    transform: `translateX(${position.x}px) translateY(${position.y ?? 0}px) scale(${position.scale}) rotate(${position.rotate}deg)`,
-                    zIndex: position.zIndex,
-                    transformOrigin: 'center center',
-                  }}
-                >
-                  <div style={{ width: '300px', height: '100%', margin: '0 auto' }} className="relative rounded-3xl overflow-hidden shadow-2xl hover:shadow-3xl transition-shadow">
-                    {/* Video Thumbnail (first frame) */}
-                    {reel ? (
-                      <video
-                        ref={index === 2 ? videoRef : undefined}
-                        src={reel.videoUrl}
-                        className="w-full h-full object-cover"
-                        preload="metadata"
-                        muted
-                        playsInline
-                        autoPlay={index === 2}
-                        onPlay={index === 2 ? handleVideoPlay : undefined}
-                        onPause={index === 2 ? handleVideoPause : undefined}
-                        onEnded={index === 2 ? handleVideoEnded : undefined}
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-white/5 flex items-center justify-center">
-                        <div className="w-3/4 h-3/4 bg-white/10 rounded-2xl border border-white/6" />
-                      </div>
-                    )}
+          {/* Stacked Reels with Navigation */}
+          <div className="relative max-w-6xl mx-auto px-16 md:px-20">
+            {/* Left Arrow */}
+            {reels.length > 1 && (
+              <button
+                onClick={goToPreviousReel}
+                className="absolute left-0 md:left-2 top-[45%] md:top-1/2 -translate-y-1/2 z-[70] w-12 h-12 md:w-16 md:h-16 bg-white/95 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white transition-all shadow-xl hover:scale-110 border-2 border-gray-200"
+              >
+                <ChevronLeft size={28} className="text-gray-900 bg-transparent stroke-[2.5]" />
+              </button>
+            )}
 
-                    {/* Gradient Overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/80" />
+            {/* Right Arrow */}
+            {reels.length > 1 && (
+              <button
+                onClick={goToNextReel}
+                className="absolute right-0 md:right-2 top-[45%] md:top-1/2 -translate-y-1/2 z-[70] w-12 h-12 md:w-16 md:h-16 bg-white/95 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white transition-all shadow-xl hover:scale-110 border-2 border-gray-200"
+              >
+                <ChevronRight size={28} className="text-gray-900 stroke-[2.5]" />
+              </button>
+            )}
 
-                    {/* Top Controls (only on front card) */}
-                    {index === 2 && (
-                      <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-10">
-                        <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
-                          <span className="text-white text-sm font-medium">Live</span>
-                        </div>
-                        <button className="text-white hover:scale-110 transition-transform">
-                          <div className="flex gap-1">
-                            <div className="w-1.5 h-1.5 bg-white rounded-full" />
-                            <div className="w-1.5 h-1.5 bg-white rounded-full" />
-                            <div className="w-1.5 h-1.5 bg-white rounded-full" />
-                          </div>
-                        </button>
-                      </div>
-                    )}
-
-                    {/* Center Play Button - Removed for auto-play */}
-                    
-                    {/* Bottom Info (only on front card) */}
-                    {index === 2 && reel && (
-                      <div className="absolute bottom-0 left-0 right-0 p-6">
-                        <h3 className="text-white font-semibold text-xl mb-1">
-                          {reel.title}
-                        </h3>
-                        <p className="text-white/90 text-sm">
-                          {reel.description}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-
-            {/* Progress Indicators (always 5) */}
-            <div className="absolute bottom-[-60px] left-1/2 -translate-x-1/2 flex gap-2">
-              {Array.from({ length: 5 }).map((_, index) => (
+            <div ref={stackRef} className="relative h-[550px] max-w-md mx-auto perspective-1000">
+              {Array.from({ length: 5 }).map((_, index) => {
+                // Map slots so that the center slot (index 2) displays the active reel (reels[0]).
+                // This keeps `reels[0]` as the front/active reel while allowing circular neighbors.
+                const centerSlot = 2;
+                const reel = reels.length > 0 ? reels[(index - centerSlot + reels.length) % reels.length] : undefined;
+                const position = getStackPosition(index);
+                return (
                   <div
-                    key={index}
-                    className={`h-1 rounded-full transition-all ${
-                      index === 2 ? 'w-12' : 'w-8'
-                    } ${index === 2 ? 'bg-gray-900' : 'bg-gray-300'}`}
-                  />
-                ))}
+                    key={`${reel?.id ?? 'placeholder'}-${index}`}
+                    onClick={() => openModal(index)}
+                    className="absolute inset-0 cursor-pointer transition-all duration-700 ease-out"
+                    style={{
+                      transform: `translateX(${position.x}px) translateY(${position.y ?? 0}px) scale(${position.scale}) rotate(${position.rotate}deg)`,
+                      zIndex: position.zIndex,
+                      transformOrigin: 'center center',
+                    }}
+                  >
+                    <div style={{ width: '300px', height: '100%', margin: '0 auto' }} className="relative rounded-3xl overflow-hidden shadow-2xl hover:shadow-3xl transition-shadow">
+                      {/* Video Thumbnail (first frame) */}
+                      {reel ? (
+                        <video
+                          ref={index === 2 ? videoRef : undefined}
+                          src={reel.videoUrl}
+                          className="w-full h-full object-cover"
+                          preload="metadata"
+                          muted
+                          playsInline
+                          autoPlay={index === 2}
+                          onPlay={index === 2 ? handleVideoPlay : undefined}
+                          onPause={index === 2 ? handleVideoPause : undefined}
+                          onEnded={index === 2 ? handleVideoEnded : undefined}
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-white/5 flex items-center justify-center">
+                          <div className="w-3/4 h-3/4 bg-white/10 rounded-2xl border border-white/6" />
+                        </div>
+                      )}
+
+                      {/* Gradient Overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/80" />
+
+                      {/* Top Controls (only on front card) */}
+                      {index === 2 && (
+                        <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-10">
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
+                            <span className="text-white text-sm font-medium">Live</span>
+                          </div>
+                          <button className="text-white hover:scale-110 transition-transform">
+                            <div className="flex gap-1">
+                              <div className="w-1.5 h-1.5 bg-white rounded-full" />
+                              <div className="w-1.5 h-1.5 bg-white rounded-full" />
+                              <div className="w-1.5 h-1.5 bg-white rounded-full" />
+                            </div>
+                          </button>
+                        </div>
+                      )}
+
+                      {/* Center Play Button - Removed for auto-play */}
+                      
+                      {/* Bottom Info (only on front card) */}
+                      {index === 2 && reel && (
+                        <div className="absolute bottom-0 left-0 right-0 p-6">
+                          <h3 className="text-white font-semibold text-xl mb-1">
+                            {reel.title}
+                          </h3>
+                          <p className="text-white/90 text-sm">
+                            {reel.description}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+
+              {/* Progress Indicators (always 5) */}
+              <div className="absolute bottom-[-60px] left-1/2 -translate-x-1/2 flex gap-2">
+                {Array.from({ length: 5 }).map((_, index) => (
+                    <div
+                      key={index}
+                      className={`h-1 rounded-full transition-all ${
+                        index === 2 ? 'w-12' : 'w-8'
+                      } ${index === 2 ? 'bg-gray-900' : 'bg-gray-300'}`}
+                    />
+                  ))}
+              </div>
             </div>
           </div>
         </div>
@@ -387,30 +409,30 @@ const ReelsSection = () => {
             onClick={closeModal}
             className="absolute top-4 right-4 z-50 w-10 h-10 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-black/70 transition-colors"
           >
-            X
+            <X size={20} />
           </button>
 
           {/* Prev arrow */}
           {reels.length > 1 && (
             <button
               onClick={goToPreviousReel}
-              className="absolute left-4 top-1/2 -translate-y-1/2 z-50 w-20 h-20 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-black/70 transition-colors"
+              className="absolute left-4 top-1/2 -translate-y-1/2 z-50 w-12 h-12 md:w-20 md:h-20 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-black/70 transition-colors"
             >
-              <ChevronLeft size={48} className="text-white stroke-white" />
+              <ChevronLeft size={32} className="text-white md:w-12 md:h-12" />
             </button>
           )}
           
           {reels.length > 1 && (
             <button
               onClick={goToNextReel}
-              className="absolute right-4 top-1/2 -translate-y-1/2 z-50 w-20 h-20 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+              className="absolute right-4 top-1/2 -translate-y-1/2 z-50 w-12 h-12 md:w-20 md:h-20 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-black/70 transition-colors"
             >
-              <ChevronRight size={48} />
+              <ChevronRight size={32} className="md:w-12 md:h-12" />
             </button>
           )}
 
           {/* Video Container */}
-          <div className="relative w-full max-w-md h-full max-h-[90vh] flex items-center justify-center">
+          <div className="relative w-full max-w-md h-full max-h-screen md:max-h-[90vh] flex items-center justify-center">
             <video
               src={reels[0]?.videoUrl}
               className="w-full h-full object-contain"
