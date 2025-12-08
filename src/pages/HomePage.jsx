@@ -61,7 +61,7 @@ const HomePage = () => {
         <JewelleryCategoriesSection />
         
         {/* Ring Model / Hero with Emerald */}
-        <RingModel />
+      
       
         {/* Jewellery Categories Section */}
         
