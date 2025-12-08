@@ -77,9 +77,9 @@ const CategoryCardsSection = () => {
       <style>{styles}</style>
       <section className="category-section">
         {/* background */}
-        <div className="bg-wrapper">
+        {/* <div className="bg-wrapper">
           <img src="https://res.cloudinary.com/dxoxbnptl/image/upload/v1765110873/bg4_gfjtlz.jpg" alt="Background" className="bg-image" />
-        </div>
+        </div> */}
         <div className="bg-overlay" />
 
         <div className="content-wrapper">
@@ -150,12 +150,15 @@ const styles = `
   height: 100%;
   object-fit: cover;
   image-rendering: crisp-edges;
+  filter: blur(8px);
+  transform: scale(1.1);
 }
 
 .bg-overlay {
   position: absolute;
   inset: 0;
   background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(2px);
   z-index: 1;
 }
 
@@ -261,10 +264,10 @@ const styles = `
 
 .subtitle {
   font-size: clamp(0.875rem, 1.5vw, 1rem);
-  color: white;
-  font-weight: 300;
+  color: creamsicle;
+  font-weight: 600;
   text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
-  margin-top: clamp(0.5rem, 1vw, 0.75rem);
+  margin-top: clamp(0rem, 0vw, 0.75rem);
 }
 
 /* Mobile subtitle */
@@ -499,6 +502,10 @@ const styles = `
   .category-title,
   .title-underline {
     transition: none;
+  }
+  
+  .bg-image {
+    filter: blur(15px);
   }
 }
 `;
