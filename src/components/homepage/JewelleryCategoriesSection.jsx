@@ -105,11 +105,34 @@ const JewelleryCategoriesSection = () => {
   const [activeTab, setActiveTab] = useState('precious-beads-necklace');
   const [products, setProducts] = useState({});
   const [loading, setLoading] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth <= 640);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const categories = [
-    { id: 'precious-beads-necklace', label: 'Precious Beads Necklace', slug: 'precious-beads-necklace' },
-    { id: 'semi-precious-beads-necklace', label: 'Semi Precious Beads Necklace', slug: 'semi-precious-beads-necklace' },
-    { id: 'diamond-jewelry', label: 'Diamond Jewelry', slug: 'diamond-jewelry' }
+    { 
+      id: 'precious-beads-necklace', 
+      label: 'Precious Beads Necklace',
+      mobileLabel: 'Precious Beads',
+      slug: 'precious-beads-necklace' 
+    },
+    { 
+      id: 'semi-precious-beads-necklace', 
+      label: 'Semi Precious Beads Necklace',
+      mobileLabel: 'Semi Precious',
+      slug: 'semi-precious-beads-necklace' 
+    },
+    { 
+      id: 'diamond-jewelry', 
+      label: 'Diamond Jewelry',
+      mobileLabel: 'Diamonds',
+      slug: 'diamond-jewelry' 
+    }
   ];
 
   useEffect(() => {
@@ -189,9 +212,6 @@ const JewelleryCategoriesSection = () => {
             <div className="divider-line right"></div>
           </div>
           <h2 className="section-title">Timeless Treasures</h2>
-          <p className="section-subtitle">
-            Discover handpicked collections crafted with precision and adorned with elegance
-          </p>
         </div>
 
         <div className="tabs-wrapper">
@@ -202,7 +222,7 @@ const JewelleryCategoriesSection = () => {
                   onClick={() => setActiveTab(category.id)}
                   className={`tab-button ${activeTab === category.id ? 'active' : ''}`}
                 >
-                  {category.label}
+                  {isMobile ? category.mobileLabel : category.label}
                 </button>
                 {index < categories.length - 1 && (
                   <span className="tab-separator">•</span>
@@ -260,7 +280,7 @@ const sectionStyles = `
 }
 
 .jewellery-section {
-  padding: clamp(3rem, 6vw, 5rem) clamp(1rem, 3vw, 2rem);
+  padding: clamp(1rem, 1vw, 5rem) clamp(1rem, 3vw, 2rem);
   max-width: 1400px;
   margin: 0 auto;
   background: linear-gradient(to bottom, #ffffff, #f5f0e8);
@@ -372,19 +392,23 @@ const sectionStyles = `
 }
 
 @media (max-width: 640px) {
-  .tab-separator {
-    display: none;
-  }
-  
   .tabs-container {
-    flex-direction: column;
-    gap: 0.5rem;
+    gap: 0;
+    padding: 0;
+    justify-content: space-evenly;
   }
   
   .tab-button {
-    padding: 0.75rem 1.5rem;
-    width: 100%;
+    font-size: clamp(0.875rem, 3.5vw, 1rem);
+    padding: clamp(0.5rem, 2vw, 0.75rem) clamp(0.5rem, 2vw, 1rem);
+    letter-spacing: 0.02em;
+    flex: 1;
     text-align: center;
+    max-width: 33.333%;
+  }
+  
+  .tab-separator {
+    display: none;
   }
 }
 
@@ -671,4 +695,4 @@ const cardStyles = `
 }
 `;
 
-export default JewelleryCategoriesSection;
+export default JewelleryCategoriesSection;  
