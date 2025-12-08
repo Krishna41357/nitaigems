@@ -462,7 +462,7 @@ const MainHeader = () => {
                     console.log('Desktop - Login clicked');
                     handleUserAction('login');
                   }} 
-                  className="w-full text-left px-3 lg:px-4 py-2 hover:bg-gray-50 text-xs lg:text-sm transition-colors text-gray-900"
+                  className="w-full text-left px-3 lg:px-4 py-2 hover:bg-gray-50 text-xs lg:text-sm transition-colors bg-transparent text-gray-900"
                 >
                   Login
                 </button>
