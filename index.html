@@ -25,13 +25,18 @@
 
     <style>
       /* ---- MOBILE VIEWPORT FIX ---- */
-html, body {
-  margin: 0;
-  padding: 0;
-  height: auto;
-  min-height: 100%;
-}
+      :root {
+        --vh: 100dvh;
+      }
 
+      html,
+      body,
+      #root {
+        height: 100dvh; /* FIXES chrome mobile collapsing UI */
+        min-height: 100dvh;
+        margin: 0;
+        padding: 0;
+      }
 
       /* ---------- WHATSAPP WIDGET ---------- */
       #getbutton-wrapper {
