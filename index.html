@@ -25,27 +25,26 @@
     />
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>client</title>
+    <title>Nitai Gems</title>
 
     <style>
+      /* ---------- RESET ---------- */
       html, body, #root {
         height: 100%;
         margin: 0;
         padding: 0;
       }
 
-      /* Wrapper */
+      /* ---------- WHATSAPP WIDGET (existing) ---------- */
       #getbutton-wrapper {
         position: fixed;
-        bottom: calc(20px + env(safe-area-inset-bottom));
+        bottom: calc(70px + env(safe-area-inset-bottom));
         left: 10px;
         z-index: 999999;
         display: flex;
         flex-direction: column;
         align-items: flex-start;
       }
-
-      /* Popup bubble */
       #getbutton-popup {
         background: white;
         color: #333;
@@ -60,18 +59,14 @@
         left: 0;
         transform: none;
       }
-
       @keyframes slideIn {
         from { opacity: 0; transform: translateY(10px); }
         to { opacity: 1; transform: translateY(0px); }
       }
-
       @keyframes slideOut {
         from { opacity: 1; transform: translateY(0px); }
         to { opacity: 0; transform: translateY(10px); }
       }
-
-      /* WhatsApp Floating Button */
       #getbutton-btn {
         width: 60px;
         height: 60px;
@@ -84,43 +79,87 @@
         cursor: pointer;
         animation: popin 0.4s ease;
       }
-
       #getbutton-btn:hover { filter: brightness(0.9); }
-
       @keyframes popin {
         0% { transform: scale(0.5); opacity: 0; }
         100% { transform: scale(1); opacity: 1; }
       }
-
       #getbutton-btn img { width: 32px; height: 32px; }
 
-      /* RESPONSIVE */
+      /* ---------- MOBILE BOTTOM NAV ---------- */
+      #mobile-bottom-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 60px;
+        background: #fdfcf9; /* off-white */
+        box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.08);
+        display: none; /* shown by JS after 5s */
+        z-index: 9999;
+      }
+      #mobile-bottom-nav ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+      }
+      #mobile-bottom-nav li {
+        flex: 1;
+        text-align: center;
+      }
+      #mobile-bottom-nav a {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        color: #d4b483; /* cream */
+        text-decoration: none;
+        height: 100%;
+        transition: color 0.2s;
+      }
+      #mobile-bottom-nav a.active,
+      #mobile-bottom-nav a:hover {
+        color: #b38e5d;
+      }
+      #mobile-bottom-nav i {
+        font-size: 20px;
+        margin-bottom: 4px;
+      }
+
+      /* ---------- RESPONSIVE ---------- */
       @media (max-width: 768px) {
         #getbutton-btn { width: 48px; height: 48px; }
         #getbutton-btn img { width: 26px; height: 26px; }
       }
-
       @media (max-width: 480px) {
         #getbutton-btn { width: 42px; height: 42px; }
         #getbutton-btn img { width: 24px; height: 24px; }
         #getbutton-popup { font-size: 14px; padding: 10px 12px; }
+      }
+
+      /* Hide bottom nav on large screens */
+      @media (min-width: 769px) {
+        #mobile-bottom-nav { display: none !important; }
       }
     </style>
   </head>
 
   <body>
     <div id="root"></div>
-
     <script type="module" src="/src/main.jsx"></script>
 
-    <!-- WhatsApp Widget -->
+    <!-- WhatsApp Widget (existing) -->
     <div id="getbutton-wrapper">
       <div id="getbutton-popup">👋 Need help? Chat with us!</div>
-
       <a
         id="getbutton-btn"
         target="_blank"
-        href="https://wa.me/91XXXXXXXXXX?text=Hello!%20I%20need%20help%20from%20your%20website."
+        href="https://wa.me/916350288120?text=Hello !%20I%20need%20help%20from%20your%20website."
       >
         <img
           src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
@@ -129,30 +168,66 @@
       </a>
     </div>
 
+    <!-- Mobile Bottom Navigation -->
+    <nav id="mobile-bottom-nav">
+      <ul>
+        <li>
+          <a href="/" aria-label="Home">
+            <i class="fa-solid fa-house"></i>
+            <span>Home</span>
+          </a>
+        </li>
+        <li>
+          <a href="/products" aria-label="Products">
+            <i class="fa-solid fa-gem"></i>
+            <span>Products</span>
+          </a>
+        </li>
+        <li>
+          <a href="/cart" aria-label="Cart">
+            <i class="fa-solid fa-cart-shopping"></i>
+            <span>Cart</span>
+          </a>
+        </li>
+        <li>
+          <a href="/orders" aria-label="Orders">
+            <i class="fa-solid fa-box"></i>
+            <span>Orders</span>
+          </a>
+        </li>
+       
+      </ul>
+    </nav>
+
     <script>
+      /* ---------- WhatsApp popup (existing) ---------- */
       const popup = document.getElementById("getbutton-popup");
       const button = document.getElementById("getbutton-btn");
 
-      // Function to show popup for 3 seconds
       function showPopup() {
         popup.style.display = "block";
         popup.style.animation = "slideIn 0.3s ease forwards";
-
         setTimeout(() => {
           popup.style.animation = "slideOut 0.3s ease forwards";
           setTimeout(() => { popup.style.display = "none"; }, 300);
-        }, 3000); // Show for 3 seconds
+        }, 3000);
       }
-
-      // Initial popup after 2 seconds
       setTimeout(showPopup, 2000);
-
-      // Repeat popup every 10 seconds
       setInterval(showPopup, 15000);
+      button.addEventListener("click", () => { popup.style.display = "none"; });
 
-      // Hide popup immediately on button click
-      button.addEventListener("click", () => {
-        popup.style.display = "none";
+      /* ---------- Mobile nav reveal after 5 s ---------- */
+      setTimeout(() => {
+        document.getElementById("mobile-bottom-nav").style.display = "block";
+      }, 5000);
+
+      /* ---------- Active link highlight ---------- */
+      const navLinks = document.querySelectorAll("#mobile-bottom-nav a");
+      const currentPath = location.pathname;
+      navLinks.forEach(link => {
+        if (link.getAttribute("href") === currentPath) {
+          link.classList.add("active");
+        }
       });
     </script>
   </body>
