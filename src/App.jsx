@@ -22,7 +22,8 @@ import CheckoutPage from "./pages/CheckoutPage";
 import PaymentCallbackPage from "./pages/PaymentCallbackPage";
 import CollectionsTab from "./pages/admin/CollectionsTab";
 import OrdersPage from "./pages/OrdersPage";
-
+import MobileBottomNav from "./components/MobileBottomNav";
+import WhatsAppWidget from "./components/WhatsappWidget";
 
 const queryClient = new QueryClient();
 
@@ -43,38 +44,38 @@ export default function App() {
           <AuthProvider>
             <CartProvider>
               <WishlistProvider>
+                {/* Main routes container */}
+                <Routes>
+                  <Route path="/" element={<HomePage />} />
+                  <Route path="/products" element={<ProductsListingPage />} />
+                  <Route path="/products/collection/:collectionSlug" element={<ProductsListingPage />} />
+                  <Route path="/products/category/:categorySlug/:subCategorySlug/:slug" element={<ProductDetailPage />} />
+                  <Route path="/products/category/:categorySlug" element={<ProductsListingPage />} />
+                  <Route path="/product/:slug" element={<ProductDetailPage />} />
+                  <Route path="/products/category/:categorySlug/:slug" element={<ProductDetailPage />} />
+                  <Route path="/products/collection/:collectionSlug/:slug" element={<ProductDetailPage />} />
+                  <Route path="/cart" element={<CartPage />} />
+                  <Route path="/checkout" element={<CheckoutPage />} />
+                  <Route path="/orders" element={<OrdersPage />} />
+                  <Route path="/payment/callback" element={<PaymentCallbackPage />} />
 
-                {/* 👇 scrollable wrapper – every page lives inside */}
-                <div id="app-scroll">
-                  <Routes>
-                    <Route path="/" element={<HomePage />} />
-                    <Route path="/products" element={<ProductsListingPage />} />
-                    <Route path="/products/collection/:collectionSlug" element={<ProductsListingPage />} />
-                    <Route path="/products/category/:categorySlug/:subCategorySlug/:slug" element={<ProductDetailPage />} />
-                    <Route path="/products/category/:categorySlug" element={<ProductsListingPage />} />
-                    <Route path="/product/:slug" element={<ProductDetailPage />} />
-                    <Route path="/products/category/:categorySlug/:slug" element={<ProductDetailPage />} />
-                    <Route path="/products/collection/:collectionSlug/:slug" element={<ProductDetailPage />} />
-                    <Route path="/cart" element={<CartPage />} />
-                    <Route path="/checkout" element={<CheckoutPage />} />
-                    <Route path="/orders" element={<OrdersPage />} />
-                    <Route path="/payment/callback" element={<PaymentCallbackPage />} />
+                  <Route path="/admin/login" element={<AdminLogin />} />
 
-                    <Route path="/admin/login" element={<AdminLogin />} />
+                  <Route path="/admin/*" element={<AdminGuard><AdminLayout /></AdminGuard>}>
+                    <Route index element={<Dashboard />} />
+                    <Route path="users" element={<Users />} />
+                    <Route path="products" element={<Products />} />
+                    <Route path="events" element={<Events />} />
+                    <Route path="coupons" element={<Coupons />} />
+                    <Route path="collections" element={<CollectionsTab />} />
+                  </Route>
 
-                    <Route path="/admin/*" element={<AdminGuard><AdminLayout /></AdminGuard>}>
-                      <Route index element={<Dashboard />} />
-                      <Route path="users" element={<Users />} />
-                      <Route path="products" element={<Products />} />
-                      <Route path="events" element={<Events />} />
-                      <Route path="coupons" element={<Coupons />} />
-                      <Route path="collections" element={<CollectionsTab />} />
-                    </Route>
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
 
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
-                </div>
-                
+                {/* Global fixed components - rendered outside routes */}
+                {/* <MobileBottomNav />
+                <WhatsAppWidget /> */}
               </WishlistProvider>
             </CartProvider>
           </AuthProvider>
