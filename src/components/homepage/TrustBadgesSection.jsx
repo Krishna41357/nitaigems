@@ -261,7 +261,7 @@ const styles = `
 .trust-card {
   position: relative;
   text-align: center;
-  padding: 3rem 2rem 2.5rem;
+  padding: 2.5rem 1.5rem 2rem;
   background: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(10px);
   border-radius: 20px;
@@ -310,9 +310,9 @@ const styles = `
 /* Icon Container */
 .icon-container {
   position: relative;
-  width: 120px;
-  height: 120px;
-  margin: 0 auto 1.5rem;
+  width: 90px;
+  height: 90px;
+  margin: 0 auto 1.25rem;
 }
 
 .icon-glow {
@@ -347,7 +347,7 @@ const styles = `
 
 .logo-image {
   object-fit: contain;
-  padding: 10px;
+  padding: 8px;
 }
 
 .trust-card:hover .badge-icon,
@@ -363,50 +363,83 @@ const styles = `
 /* Text */
 .badge-title {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 1.35rem;
+  font-size: 1.2rem;
   font-weight: 700;
   color: #2d1f0f;
-  margin: 0 0 0.75rem 0;
+  margin: 0 0 0.6rem 0;
   white-space: pre-line;
   letter-spacing: 0.5px;
-  line-height: 1.5;
+  line-height: 1.4;
 }
 
 .badge-description {
   font-family: 'Montserrat', sans-serif;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   font-weight: 400;
   color: #5b4a37;
   letter-spacing: 0.3px;
   margin: 0;
+  line-height: 1.4;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
+/* Responsive - Mobile 2 Column Layout */
+@media (max-width: 767px) {
   .trust-section {
     padding: 3rem 1rem 5rem;
   }
   
   .trust-header {
     margin-bottom: 2.5rem;
+    padding: 0 1rem;
   }
   
   .trust-quote {
-    font-size: 1.15rem;
+    font-size: 1.1rem;
+    line-height: 1.6;
   }
   
   .trust-grid {
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 2rem;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+    padding: 0 0.5rem;
+  }
+  
+  .trust-card {
+    padding: 1.75rem 1rem 1.5rem;
+    border-radius: 16px;
+  }
+  
+  .icon-container {
+    width: 70px;
+    height: 70px;
+    margin: 0 auto 1rem;
   }
   
   .badge-title {
-    font-size: 1.2rem;
+    font-size: 1rem;
+    margin: 0 0 0.5rem 0;
+  }
+  
+  .badge-description {
+    font-size: 0.7rem;
   }
   
   .ornament-left,
   .ornament-right {
     display: none;
+  }
+}
+
+/* Tablets */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .trust-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+  }
+  
+  .icon-container {
+    width: 100px;
+    height: 100px;
   }
 }
 

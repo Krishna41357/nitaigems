@@ -150,7 +150,6 @@ const styles = `
   height: 100%;
   object-fit: cover;
   image-rendering: crisp-edges;
-  filter: blur(8px);
   transform: scale(1.1);
 }
 
@@ -158,7 +157,7 @@ const styles = `
   position: absolute;
   inset: 0;
   background: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(2px);
+
   z-index: 1;
 }
 
