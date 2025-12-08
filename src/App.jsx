@@ -72,7 +72,6 @@ export default function App() {
 
                   <Route path="*" element={<NotFound />} />
                 </Routes>
-
                 {/* Global fixed components - rendered outside routes */}
                 {/* <MobileBottomNav />
                 <WhatsAppWidget /> */}
