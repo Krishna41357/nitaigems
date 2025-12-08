@@ -23,6 +23,7 @@ import PaymentCallbackPage from "./pages/PaymentCallbackPage";
 import CollectionsTab from "./pages/admin/CollectionsTab";
 import OrdersPage from "./pages/OrdersPage";
 
+
 const queryClient = new QueryClient();
 
 const AdminGuard = ({ children }) => {
@@ -73,7 +74,7 @@ export default function App() {
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </div>
-
+                
               </WishlistProvider>
             </CartProvider>
           </AuthProvider>

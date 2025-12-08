@@ -26,27 +26,40 @@
     <style>
       /* ---- MOBILE VIEWPORT FIX ---- */
       :root {
-        --vh: 100dvh;
+        --vh: 1vh;
       }
 
       html,
-      body,
-      #root {
-        height: 100dvh; /* FIXES chrome mobile collapsing UI */
-        min-height: 100dvh;
+      body {
+        height: 100%;
         margin: 0;
         padding: 0;
+        overflow-x: hidden;
+      }
+
+      #root {
+        min-height: 100vh;
+        min-height: 100dvh; /* Dynamic viewport - modern browsers */
+        display: flex;
+        flex-direction: column;
       }
 
       /* ---------- WHATSAPP WIDGET ---------- */
       #getbutton-wrapper {
         position: fixed;
-         bottom: calc(env(safe-area-inset-bottom) + 70px); /* ALWAYS visible */
+        bottom: calc(80px + env(safe-area-inset-bottom)); /* Above mobile nav */
         left: 10px;
         z-index: 999999;
         display: flex;
         flex-direction: column;
         align-items: flex-start;
+      }
+
+      /* On desktop, position normally */
+      @media (min-width: 769px) {
+        #getbutton-wrapper {
+          bottom: max(20px, env(safe-area-inset-bottom));
+        }
       }
 
       #getbutton-popup {
@@ -119,21 +132,19 @@
         position: fixed;
         left: 0;
         right: 0;
-        bottom: 0; /* Always stick to bottom */
-        height: 60px;
+        bottom: 0;
+        height: 70px; /* Fixed height */
         background: #fdfcf9;
-        padding-bottom: env(safe-area-inset-bottom); /* for iPhones & modern Android */
+        padding-bottom: env(safe-area-inset-bottom);
         box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.08);
         z-index: 99999;
-        transform: translateY(0);
-        opacity: 1;
       }
 
       #mobile-bottom-nav ul {
         list-style: none;
         margin: 0;
         padding: 0;
-        height: 100%;
+        height: 70px; /* Match parent */
         display: flex;
         align-items: center;
         justify-content: space-around;
@@ -152,7 +163,7 @@
         font-size: 10px;
         color: #d4b483;
         text-decoration: none;
-        height: 100%;
+        padding: 8px 0;
         transition: color 0.2s;
       }
 
@@ -176,6 +187,11 @@
           width: 26px;
           height: 26px;
         }
+        
+        /* Add bottom padding to body content on mobile to account for nav */
+        body {
+          padding-bottom: calc(70px + env(safe-area-inset-bottom));
+        }
       }
 
       @media (max-width: 480px) {
@@ -192,6 +208,10 @@
       @media (min-width: 769px) {
         #mobile-bottom-nav {
           display: none !important;
+        }
+        
+        body {
+          padding-bottom: 0;
         }
       }
     </style>
@@ -247,6 +267,16 @@
     </nav>
 
     <script>
+      /* ---------- Fix viewport height for mobile browsers ---------- */
+      function setVH() {
+        const vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty('--vh', `${vh}px`);
+      }
+      
+      setVH();
+      window.addEventListener('resize', setVH);
+      window.addEventListener('orientationchange', setVH);
+
       /* ---------- WhatsApp popup ---------- */
       const popup = document.getElementById("getbutton-popup");
       const button = document.getElementById("getbutton-btn");
