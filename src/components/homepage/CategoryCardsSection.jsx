@@ -155,7 +155,7 @@ const styles = `
 .bg-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.4);
   z-index: 1;
 }
 

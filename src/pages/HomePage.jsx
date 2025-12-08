@@ -73,7 +73,7 @@ const HomePage = () => {
         <SubcategoriesShowcase />
 
         {/* Collections Section */}
-        <CollectionsSection />
+        {/* <CollectionsSection /> */}
 
         {/* Reels Section */}
         <ReelsSection />
