@@ -3,10 +3,8 @@
   <head>
     <meta charset="UTF-8" />
 
-    <!-- Website Icon -->
+    <!-- icons & fonts -->
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-
-    <!-- Google Fonts -->
     <link
       href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Cormorant+Garamond:wght@400;500;600&display=swap"
       rel="stylesheet"
@@ -17,8 +15,6 @@
       href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Playfair+Display:wght@400;700&display=swap"
       rel="stylesheet"
     />
-
-    <!-- FontAwesome -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
@@ -28,45 +24,64 @@
     <title>Nitai Gems</title>
 
     <style>
-      /* ---------- RESET ---------- */
-      html, body, #root {
-        height: 100%;
+      /* ---- MOBILE VIEWPORT FIX ---- */
+      :root {
+        --vh: 100dvh;
+      }
+
+      html,
+      body,
+      #root {
+        height: 100dvh; /* FIXES chrome mobile collapsing UI */
+        min-height: 100dvh;
         margin: 0;
         padding: 0;
       }
 
-      /* ---------- WHATSAPP WIDGET (existing) ---------- */
+      /* ---------- WHATSAPP WIDGET ---------- */
       #getbutton-wrapper {
         position: fixed;
-        bottom: calc(70px + env(safe-area-inset-bottom));
+         bottom: calc(env(safe-area-inset-bottom) + 70px); /* ALWAYS visible */
         left: 10px;
         z-index: 999999;
         display: flex;
         flex-direction: column;
         align-items: flex-start;
       }
+
       #getbutton-popup {
         background: white;
         color: #333;
         padding: 12px 15px;
         border-radius: 10px;
-        box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         margin-bottom: 8px;
         font-size: 15px;
         font-family: Arial, sans-serif;
         display: none;
-        position: relative;
-        left: 0;
-        transform: none;
       }
+
       @keyframes slideIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0px); }
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
       @keyframes slideOut {
-        from { opacity: 1; transform: translateY(0px); }
-        to { opacity: 0; transform: translateY(10px); }
+        from {
+          opacity: 1;
+          transform: translateY(0);
+        }
+        to {
+          opacity: 0;
+          transform: translateY(10px);
+        }
       }
+
       #getbutton-btn {
         width: 60px;
         height: 60px;
@@ -75,29 +90,45 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
         cursor: pointer;
         animation: popin 0.4s ease;
       }
-      #getbutton-btn:hover { filter: brightness(0.9); }
-      @keyframes popin {
-        0% { transform: scale(0.5); opacity: 0; }
-        100% { transform: scale(1); opacity: 1; }
+      #getbutton-btn:hover {
+        filter: brightness(0.9);
       }
-      #getbutton-btn img { width: 32px; height: 32px; }
+
+      @keyframes popin {
+        0% {
+          transform: scale(0.5);
+          opacity: 0;
+        }
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      #getbutton-btn img {
+        width: 32px;
+        height: 32px;
+      }
 
       /* ---------- MOBILE BOTTOM NAV ---------- */
       #mobile-bottom-nav {
         position: fixed;
-        bottom: 0;
         left: 0;
         right: 0;
+        bottom: 0; /* Always stick to bottom */
         height: 60px;
-        background: #fdfcf9; /* off-white */
+        background: #fdfcf9;
+        padding-bottom: env(safe-area-inset-bottom); /* for iPhones & modern Android */
         box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.08);
-        display: none; /* shown by JS after 5s */
-        z-index: 9999;
+        z-index: 99999;
+        transform: translateY(0);
+        opacity: 1;
       }
+
       #mobile-bottom-nav ul {
         list-style: none;
         margin: 0;
@@ -107,25 +138,29 @@
         align-items: center;
         justify-content: space-around;
       }
+
       #mobile-bottom-nav li {
         flex: 1;
         text-align: center;
       }
+
       #mobile-bottom-nav a {
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         font-size: 10px;
-        color: #d4b483; /* cream */
+        color: #d4b483;
         text-decoration: none;
         height: 100%;
         transition: color 0.2s;
       }
+
       #mobile-bottom-nav a.active,
       #mobile-bottom-nav a:hover {
         color: #b38e5d;
       }
+
       #mobile-bottom-nav i {
         font-size: 20px;
         margin-bottom: 4px;
@@ -133,18 +168,31 @@
 
       /* ---------- RESPONSIVE ---------- */
       @media (max-width: 768px) {
-        #getbutton-btn { width: 48px; height: 48px; }
-        #getbutton-btn img { width: 26px; height: 26px; }
-      }
-      @media (max-width: 480px) {
-        #getbutton-btn { width: 42px; height: 42px; }
-        #getbutton-btn img { width: 24px; height: 24px; }
-        #getbutton-popup { font-size: 14px; padding: 10px 12px; }
+        #getbutton-btn {
+          width: 48px;
+          height: 48px;
+        }
+        #getbutton-btn img {
+          width: 26px;
+          height: 26px;
+        }
       }
 
-      /* Hide bottom nav on large screens */
+      @media (max-width: 480px) {
+        #getbutton-btn {
+          width: 42px;
+          height: 42px;
+        }
+        #getbutton-btn img {
+          width: 24px;
+          height: 24px;
+        }
+      }
+
       @media (min-width: 769px) {
-        #mobile-bottom-nav { display: none !important; }
+        #mobile-bottom-nav {
+          display: none !important;
+        }
       }
     </style>
   </head>
@@ -153,7 +201,7 @@
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
 
-    <!-- WhatsApp Widget (existing) -->
+    <!-- WhatsApp Widget -->
     <div id="getbutton-wrapper">
       <div id="getbutton-popup">👋 Need help? Chat with us!</div>
       <a
@@ -195,36 +243,39 @@
             <span>Orders</span>
           </a>
         </li>
-       
       </ul>
     </nav>
 
     <script>
-      /* ---------- WhatsApp popup (existing) ---------- */
+      /* ---------- WhatsApp popup ---------- */
       const popup = document.getElementById("getbutton-popup");
       const button = document.getElementById("getbutton-btn");
 
       function showPopup() {
         popup.style.display = "block";
         popup.style.animation = "slideIn 0.3s ease forwards";
+
         setTimeout(() => {
           popup.style.animation = "slideOut 0.3s ease forwards";
-          setTimeout(() => { popup.style.display = "none"; }, 300);
+
+          setTimeout(() => {
+            popup.style.display = "none";
+          }, 300);
         }, 3000);
       }
+
       setTimeout(showPopup, 2000);
       setInterval(showPopup, 15000);
-      button.addEventListener("click", () => { popup.style.display = "none"; });
 
-      /* ---------- Mobile nav reveal after 5 s ---------- */
-      setTimeout(() => {
-        document.getElementById("mobile-bottom-nav").style.display = "block";
-      }, 5000);
+      button.addEventListener("click", () => {
+        popup.style.display = "none";
+      });
 
       /* ---------- Active link highlight ---------- */
       const navLinks = document.querySelectorAll("#mobile-bottom-nav a");
       const currentPath = location.pathname;
-      navLinks.forEach(link => {
+
+      navLinks.forEach((link) => {
         if (link.getAttribute("href") === currentPath) {
           link.classList.add("active");
         }
