@@ -57,12 +57,14 @@ const HomePage = () => {
 
         {/* Hero Carousel */}
         <HeroCarousel />
+
+        <JewelleryCategoriesSection />
         
         {/* Ring Model / Hero with Emerald */}
         <RingModel />
       
         {/* Jewellery Categories Section */}
-        <JewelleryCategoriesSection />
+        
         
         {/* Category Cards Section */}
         <CategoryCardsSection />

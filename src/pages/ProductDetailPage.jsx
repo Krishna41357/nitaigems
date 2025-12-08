@@ -250,7 +250,6 @@ const ProductDetailPage = () => {
     return (
       <>
         <MainHeader />
-        <Navigation />
         <div className="min-h-screen bg-white flex items-center justify-center px-4">
           <div className="text-center max-w-2xl">
             <div className="text-6xl mb-4">😞</div>
