@@ -76,12 +76,6 @@ const CategoryCardsSection = () => {
     <>
       <style>{styles}</style>
       <section className="category-section">
-        {/* background */}
-        {/* <div className="bg-wrapper">
-          <img src="https://res.cloudinary.com/dxoxbnptl/image/upload/v1765110873/bg4_gfjtlz.jpg" alt="Background" className="bg-image" />
-        </div> */}
-        <div className="bg-overlay" />
-
         <div className="content-wrapper">
           {/* header */}
           <div className="header-section">
@@ -128,6 +122,7 @@ const styles = `
   align-items: center;
   justify-content: center;
   padding: clamp(2rem, 5vw, 4rem) clamp(1rem, 3vw, 2rem);
+  background: #E8DCC4;
 }
 
 /* Mobile-specific height control */
@@ -135,30 +130,8 @@ const styles = `
   .category-section {
     min-height: 100vh;
     height: 100vh;
-    padding: 1.5rem 1rem;
+    padding: 2rem 1rem;
   }
-}
-
-.bg-wrapper {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-}
-
-.bg-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  image-rendering: crisp-edges;
-  transform: scale(1.1);
-}
-
-.bg-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(255, 255, 255, 0.4);
-
-  z-index: 1;
 }
 
 .content-wrapper {
@@ -177,7 +150,7 @@ const styles = `
 @media (max-width: 639px) {
   .content-wrapper {
     height: 100%;
-    gap: 1.25rem;
+    gap: 2.5rem;
     justify-content: center;
   }
 }
@@ -196,22 +169,22 @@ const styles = `
 
 .main-title {
   font-family: serif;
-  font-size: clamp(2rem, 5vw, 5rem);
+  font-size: clamp(2rem, 5vw, 4rem);
   font-weight: 700;
-  color: #eab308;
+  color: #6B5D4F;
   text-shadow: 
-    0 4px 20px rgba(0, 0, 0, 0.5),
-    0 2px 8px rgba(0, 0, 0, 0.4),
-    0 0 40px rgba(201, 165, 87, 0.3);
-  letter-spacing: 0.05em;
-  margin-bottom: clamp(0.75rem, 1.5vw, 1rem);
+    1px 1px 0 #E8DCC4,
+    2px 2px 0 rgba(255, 255, 255, 0.3),
+    -1px -1px 0 rgba(0, 0, 0, 0.1);
+  letter-spacing: 0.02em;
+  margin-bottom: clamp(0.5rem, 1vw, 0.75rem);
 }
 
 /* Mobile title size */
 @media (max-width: 639px) {
   .main-title {
     font-size: 1.75rem;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.4rem;
   }
 }
 
@@ -219,21 +192,21 @@ const styles = `
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: clamp(0.5rem, 1vw, 1rem);
-  margin: clamp(0.5rem, 1vw, 1rem) 0;
+  gap: clamp(0.5rem, 1vw, 0.75rem);
+  margin: clamp(0.3rem, 0.5vw, 0.5rem) 0;
 }
 
 /* Mobile divider compact */
 @media (max-width: 639px) {
   .title-divider {
-    margin: 0.4rem 0;
-    gap: 0.5rem;
+    margin: 0.3rem 0;
+    gap: 0.4rem;
   }
 }
 
 .divider-line {
   height: 1px;
-  width: clamp(2rem, 8vw, 8rem);
+  width: clamp(2rem, 8vw, 6rem);
   background: #C9A557;
 }
 
@@ -247,33 +220,33 @@ const styles = `
 
 .divider-icon {
   color: #C9A557;
-  font-size: clamp(1rem, 1.5vw, 1.25rem);
+  font-size: clamp(0.875rem, 1.25vw, 1rem);
 }
 
 /* Mobile icon size */
 @media (max-width: 639px) {
   .divider-icon {
-    font-size: 0.875rem;
+    font-size: 0.75rem;
   }
   
   .divider-line {
-    width: 2.5rem;
+    width: 2rem;
   }
 }
 
 .subtitle {
   font-size: clamp(0.875rem, 1.5vw, 1rem);
-  color: creamsicle;
-  font-weight: 600;
-  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
-  margin-top: clamp(0rem, 0vw, 0.75rem);
+  color: #8B7355;
+  font-weight: 500;
+  font-style: italic;
+  margin-top: clamp(0.3rem, 0.5vw, 0.5rem);
 }
 
 /* Mobile subtitle */
 @media (max-width: 639px) {
   .subtitle {
     font-size: 0.8rem;
-    margin-top: 0.4rem;
+    margin-top: 0.3rem;
   }
 }
 
@@ -470,7 +443,7 @@ const styles = `
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(to bottom, #ffffff, #f5f0e8, #ffffff);
+  background: #E8DCC4;
 }
 
 .spinner {
@@ -501,10 +474,6 @@ const styles = `
   .category-title,
   .title-underline {
     transition: none;
-  }
-  
-  .bg-image {
-    filter: blur(15px);
   }
 }
 `;

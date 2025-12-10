@@ -70,19 +70,25 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
-  // Check user type BEFORE clearing data
-  const isAdminUser = user?.isAdmin;
-  
-  // Clear both user and admin tokens
-  localStorage.removeItem('authToken');
-  localStorage.removeItem('user');
-  localStorage.removeItem('adminToken');
-  localStorage.removeItem('adminUser');
-  setUser(null);
-  
-  // Return user type so component can handle navigation
-  return isAdminUser;
-};
+    // Check user type BEFORE clearing data
+    const isAdminUser = user?.isAdmin;
+    
+    // Clear both user and admin tokens
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('user');
+    localStorage.removeItem('adminToken');
+    localStorage.removeItem('adminUser');
+    
+    // ALSO clear push notification settings on logout
+    localStorage.removeItem('pushEnabled');
+    localStorage.removeItem('pushEnabledAt');
+    // Keep pushPromptSkipped so user isn't re-prompted immediately
+    
+    setUser(null);
+    
+    // Return user type so component can handle navigation
+    return isAdminUser;
+  };
 
   const value = {
     user,
@@ -90,7 +96,8 @@ export const AuthProvider = ({ children }) => {
     login,
     logout,
     isAuthenticated: !!user,
-    isAdmin: user?.isAdmin || false
+    isAdmin: user?.isAdmin || false,
+    navigate // ✅ ADD THIS - so UserLoginModal can access navigate
   };
 
   return (
