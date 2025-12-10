@@ -184,7 +184,7 @@ const styles = `
 @media (max-width: 639px) {
   .main-title {
     font-size: 1.75rem;
-    margin-bottom: 0.4rem;
+    margin-bottom: 1.4rem;
   }
 }
 
