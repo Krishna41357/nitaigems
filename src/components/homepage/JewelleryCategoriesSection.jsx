@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Heart } from 'lucide-react';
+import { useHomePageTheme } from '../../pages/HomePage';
 
 const ProductCard = ({ product, categorySlug }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isInWishlist, setIsInWishlist] = useState(false);
+  
 
   const hasDiscount = product.pricing?.discountedPrice && 
     product.pricing.discountedPrice < product.pricing.basePrice;
-
   const formatPrice = (price) => {
     if (!price) return '₹0';
     return `₹${price.toLocaleString('en-IN')}`;
@@ -102,6 +103,7 @@ const ProductCard = ({ product, categorySlug }) => {
 };
 
 const JewelleryCategoriesSection = () => {
+  const theme = useHomePageTheme();
   const [activeTab, setActiveTab] = useState('precious-beads-necklace');
   const [products, setProducts] = useState({});
   const [loading, setLoading] = useState(false);
@@ -204,7 +206,7 @@ const JewelleryCategoriesSection = () => {
   return (
     <>
       <style>{sectionStyles}</style>
-      <section className="jewellery-section">
+      <section className="jewellery-section" style={{ backgroundColor: theme.categoriesBg }}>
         <div className="section-header">
           <div className="header-divider">
             <div className="divider-line left"></div>
@@ -283,7 +285,6 @@ const sectionStyles = `
   padding: clamp(1rem, 1vw, 5rem) clamp(1rem, 3vw, 2rem);
   max-width: 1400px;
   margin: 0 auto;
-  background: linear-gradient(to bottom, #ffffff, #f5f0e8);
   width: 100%;
 }
 
@@ -326,6 +327,7 @@ const sectionStyles = `
   font-weight: 700;
   text-shadow: 0 2px 8px rgba(107, 93, 79, 0.15), 0 1px 4px rgba(139, 115, 85, 0.1);
   line-height: 1.2;
+  font-family:'sans-serif';
 }
 
 .section-subtitle {

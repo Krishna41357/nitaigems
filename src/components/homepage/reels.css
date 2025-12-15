@@ -11,7 +11,7 @@
   position: absolute;
   inset: -12%;
   /* match CategoryCardsSection cream gradient so sections feel on the same page */
-  background: linear-gradient(180deg, #fffaf6 0%, #fff7f0 30%, #fff4e6 100%);
+ 
   filter: blur(8px) saturate(115%);
   transform: scale(1.0);
   animation: gradientShift 20s ease-in-out infinite;

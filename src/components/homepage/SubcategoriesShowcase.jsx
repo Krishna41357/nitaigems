@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useHomePageTheme } from '../../pages/HomePage';
 
 /* ------------------------------------------------------------------ */
-/*  Sub-category card (unchanged visuals)                             */
+/*  Sub-category card                                                 */
 /* ------------------------------------------------------------------ */
 const SubcategoryCard = ({ subcategory, categorySlug, isMobile }) => {
   const handleClick = (e) => {
@@ -46,13 +47,12 @@ const SubcategoryCard = ({ subcategory, categorySlug, isMobile }) => {
 /* ------------------------------------------------------------------ */
 const InfiniteScrollCarousel = ({ items, categorySlug }) => {
   const scrollRef = useRef(null);
-  const scrollTimeout = useRef(null);
   const isManualScrolling = useRef(false);
 
-  // quintuple items for seamless loop
-  const infiniteItems = [...items, ...items, ...items, ...items, ...items];
+  // Triple the items for seamless infinite loop
+  const infiniteItems = [...items, ...items, ...items];
 
-  /* ---------- auto-scroll loop ---------- */
+  /* ---------- Initialize scroll position ---------- */
   useEffect(() => {
     const container = scrollRef.current;
     if (!container || !items.length) return;
@@ -63,42 +63,53 @@ const InfiniteScrollCarousel = ({ items, categorySlug }) => {
       const cardWidth = card.offsetWidth;
       const gap = parseFloat(getComputedStyle(container).gap) || 12;
       const itemWidth = cardWidth + gap;
-      container.scrollLeft = itemWidth * items.length * 2;
+      container.scrollLeft = itemWidth * items.length;
     };
-    setTimeout(initScroll, 60);
+    
+    setTimeout(initScroll, 100);
+  }, [items.length]);
+
+  /* ---------- Infinite loop handler ---------- */
+  useEffect(() => {
+    const container = scrollRef.current;
+    if (!container || !items.length) return;
 
     const handleScroll = () => {
       if (isManualScrolling.current) return;
-      clearTimeout(scrollTimeout.current);
-      scrollTimeout.current = setTimeout(() => {
-        const card = container.querySelector('.subcategory-card');
-        if (!card) return;
-        const cardWidth = card.offsetWidth;
-        const gap = parseFloat(getComputedStyle(container).gap) || 12;
-        const itemWidth = cardWidth + gap;
-        const itemSetWidth = itemWidth * items.length;
-        const current = container.scrollLeft;
 
-        if (current < itemSetWidth) {
-          isManualScrolling.current = true;
-          container.scrollLeft = current + itemSetWidth * 2;
-          setTimeout(() => (isManualScrolling.current = false), 60);
-        } else if (current > itemSetWidth * 3) {
-          isManualScrolling.current = true;
-          container.scrollLeft = current - itemSetWidth * 2;
-          setTimeout(() => (isManualScrolling.current = false), 60);
-        }
-      }, 120);
+      const card = container.querySelector('.subcategory-card');
+      if (!card) return;
+      
+      const cardWidth = card.offsetWidth;
+      const gap = parseFloat(getComputedStyle(container).gap) || 12;
+      const itemWidth = cardWidth + gap;
+      const itemSetWidth = itemWidth * items.length;
+      const scrollLeft = container.scrollLeft;
+
+      if (scrollLeft < itemSetWidth * 0.5) {
+        isManualScrolling.current = true;
+        container.scrollLeft = scrollLeft + itemSetWidth;
+        setTimeout(() => {
+          isManualScrolling.current = false;
+        }, 50);
+      }
+      else if (scrollLeft > itemSetWidth * 2.5) {
+        isManualScrolling.current = true;
+        container.scrollLeft = scrollLeft - itemSetWidth;
+        setTimeout(() => {
+          isManualScrolling.current = false;
+        }, 50);
+      }
     };
 
     container.addEventListener('scroll', handleScroll, { passive: true });
+    
     return () => {
       container.removeEventListener('scroll', handleScroll);
-      clearTimeout(scrollTimeout.current);
     };
   }, [items.length]);
 
-  /* ---------- swipe / drag support ---------- */
+  /* ---------- Swipe/drag support ---------- */
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
@@ -117,8 +128,9 @@ const InfiniteScrollCarousel = ({ items, categorySlug }) => {
 
     const onPointerMove = (e) => {
       if (!dragging) return;
+      e.preventDefault();
       const x = e.type.includes('mouse') ? e.pageX : e.touches[0].pageX;
-      const walk = (startX - x) * 1.8; // swipe speed
+      const walk = (startX - x) * 1.5;
       el.scrollLeft = scrollStart + walk;
     };
 
@@ -131,8 +143,8 @@ const InfiniteScrollCarousel = ({ items, categorySlug }) => {
     el.addEventListener('mousedown', onPointerDown);
     el.addEventListener('touchstart', onPointerDown, { passive: true });
 
-    window.addEventListener('mousemove', onPointerMove);
-    window.addEventListener('touchmove', onPointerMove, { passive: true });
+    window.addEventListener('mousemove', onPointerMove, { passive: false });
+    window.addEventListener('touchmove', onPointerMove, { passive: false });
 
     window.addEventListener('mouseup', onPointerUp);
     window.addEventListener('touchend', onPointerUp);
@@ -167,12 +179,13 @@ const InfiniteScrollCarousel = ({ items, categorySlug }) => {
 };
 
 /* ------------------------------------------------------------------ */
-/*  Main showcase (unchanged)                                         */
+/*  Main showcase                                                      */
 /* ------------------------------------------------------------------ */
 const SubcategoriesShowcase = () => {
   const [subcategories, setSubcategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const theme = useHomePageTheme();
 
   const categorySlug = 'precious-beads-necklace';
 
@@ -214,7 +227,7 @@ const SubcategoriesShowcase = () => {
     return (
       <>
         <style>{sectionStyles}</style>
-        <section className="loading-section">
+        <section className="loading-section" style={{ backgroundColor: theme.subcategoriesBg }}>
           <div className="spinner"></div>
         </section>
       </>
@@ -225,7 +238,7 @@ const SubcategoriesShowcase = () => {
   return (
     <>
       <style>{sectionStyles}</style>
-      <section className="subcategories-section">
+      <section className="subcategories-section" style={{ backgroundColor: theme.subcategoriesBg }}>
         {/* ---------- header ---------- */}
         <div className="section-header">
           <div className="header-ornament">
@@ -269,37 +282,241 @@ const SubcategoriesShowcase = () => {
 };
 
 /* ------------------------------------------------------------------ */
-/*  Styles (unchanged)                                                */
+/*  Styles - Fully Responsive                                         */
 /* ------------------------------------------------------------------ */
 const sectionStyles = `
-* { box-sizing: border-box; margin: 0; padding: 0; }
+* { 
+  box-sizing: border-box; 
+  margin: 0; 
+  padding: 0; 
+}
+
 .subcategories-section {
   width: 100%;
-  background: linear-gradient(to bottom, #f5f0e8, #ffffff);
-  padding: clamp(1.5rem, 3vw, 5rem) 0 clamp(1.5rem, 3vw, 3rem) 0;
+  padding: clamp(1.5rem, 4vw, 5rem) 0 clamp(1.5rem, 4vw, 3rem) 0;
   overflow-x: hidden;
 }
-.section-header { text-align: center; padding: 0 clamp(1rem, 3vw, 2rem); margin-bottom: clamp(1rem, 2vw, 4rem); }
-.header-ornament { display: inline-flex; align-items: center; gap: clamp(0.4rem, 1vw, 1rem); margin-bottom: clamp(0.3rem, 0.75vw, 0.75rem); }
-.ornament-line { height: 1px; width: clamp(1.5rem, 4vw, 4rem); }
-.ornament-line.left { background: linear-gradient(to right, transparent, #C9A557); }
-.ornament-line.right { background: linear-gradient(to left, transparent, #C9A557); }
-.ornament-icon { color: #C9A557; }
-.ornament-icon.large { font-size: clamp(0.875rem, 1.5vw, 1.25rem); }
-.ornament-icon.small { font-size: clamp(0.625rem, 1vw, 0.875rem); }
-.section-title { font-size: clamp(1.5rem, 4vw, 4rem); font-weight: 600; letter-spacing: 0.05em; color: #6B5D4F; margin-bottom: clamp(0.4rem, 0.75vw, 0.75rem); text-shadow: 0 2px 10px rgba(107, 93, 79, 0.2), 0 1px 4px rgba(139, 115, 85, 0.15); line-height: 1.2; }
-.title-divider { display: flex; align-items: center; justify-content: center; gap: clamp(0.4rem, 0.75vw, 0.75rem); margin-bottom: clamp(0.3rem, 0.75vw, 0.75rem); }
-.divider-icon { color: #C9A557; font-size: clamp(0.625rem, 0.875vw, 0.875rem); }
-.divider-line { height: 1px; width: clamp(1.25rem, 2.5vw, 2rem); background: #C9A557; }
-.section-subtitle { font-size: clamp(0.75rem, 1.25vw, 1.25rem); color: #8B7355; font-weight: 300; letter-spacing: 0.03em; text-shadow: 0 1px 4px rgba(139, 115, 85, 0.1); max-width: 800px; margin: 0 auto; }
-.grid-container { max-width: 1400px; margin: 0 auto; padding: 0 clamp(1rem, 3vw, 2rem); }
-.grid-layout { display: grid; grid-template-columns: repeat(2, 1fr); gap: clamp(1rem, 2vw, 1.5rem); }
-@media (min-width: 640px) { .grid-layout { grid-template-columns: repeat(3, 1fr); } }
-@media (min-width: 1024px) { .grid-layout { grid-template-columns: repeat(4, 1fr); } }
-@media (min-width: 1280px) { .grid-layout { grid-template-columns: repeat(5, 1fr); } }
-.loading-section { width: 100%; min-height: 50vh; background: linear-gradient(to bottom, #f5f0e8, #ffffff); display: flex; align-items: center; justify-content: center; }
-.spinner { width: clamp(2rem, 4vw, 3rem); height: clamp(2rem, 4vw, 3rem); border: 2px solid #C9A557; border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ========== MOBILE FIRST (320px - 639px) ========== */
+@media (max-width: 639px) {
+  .subcategories-section {
+    padding: 2rem 0 2rem 0;
+  }
+}
+
+.section-header { 
+  text-align: center; 
+  padding: 0 1rem;
+  margin-bottom: clamp(1.5rem, 4vw, 4rem);
+}
+
+/* ========== MOBILE HEADER ========== */
+@media (max-width: 639px) {
+  .section-header {
+    padding: 0 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+}
+
+.header-ornament { 
+  display: inline-flex; 
+  align-items: center; 
+  gap: clamp(0.4rem, 1vw, 1rem);
+  margin-bottom: clamp(0.25rem, 0.75vw, 0.75rem);
+}
+
+@media (max-width: 639px) {
+  .header-ornament {
+    gap: 0.4rem;
+    margin-bottom: 0.4rem;
+  }
+}
+
+.ornament-line { 
+  height: 1px; 
+  width: clamp(1rem, 4vw, 4rem);
+}
+
+@media (max-width: 639px) {
+  .ornament-line {
+    width: 1.5rem;
+  }
+}
+
+.ornament-line.left { 
+  background: linear-gradient(to right, transparent, #C9A557); 
+}
+
+.ornament-line.right { 
+  background: linear-gradient(to left, transparent, #C9A557); 
+}
+
+.ornament-icon { 
+  color: #C9A557; 
+}
+
+.ornament-icon.large { 
+  font-size: clamp(0.75rem, 1.5vw, 1.25rem);
+}
+
+.ornament-icon.small { 
+  font-size: clamp(0.5rem, 1vw, 0.875rem);
+}
+
+@media (max-width: 639px) {
+  .ornament-icon.large {
+    font-size: 0.875rem;
+  }
+  .ornament-icon.small {
+    font-size: 0.625rem;
+  }
+}
+
+.section-title { 
+  font-size: clamp(1.5rem, 5vw, 4rem);
+  font-weight: 600; 
+  letter-spacing: 0.05em; 
+  color: #6B5D4F; 
+  margin-bottom: clamp(0.3rem, 0.75vw, 0.75rem);
+  text-shadow: 0 2px 10px rgba(107, 93, 79, 0.2), 0 1px 4px rgba(139, 115, 85, 0.15); 
+  line-height: 1.2; 
+  font-family: 'sans-serif';
+}
+
+@media (max-width: 639px) {
+  .section-title {
+    font-size: 1.75rem;
+    margin-bottom: 0.4rem;
+    letter-spacing: 0.03em;
+  }
+}
+
+@media (min-width: 640px) and (max-width: 1023px) {
+  .section-title {
+    font-size: 2.5rem;
+  }
+}
+
+.title-divider { 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  gap: clamp(0.3rem, 0.75vw, 0.75rem);
+  margin-bottom: clamp(0.25rem, 0.75vw, 0.75rem);
+}
+
+@media (max-width: 639px) {
+  .title-divider {
+    gap: 0.4rem;
+    margin-bottom: 0.4rem;
+  }
+}
+
+.divider-icon { 
+  color: #C9A557; 
+  font-size: clamp(0.5rem, 0.875vw, 0.875rem);
+}
+
+@media (max-width: 639px) {
+  .divider-icon {
+    font-size: 0.625rem;
+  }
+}
+
+.divider-line { 
+  height: 1px; 
+  width: clamp(1rem, 2.5vw, 2rem);
+  background: #C9A557; 
+}
+
+@media (max-width: 639px) {
+  .divider-line {
+    width: 1.25rem;
+  }
+}
+
+.section-subtitle { 
+  font-size: clamp(0.875rem, 1.5vw, 1.25rem);
+  color: #8B7355; 
+  font-weight: 300; 
+  letter-spacing: 0.03em; 
+  text-shadow: 0 1px 4px rgba(139, 115, 85, 0.1); 
+  max-width: 800px; 
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+@media (max-width: 639px) {
+  .section-subtitle {
+    font-size: 0.8rem;
+    padding: 0 0.5rem;
+    line-height: 1.4;
+  }
+}
+
+@media (min-width: 640px) and (max-width: 1023px) {
+  .section-subtitle {
+    font-size: 1rem;
+  }
+}
+
+.grid-container { 
+  max-width: 1400px; 
+  margin: 0 auto; 
+  padding: 0 clamp(1rem, 3vw, 2rem);
+}
+
+.grid-layout { 
+  display: grid; 
+  grid-template-columns: repeat(2, 1fr); 
+  gap: clamp(1rem, 2vw, 1.5rem);
+}
+
+@media (min-width: 640px) { 
+  .grid-layout { 
+    grid-template-columns: repeat(3, 1fr); 
+  } 
+}
+
+@media (min-width: 1024px) { 
+  .grid-layout { 
+    grid-template-columns: repeat(4, 1fr); 
+  } 
+}
+
+@media (min-width: 1280px) { 
+  .grid-layout { 
+    grid-template-columns: repeat(5, 1fr); 
+  } 
+}
+
+.loading-section { 
+  width: 100%; 
+  min-height: 50vh; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+}
+
+.spinner { 
+  width: clamp(2rem, 4vw, 3rem);
+  height: clamp(2rem, 4vw, 3rem);
+  border: 2px solid #C9A557; 
+  border-top-color: transparent; 
+  border-radius: 50%; 
+  animation: spin 1s linear infinite; 
+}
+
+@media (max-width: 639px) {
+  .spinner {
+    width: 2rem;
+    height: 2rem;
+  }
+}
+
+@keyframes spin { 
+  to { transform: rotate(360deg); } 
+}
 `;
 
 const carouselStyles = `
@@ -315,22 +532,189 @@ const carouselStyles = `
   scroll-behavior: smooth;
   cursor: grab;
 }
-.carousel-container::-webkit-scrollbar { display: none; }
-.carousel-container.infinite-scroll { gap: 0.75rem; padding: 0 clamp(1rem, 3vw, 1.5rem); }
-.carousel-container.infinite-scroll .subcategory-card { scroll-snap-align: start; }
+
+.carousel-container::-webkit-scrollbar { 
+  display: none; 
+}
+
+.carousel-container.infinite-scroll { 
+  gap: 0.75rem; 
+  padding: 0 1rem; 
+}
+
+@media (max-width: 639px) {
+  .carousel-container.infinite-scroll {
+    gap: 0.625rem;
+    padding: 0 1rem;
+  }
+}
+
+.carousel-container.infinite-scroll .subcategory-card { 
+  scroll-snap-align: start; 
+}
 `;
 
 const cardStyles = `
-.subcategory-card { cursor: pointer; flex-shrink: 0; -webkit-tap-highlight-color: transparent; }
-.subcategory-card.mobile { width: clamp(110px, 28vw, 140px); } /* ← smaller cards */
-.card-image-wrapper { position: relative; aspect-ratio: 4/5; overflow: hidden; border-radius: 0.5rem; background: linear-gradient(135deg, #f5f0e8 0%, #e8dfd0 100%); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); }
-.card-image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: brightness(0.9); user-select: none; -webkit-user-drag: none; }
-.card-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0, 0, 0, 0.65) 0%, rgba(0, 0, 0, 0.25) 40%, transparent 100%); pointer-events: none; }
-.card-placeholder { position: absolute; inset: 0; background: linear-gradient(135deg, rgba(201, 165, 87, 0.3), rgba(139, 115, 85, 0.3)); }
-.card-content { position: absolute; inset: 0; display: flex; align-items: flex-end; padding: 0.5rem; pointer-events: none; }
-.card-title { color: white; font-size: clamp(0.55rem, 1.3vw, 0.75rem); font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; text-shadow: 0 1px 6px rgba(0, 0, 0, 0.5); line-height: 1.2; word-break: break-word; }
-@media (max-width: 767px) { .subcategory-card:active { transform: scale(0.97); transition: transform 0.1s ease; } }
-@media (min-width: 768px) { .card-image-wrapper { border-radius: clamp(0.75rem, 1.5vw, 1rem); } .card-title { font-size: clamp(0.75rem, 1.5vw, 0.875rem); } }
+.subcategory-card { 
+  cursor: pointer; 
+  flex-shrink: 0; 
+  -webkit-tap-highlight-color: transparent; 
+}
+
+/* ========== MOBILE: Smaller cards, 2-3 visible ========== */
+.subcategory-card.mobile { 
+  width: 38vw;
+  max-width: 160px;
+  min-width: 120px;
+}
+
+/* Extra small phones (< 375px) */
+@media (max-width: 374px) {
+  .subcategory-card.mobile {
+    width: 39vw;
+    min-width: 115px;
+  }
+}
+
+/* Small phones (375px - 424px) */
+@media (min-width: 375px) and (max-width: 424px) {
+  .subcategory-card.mobile {
+    width: 38vw;
+    min-width: 120px;
+  }
+}
+
+/* Medium phones (425px - 639px) */
+@media (min-width: 425px) and (max-width: 639px) {
+  .subcategory-card.mobile {
+    width: 37vw;
+    max-width: 155px;
+  }
+}
+
+/* Desktop: Regular grid card */
+.subcategory-card:not(.mobile) {
+  width: 100%;
+}
+
+.card-image-wrapper { 
+  position: relative; 
+  aspect-ratio: 3/3.5; 
+  overflow: hidden; 
+  border-radius: 0.625rem; 
+  background: linear-gradient(135deg, #f5f0e8 0%, #e8dfd0 100%); 
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12); 
+}
+
+@media (max-width: 639px) {
+  .card-image-wrapper {
+    aspect-ratio: 3/3.5;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.card-image { 
+  position: absolute; 
+  inset: 0; 
+  width: 100%; 
+  height: 100%; 
+  object-fit: cover; 
+  filter: brightness(0.9); 
+  user-select: none; 
+  -webkit-user-drag: none; 
+}
+
+.card-overlay { 
+  position: absolute; 
+  inset: 0; 
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.65) 0%, rgba(0, 0, 0, 0.25) 40%, transparent 100%); 
+  pointer-events: none; 
+}
+
+.card-placeholder { 
+  position: absolute; 
+  inset: 0; 
+  background: linear-gradient(135deg, rgba(201, 165, 87, 0.3), rgba(139, 115, 85, 0.3)); 
+}
+
+.card-content { 
+  position: absolute; 
+  inset: 0; 
+  display: flex; 
+  align-items: flex-end; 
+  padding: 0.625rem; 
+  pointer-events: none; 
+}
+
+@media (max-width: 374px) {
+  .card-content {
+    padding: 0.5rem;
+  }
+}
+
+@media (min-width: 375px) and (max-width: 639px) {
+  .card-content {
+    padding: 0.625rem;
+  }
+}
+
+.card-title { 
+  color: white; 
+  font-size: 0.75rem;
+  font-weight: 600; 
+  letter-spacing: 0.02em; 
+  text-transform: uppercase; 
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6); 
+  line-height: 1.25; 
+  word-break: break-word; 
+}
+
+/* Extra small phones */
+@media (max-width: 374px) {
+  .card-title {
+    font-size: 0.7rem;
+    letter-spacing: 0.015em;
+  }
+}
+
+/* Small to medium phones */
+@media (min-width: 375px) and (max-width: 639px) {
+  .card-title {
+    font-size: 0.75rem;
+  }
+}
+
+/* Tablets */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .card-title {
+    font-size: 0.75rem;
+  }
+  .card-content {
+    padding: 0.6rem;
+  }
+}
+
+/* Desktop */
+@media (min-width: 1024px) { 
+  .card-image-wrapper { 
+    border-radius: clamp(0.75rem, 1.5vw, 1rem); 
+  } 
+  .card-title { 
+    font-size: clamp(0.75rem, 1.5vw, 0.875rem); 
+  }
+  .card-content {
+    padding: 0.75rem;
+  }
+}
+
+/* Active state for touch devices */
+@media (max-width: 1023px) { 
+  .subcategory-card:active { 
+    transform: scale(0.97); 
+    transition: transform 0.1s ease; 
+  } 
+}
 `;
 
 export default SubcategoriesShowcase;

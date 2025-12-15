@@ -1,8 +1,22 @@
-import React from 'react';
-import { Phone, Mail, MapPin, Instagram, Facebook, Twitter, Youtube } from 'lucide-react';
+import React, { useState } from 'react';
+import { Phone, Mail, MapPin, Instagram, Facebook, Twitter, Youtube, ChevronDown } from 'lucide-react';
+import { useHomePageTheme } from '../../pages/HomePage';
 
 const Footer = () => {
+  const theme = useHomePageTheme();
   const year = new Date().getFullYear();
+  const [openSections, setOpenSections] = useState({
+    quick: false,
+    service: false,
+    contact: false
+  });
+
+  const toggleSection = (section) => {
+    setOpenSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
 
   const quick = [
     { name: 'Collections', url: '#' },
@@ -27,7 +41,7 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="footer-section">
+    <footer className="footer-section" style={{ backgroundColor: theme.footerBg }}>
       <style>{styles}</style>
       
       {/* Background Elements */}
@@ -43,7 +57,7 @@ const Footer = () => {
         <div className="footer-grid">
           {/* Brand Section */}
           <div className="footer-brand">
-            <div className="brand-header">
+            <div className="brand-logo-container">
               <img 
                 src="./logo/logo.png" 
                 alt="Nitai Gems" 
@@ -58,107 +72,115 @@ const Footer = () => {
                   <div className="diamond-shape" />
                 </div>
               </div>
-              <div className="brand-text">
-                <h2 className="brand-name">Nitai Gems</h2>
-                <p className="brand-tagline">Jewellery Store</p>
-              </div>
             </div>
-            <p className="brand-description">
-              Curating timeless brilliance since 1988. Every piece tells a story of heritage, 
-              craftsmanship, and uncompromising quality. Authenticity certified.
-            </p>
+            
             
             {/* QR Code */}
-            <div className="qr-section">
-              <div className="qr-container">
-                <div className="qr-placeholder">
-                  <div className="qr-inner">
-                    <span className="qr-text">QR Code</span>
-                  </div>
+           
+          </div>
+
+          {/* Quick Links - Collapsible on Mobile */}
+          <div className="footer-column">
+            <button 
+              className="column-title-button"
+              onClick={() => toggleSection('quick')}
+            >
+              <span>Quick Links</span>
+              <ChevronDown 
+                className={`chevron-icon ${openSections.quick ? 'open' : ''}`}
+              />
+            </button>
+            <div className={`collapsible-content ${openSections.quick ? 'open' : ''}`}>
+              <ul className="footer-links">
+                {quick.map((link) => (
+                  <li key={link.name}>
+                    <a href={link.url} className="footer-link">
+                      <span className="link-dot" />
+                      {link.name}
+                      <span className="link-underline" />
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          {/* Service Links - Collapsible on Mobile */}
+          <div className="footer-column">
+            <button 
+              className="column-title-button"
+              onClick={() => toggleSection('service')}
+            >
+              <span>Customer Service</span>
+              <ChevronDown 
+                className={`chevron-icon ${openSections.service ? 'open' : ''}`}
+              />
+            </button>
+            <div className={`collapsible-content ${openSections.service ? 'open' : ''}`}>
+              <ul className="footer-links">
+                {service.map((link) => (
+                  <li key={link.name}>
+                    <a href={link.url} className="footer-link">
+                      <span className="link-dot" />
+                      {link.name}
+                      <span className="link-underline" />
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          {/* Contact Section - Collapsible on Mobile */}
+          <div className="footer-column">
+            <button 
+              className="column-title-button"
+              onClick={() => toggleSection('contact')}
+            >
+              <span>Reach Us</span>
+              <ChevronDown 
+                className={`chevron-icon ${openSections.contact ? 'open' : ''}`}
+              />
+            </button>
+            <div className={`collapsible-content ${openSections.contact ? 'open' : ''}`}>
+              <div className="contact-info">
+                <a href="tel:+916350288120" className="contact-item">
+                  <Phone className="contact-icon" />
+                  <span>+91 63502 88120</span>
+                </a>
+                <a href="mailto:nitaigems.jewelry@gmail.com" className="contact-item">
+                  <Mail className="contact-icon" />
+                  <span>nitaigems.jewelry@gmail.com</span>
+                </a>
+                <div className="contact-item address-item">
+                  <MapPin className="contact-icon" />
+                  <span>
+                    Shop No. 12, Johri Bazaar,<br />
+                    Near Hawa Mahal, Jaipur,<br />
+                    Rajasthan - 302002, India
+                  </span>
                 </div>
               </div>
-              <p className="qr-label">Scan to connect with us</p>
-            </div>
-          </div>
 
-          {/* Quick Links */}
-          <div className="footer-column">
-            <h3 className="column-title">
-              Quick Links
-            </h3>
-            <ul className="footer-links">
-              {quick.map((link) => (
-                <li key={link.name}>
-                  <a href={link.url} className="footer-link">
-                    <span className="link-dot" />
-                    {link.name}
-                    <span className="link-underline" />
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Service Links */}
-          <div className="footer-column">
-            <h3 className="column-title">
-              Customer Service
-            </h3>
-            <ul className="footer-links">
-              {service.map((link) => (
-                <li key={link.name}>
-                  <a href={link.url} className="footer-link">
-                    <span className="link-dot" />
-                    {link.name}
-                    <span className="link-underline" />
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Contact Section */}
-          <div className="footer-column">
-            <h3 className="column-title">
-              Reach Us
-            </h3>
-            <div className="contact-info">
-              <a href="tel:+916350288120" className="contact-item">
-                <Phone className="contact-icon" />
-                <span>+91 63502 88120</span>
-              </a>
-              <a href="mailto:nitaigems.jewelry@gmail.com" className="contact-item">
-                <Mail className="contact-icon" />
-                <span>nitaigems.jewelry@gmail.com</span>
-              </a>
-              <div className="contact-item address-item">
-                <MapPin className="contact-icon" />
-                <span>
-                  Shop No. 12, Johri Bazaar,<br />
-                  Near Hawa Mahal, Jaipur,<br />
-                  Rajasthan - 302002, India
-                </span>
-              </div>
-            </div>
-
-            {/* Social Media */}
-            <div className="social-section">
-              <p className="social-title">Follow Us</p>
-              <div className="social-links">
-                {socials.map((social) => {
-                  const Icon = social.icon;
-                  return (
-                    <a
-                      key={social.label}
-                      href="#"
-                      aria-label={social.label}
-                      className="social-link"
-                    >
-                      <Icon className="social-icon" />
-                      <span className="social-ring" />
-                    </a>
-                  );
-                })}
+              {/* Social Media */}
+              <div className="social-section">
+                <p className="social-title">Follow Us</p>
+                <div className="social-links">
+                  {socials.map((social) => {
+                    const Icon = social.icon;
+                    return (
+                      <a
+                        key={social.label}
+                        href="#"
+                        aria-label={social.label}
+                        className="social-link"
+                      >
+                        <Icon className="social-icon" />
+                        <span className="social-ring" />
+                      </a>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           </div>
@@ -188,7 +210,6 @@ const styles = `
 
 .footer-section {
   position: relative;
-  background: linear-gradient(180deg, #1a0f0a 0%, #0f0705 50%, #050302 100%);
   color: #e8d5c4;
   overflow: hidden;
 }
@@ -281,27 +302,55 @@ const styles = `
 
 /* Brand Section */
 .footer-brand {
-  max-width: 400px;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
 }
 
-.brand-header {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+@media (min-width: 768px) {
+  .footer-brand {
+    align-items: flex-start;
+    text-align: left;
+    max-width: 400px;
+  }
+}
+
+.brand-logo-container {
+  width: 100%;
+  max-width: 200px;
   margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+@media (min-width: 768px) {
+  .brand-logo-container {
+    max-width: 250px;
+    justify-content: flex-start;
+  }
+}
+
+@media (min-width: 1024px) {
+  .brand-logo-container {
+    max-width: 300px;
+  }
 }
 
 .brand-logo {
-  width: 60px;
-  height: 60px;
+  width: 100%;
+  height: auto;
   object-fit: contain;
   filter: drop-shadow(0 4px 8px rgba(218, 165, 32, 0.3));
 }
 
 .brand-logo-fallback {
   display: none;
-  width: 60px;
-  height: 60px;
+  width: 80px;
+  height: 80px;
+  justify-content: center;
+  align-items: center;
 }
 
 .logo-diamond {
@@ -313,33 +362,11 @@ const styles = `
 }
 
 .diamond-shape {
-  width: 40px;
-  height: 40px;
+  width: 50px;
+  height: 50px;
   background: linear-gradient(135deg, #daa520 0%, #b8860b 100%);
   transform: rotate(45deg);
   box-shadow: 0 4px 12px rgba(218, 165, 32, 0.4);
-}
-
-.brand-text {
-  flex: 1;
-}
-
-.brand-name {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 2rem;
-  font-weight: 700;
-  color: #f5e6d3;
-  margin: 0 0 0.25rem 0;
-  letter-spacing: 1px;
-  text-shadow: 0 2px 8px rgba(218, 165, 32, 0.3);
-}
-
-.brand-tagline {
-  font-family: 'Montserrat', sans-serif;
-  font-size: 0.85rem;
-  color: #c9a961;
-  margin: 0;
-  letter-spacing: 0.5px;
 }
 
 .brand-description {
@@ -402,7 +429,8 @@ const styles = `
   min-width: 0;
 }
 
-.column-title {
+/* Collapsible Title Button */
+.column-title-button {
   font-family: 'Cormorant Garamond', serif;
   font-size: 1.25rem;
   font-weight: 700;
@@ -412,12 +440,62 @@ const styles = `
   letter-spacing: 1.5px;
   border-bottom: 2px solid rgba(201, 169, 97, 0.3);
   padding-bottom: 0.75rem;
+  width: 100%;
+  background: transparent;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.3s ease;
 }
 
-.title-icon {
-  width: 18px;
-  height: 18px;
+@media (min-width: 768px) {
+  .column-title-button {
+    cursor: default;
+    pointer-events: none;
+  }
+}
+
+.column-title-button:hover {
   color: #daa520;
+}
+
+.chevron-icon {
+  width: 20px;
+  height: 20px;
+  transition: transform 0.3s ease;
+  color: #c9a961;
+}
+
+.chevron-icon.open {
+  transform: rotate(180deg);
+}
+
+@media (min-width: 768px) {
+  .chevron-icon {
+    display: none;
+  }
+}
+
+/* Collapsible Content */
+.collapsible-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+.collapsible-content.open {
+  max-height: 500px;
+}
+
+@media (min-width: 768px) {
+  .collapsible-content {
+    max-height: none !important;
+    overflow: visible;
+  }
 }
 
 /* Links */
@@ -652,45 +730,22 @@ const styles = `
 }
 
 /* Responsive */
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .footer-container {
-    padding: 2.5rem 1rem 1rem;
+    padding: 3rem 1rem 1.5rem;
   }
   
   .footer-grid {
-    gap: 2rem;
+    gap: 2.5rem;
   }
   
-  .footer-brand {
-    max-width: 100%;
-  }
-  
-  .brand-header {
-    gap: 0.75rem;
-    margin-bottom: 1rem;
-  }
-  
-  .brand-logo,
-  .brand-logo-fallback {
-    width: 50px;
-    height: 50px;
-  }
-  
-  .diamond-shape {
-    width: 35px;
-    height: 35px;
-  }
-  
-  .brand-name {
-    font-size: 1.5rem;
-  }
-  
-  .brand-tagline {
-    font-size: 0.75rem;
+  .brand-logo-container {
+    max-width: 180px;
+    margin-bottom: 1.25rem;
   }
   
   .brand-description {
-    font-size: 0.85rem;
+    font-size: 0.875rem;
     line-height: 1.6;
     margin-bottom: 1.5rem;
   }
@@ -710,20 +765,10 @@ const styles = `
     border-width: 2px;
   }
   
-  .qr-text {
-    font-size: 0.65rem;
-  }
-  
-  .qr-label {
-    font-size: 0.75rem;
-    margin-top: 0.5rem;
-  }
-  
-  .column-title {
+  .column-title-button {
     font-size: 1.1rem;
-    letter-spacing: 1px;
     margin-bottom: 1rem;
-    padding-bottom: 0.5rem;
+    padding-bottom: 0.75rem;
   }
   
   .footer-links {
@@ -731,110 +776,40 @@ const styles = `
   }
   
   .footer-link {
-    font-size: 0.85rem;
+    font-size: 0.875rem;
   }
   
   .contact-info {
-    gap: 0.85rem;
+    gap: 0.875rem;
     margin-bottom: 1.5rem;
   }
   
   .contact-item {
-    font-size: 0.85rem;
-    gap: 0.65rem;
-  }
-  
-  .contact-icon {
-    width: 16px;
-    height: 16px;
-  }
-  
-  .social-section {
-    margin-top: 1.5rem;
-  }
-  
-  .social-title {
-    font-size: 0.85rem;
-    margin-bottom: 0.85rem;
+    font-size: 0.875rem;
   }
   
   .social-link {
-    width: 40px;
-    height: 40px;
+    width: 42px;
+    height: 42px;
   }
   
   .social-icon {
-    width: 18px;
-    height: 18px;
-  }
-  
-  .footer-bottom {
-    padding-top: 1.5rem;
-  }
-  
-  .bottom-divider {
-    margin-bottom: 1.5rem;
-  }
-  
-  .bottom-content {
-    gap: 0.75rem;
-  }
-  
-  .copyright {
-    font-size: 0.75rem;
-  }
-  
-  .bottom-links {
-    gap: 0.75rem;
-  }
-  
-  .bottom-link {
-    font-size: 0.75rem;
-  }
-  
-  .bottom-separator {
-    font-size: 0.75rem;
+    width: 19px;
+    height: 19px;
   }
 }
 
 @media (max-width: 480px) {
   .footer-container {
-    padding: 2rem 0.75rem 0.75rem;
+    padding: 2.5rem 0.875rem 1.25rem;
   }
   
-  .footer-grid {
-    gap: 1.75rem;
-  }
-  
-  .brand-header {
-    gap: 0.65rem;
-  }
-  
-  .brand-logo,
-  .brand-logo-fallback {
-    width: 45px;
-    height: 45px;
-  }
-  
-  .diamond-shape {
-    width: 30px;
-    height: 30px;
-  }
-  
-  .brand-name {
-    font-size: 1.35rem;
-  }
-  
-  .brand-tagline {
-    font-size: 0.7rem;
+  .brand-logo-container {
+    max-width: 160px;
   }
   
   .brand-description {
-    font-size: 0.8rem;
-  }
-  
-  .qr-container {
-    padding: 0.65rem;
+    font-size: 0.8125rem;
   }
   
   .qr-placeholder {
@@ -847,27 +822,23 @@ const styles = `
     height: 68px;
   }
   
-  .column-title {
-    font-size: 1rem;
+  .column-title-button {
+    font-size: 1.05rem;
   }
   
   .footer-link,
   .contact-item {
-    font-size: 0.8rem;
-  }
-  
-  .social-links {
-    gap: 0.75rem;
+    font-size: 0.8125rem;
   }
   
   .social-link {
-    width: 38px;
-    height: 38px;
+    width: 40px;
+    height: 40px;
   }
   
   .social-icon {
-    width: 16px;
-    height: 16px;
+    width: 18px;
+    height: 18px;
   }
 }
 `;

@@ -12,8 +12,10 @@ export function AdminLayout() {
     { name: 'Users', href: '/admin/users', icon: Users },
     { name: 'Products', href: '/admin/products', icon: Package },
     { name: 'Events', href: '/admin/events', icon: Calendar },
+    {name:'Media', href:'/admin/media', icon:Users},
     { name: 'Coupons', href: '/admin/coupons', icon: Tag },
-    {name:'Collections', href:'/admin/collections', icon:Tag}
+    {name:'Collections', href:'/admin/collections', icon:Tag},
+    {name:'Homepage Theme', href:'/admin/background', icon:Tag},
   ];
 
   const isActive = (path) => {

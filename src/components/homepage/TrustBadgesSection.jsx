@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useHomePageTheme } from '../../pages/HomePage';
 
 const TrustBadgesSection = () => {
+  const theme = useHomePageTheme();
   const badges = [
     { 
       image: './logo/logo.png',
@@ -27,6 +29,7 @@ const TrustBadgesSection = () => {
       type: 'shield'
     }
   ];
+  
 
   const gridRef = useRef(null);
   const [inView, setInView] = useState(false);
@@ -47,7 +50,7 @@ const TrustBadgesSection = () => {
   }, []);
 
   return (
-    <section className="trust-section">
+    <section className="trust-section" style={{ backgroundColor: theme.trustBadgesBg }}>
       <style>{styles}</style>
       
       {/* Decorative Background Elements */}
@@ -148,7 +151,6 @@ const styles = `
   position: relative;
   min-height: 70vh;
   padding: 5rem 2rem 8rem;
-  background: linear-gradient(180deg, #f5ede1 0%, #ebe3d5 50%, #e1d9cb 100%);
   overflow: hidden;
 }
 

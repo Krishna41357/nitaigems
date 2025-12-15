@@ -24,6 +24,8 @@ import CollectionsTab from "./pages/admin/CollectionsTab";
 import OrdersPage from "./pages/OrdersPage";
 import MobileBottomNav from "./components/MobileBottomNav";
 import WhatsAppWidget from "./components/WhatsappWidget";
+import ManageMedia from "./pages/admin/ManageMedia";
+import HomePageThemeAdmin from "./pages/admin/HomepageThemeAdmin";
 
 const queryClient = new QueryClient();
 
@@ -68,6 +70,8 @@ export default function App() {
                     <Route path="events" element={<Events />} />
                     <Route path="coupons" element={<Coupons />} />
                     <Route path="collections" element={<CollectionsTab />} />
+                    <Route path="media" element={<ManageMedia/>}/>
+                    <Route path="background" element={<HomePageThemeAdmin/>} />
                   </Route>
 
                   <Route path="*" element={<NotFound />} />

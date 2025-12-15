@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useHomePageTheme } from '../../pages/HomePage';
 
 const HeroCarousel = () => {
   const [banners, setBanners] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [isPaused, setIsPaused] = useState(false);
+  const theme = useHomePageTheme();
 
   useEffect(() => {
     fetchBanners();
@@ -13,15 +15,13 @@ const HeroCarousel = () => {
 
   const fetchBanners = async () => {
     try {
+      // Use the public API endpoint that returns cached data
       const response = await fetch(`${import.meta.env.VITE_APP_BASE_URL}/banners`);
       if (response.ok) {
         const data = await response.json();
-        const activeBanners = data
-          .filter(banner => banner.isActive)
-          .sort((a, b) => a.order - b.order);
         
-        if (activeBanners.length > 0) {
-          setBanners(activeBanners);
+        if (data && data.length > 0) {
+          setBanners(data);
         } else {
           loadLocalBanners();
         }
@@ -46,7 +46,7 @@ const HeroCarousel = () => {
         subtitle: 'Discover timeless elegance',
         ctaText: 'Shop Now',
         ctaLink: '/collections',
-        order: 1,
+        orderIndex: 1,
         isActive: true,
       },
       {
@@ -57,28 +57,7 @@ const HeroCarousel = () => {
         subtitle: 'Trending diamond jewellery',
         ctaText: 'Explore',
         ctaLink: '/new-arrivals',
-        order: 2,
-        isActive: true,
-      },
-      {
-        id: `local-banner-3-${Date.now()}-2`,
-        imageUrl: 'https://res.cloudinary.com/dxoxbnptl/image/upload/v1765112672/banner3_fdtnxs.jpg',
-        mobileImageUrl: '',
-        title: 'New Arrivals',
-        subtitle: 'Trending diamond jewellery',
-        ctaText: 'Explore',
-        ctaLink: '/new-arrivals',
-        order: 3,
-        isActive: true,
-      },
-      {
-        id: `local-banner-4-${Date.now()}-3`,
-        imageUrl: 'https://res.cloudinary.com/dxoxbnptl/image/upload/v1765112673/banner2_cwmsnw.jpg',
-        mobileImageUrl: '',
-        title: 'New Arrivals',
-        subtitle: 'Trending diamond jewellery',
-        ctaLink: '/new-arrivals',
-        order: 4,
+        orderIndex: 2,
         isActive: true,
       },
     ];
@@ -129,21 +108,18 @@ const HeroCarousel = () => {
   if (banners.length === 0) return null;
 
   return (
-    <div className="relative w-full overflow-hidden bg-gradient-to-b from-amber-50 via-amber-100 to-amber-50">
+    <div className="relative w-full overflow-hidden" style={{ backgroundColor: theme.heroBg }}>
       <div 
         className="relative w-full h-[calc(100vh-120px)] md:h-[380px] lg:h-[450px] flex items-center justify-center px-3 py-3 md:py-3 md:px-3"
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
       >
-        {/* Background decoration - Hidden on mobile */}
         <div className="absolute inset-0 opacity-10 pointer-events-none hidden md:block">
           <div className="absolute top-8 left-8 w-28 h-28 rounded-full bg-gradient-to-br from-amber-300 to-amber-500 blur-3xl" />
           <div className="absolute bottom-8 right-8 w-36 h-36 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 blur-3xl" />
         </div>
 
-        {/* Container for all banners */}
         <div className="relative w-full h-full max-w-7xl mx-auto flex items-center justify-center md:gap-3 lg:gap-4">
-          {/* Left Banner (Previous) - Hidden on mobile and tablet */}
           {banners.length > 1 && (
             <div className="w-[15%] h-[85%] opacity-25 hidden xl:block flex-shrink-0 transform hover:opacity-35 transition-opacity">
               <img
@@ -154,7 +130,6 @@ const HeroCarousel = () => {
             </div>
           )}
 
-          {/* Main Banner (Current) */}
           <div className="relative w-full h-full xl:w-[70%] flex-shrink-0">
             {banners.map((banner, index) => (
               <div
@@ -176,10 +151,8 @@ const HeroCarousel = () => {
                   />
                 </picture>
 
-                {/* Gradient overlay */}
                 <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-transparent to-black/50 rounded-lg" />
 
-                {/* Overlay Content */}
                 {(banner.title || banner.subtitle || banner.ctaText) && (
                   <div className="absolute inset-0 flex items-center md:items-center">
                     <div className="w-full px-6 md:px-10 lg:px-14">
@@ -211,7 +184,6 @@ const HeroCarousel = () => {
             ))}
           </div>
 
-          {/* Right Banner (Next) - Hidden on mobile and tablet */}
           {banners.length > 1 && (
             <div className="w-[15%] h-[85%] opacity-25 hidden xl:block flex-shrink-0 transform hover:opacity-35 transition-opacity">
               <img
@@ -222,7 +194,6 @@ const HeroCarousel = () => {
             </div>
           )}
 
-          {/* Navigation Arrows */}
           {banners.length > 1 && (
             <>
               <button
@@ -244,7 +215,6 @@ const HeroCarousel = () => {
         </div>
       </div>
 
-      {/* Navigation dots */}
       {banners.length > 1 && (
         <div className="relative pb-4 md:pb-5 pt-2 md:pt-2">
           <div className="flex justify-center gap-2">

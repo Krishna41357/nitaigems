@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect, createContext, useContext } from 'react';
 import MainHeader from '../components/homepage/MainHeader';
 import Navigation from '../components/homepage/Navigation';
 import HeroCarousel from '../components/homepage/HeroCarousel';
@@ -12,82 +13,157 @@ import RingModel from '../components/homepage/RingModel';
 import JewelleryCategoriesSection from '../components/homepage/JewelleryCategoriesSection';
 import SubcategoriesShowcase from '../components/homepage/SubcategoriesShowcase';
 
+// Create Theme Context
+const ThemeContext = createContext(null);
+
+// Custom hook to use theme
+export const useHomePageTheme = () => {
+  const context = useContext(ThemeContext);
+  if (!context) {
+    // Return default theme if context not available
+    return {
+      heroBg: '#FFFFFF',
+      categoriesBg: '#F9FAFB',
+      subcategoriesBg: '#FFFFFF',
+      collectionsBg: '#F9FAFB',
+      reelsBg: '#FFFFFF',
+      trustBadgesBg: '#F9FAFB',
+      reviewsBg: '#FFFFFF',
+      footerBg: '#1F2937',
+    };
+  }
+  return context;
+};
+
 const HomePage = () => {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [theme, setTheme] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchTheme();
+  }, []);
+
+  const fetchTheme = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_APP_BASE_URL}/homepage-theme`);
+      if (response.ok) {
+        const data = await response.json();
+        setTheme(data);
+      } else {
+        // Use default theme
+        setTheme({
+          heroBg: '#FFFFFF',
+          categoriesBg: '#F9FAFB',
+          subcategoriesBg: '#FFFFFF',
+          collectionsBg: '#F9FAFB',
+          reelsBg: '#FFFFFF',
+          trustBadgesBg: '#F9FAFB',
+          reviewsBg: '#FFFFFF',
+          footerBg: '#1F2937',
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching homepage theme:', error);
+      // Use default theme
+      setTheme({
+        heroBg: '#FFFFFF',
+        categoriesBg: '#F9FAFB',
+        subcategoriesBg: '#FFFFFF',
+        collectionsBg: '#F9FAFB',
+        reelsBg: '#FFFFFF',
+        trustBadgesBg: '#F9FAFB',
+        reviewsBg: '#FFFFFF',
+        footerBg: '#1F2937',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="w-12 h-12 border-3 border-amber-600 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50 w-full overflow-x-hidden">
-      <style>{`
-        /* Additional HomePage specific fixes */
-        .homepage-wrapper {
-          max-width: 100vw;
-          overflow-x: hidden;
-          width: 100%;
-        }
-        
-        /* Ensure all sections don't overflow */
-        .homepage-wrapper > * {
-          max-width: 100vw;
-          overflow-x: hidden;
-        }
-        
-        /* Mobile specific fixes */
-        @media (max-width: 768px) {
+    <ThemeContext.Provider value={theme}>
+      <div className="min-h-screen bg-gray-50 w-full overflow-x-hidden">
+        <style>{`
+          /* Additional HomePage specific fixes */
           .homepage-wrapper {
-            padding: 0;
-            margin: 0;
+            max-width: 100vw;
+            overflow-x: hidden;
+            width: 100%;
           }
           
-          .homepage-wrapper > section {
-            padding-left: 0.5rem;
-            padding-right: 0.5rem;
+          /* Ensure all sections don't overflow */
+          .homepage-wrapper > * {
+            max-width: 100vw;
+            overflow-x: hidden;
           }
-        }
-      `}</style>
+          
+          /* Mobile specific fixes */
+          @media (max-width: 768px) {
+            .homepage-wrapper {
+              padding: 0;
+              margin: 0;
+            }
+            
+            .homepage-wrapper > section {
+              padding-left: 0.5rem;
+              padding-right: 0.5rem;
+            }
+          }
+        `}</style>
 
-      <div className="homepage-wrapper">
-        {/* Main Header */}
-        <MainHeader 
-          logoUrl="/logo.png"
-          onMenuClick={() => setShowMobileMenu(true)}
-        />
+        <div className="homepage-wrapper">
+          {/* Main Header */}
+          <MainHeader 
+            logoUrl="/logo.png"
+            onMenuClick={() => setShowMobileMenu(true)}
+          />
 
-        {/* Navigation with Mega Menu */}
+          {/* Navigation with Mega Menu */}
+          
+
+          {/* Hero Carousel */}
+          <HeroCarousel />
+
+          <JewelleryCategoriesSection />
+          
+          {/* Ring Model / Hero with Emerald */}
         
-
-        {/* Hero Carousel */}
-        <HeroCarousel />
-
-        <JewelleryCategoriesSection />
         
-        {/* Ring Model / Hero with Emerald */}
-      
-      
-        {/* Jewellery Categories Section */}
-        
-        
-        {/* Category Cards Section */}
-        <CategoryCardsSection />
+          {/* Jewellery Categories Section */}
+          
+          
+          {/* Category Cards Section */}
+          <CategoryCardsSection />
 
-        {/* Subcategories Showcase */}
-        <SubcategoriesShowcase />
+          {/* Subcategories Showcase */}
+          <SubcategoriesShowcase />
 
-        {/* Collections Section */}
-        {/* <CollectionsSection /> */}
+          {/* Collections Section */}
+          {/* <CollectionsSection /> */}
 
-        {/* Reels Section */}
-        <ReelsSection />
+          {/* Reels Section */}
+          <ReelsSection />
 
-        {/* Trust Badges / Assurance Section */}
-        <TrustBadgesSection />
+          {/* Trust Badges / Assurance Section */}
+          <TrustBadgesSection />
 
-        {/* Customer Reviews Carousel */}
-        <ReviewsCarousel />
+          {/* Customer Reviews Carousel */}
+          <ReviewsCarousel />
 
-        {/* Footer */}
-        <Footer />
+          {/* Footer */}
+          <Footer />
+        </div>
       </div>
-    </div>
+    </ThemeContext.Provider>
   );
 };
 

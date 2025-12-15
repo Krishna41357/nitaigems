@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useHomePageTheme } from '../../pages/HomePage';
 
 const CategoryCardsSection = () => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const theme = useHomePageTheme();
 
   useEffect(() => {
     fetchCategories();
@@ -31,7 +33,7 @@ const CategoryCardsSection = () => {
     return (
       <>
         <style>{styles}</style>
-        <section className="loading-section">
+         <section className="loading-section" style={{ backgroundColor: theme.categoriesBg }}>
           <div className="spinner" />
         </section>
       </>
@@ -75,7 +77,7 @@ const CategoryCardsSection = () => {
   return (
     <>
       <style>{styles}</style>
-      <section className="category-section">
+      <section className="category-section" style={{ backgroundColor: theme.categoriesBg }}>
         <div className="content-wrapper">
           {/* header */}
           <div className="header-section">
@@ -122,7 +124,7 @@ const styles = `
   align-items: center;
   justify-content: center;
   padding: clamp(2rem, 5vw, 4rem) clamp(1rem, 3vw, 2rem);
-  background: #E8DCC4;
+  
 }
 
 /* Mobile-specific height control */
@@ -394,6 +396,7 @@ const styles = `
   position: relative;
   width: 100%;
   transition: transform 0.3s ease;
+  font-family: 'sana-serif';
 }
 
 /* Mobile title size */
@@ -443,7 +446,7 @@ const styles = `
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #E8DCC4;
+  
 }
 
 .spinner {
