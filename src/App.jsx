@@ -25,7 +25,7 @@ import OrdersPage from "./pages/OrdersPage";
 import MobileBottomNav from "./components/MobileBottomNav";
 import WhatsAppWidget from "./components/WhatsappWidget";
 import ManageMedia from "./pages/admin/ManageMedia";
-import HomePageThemeAdmin from "./pages/admin/HomepageThemeAdmin";
+import HomePageThemeAdmin from "./pages/admin/HomePageThemeAdmin";
 
 const queryClient = new QueryClient();
 
