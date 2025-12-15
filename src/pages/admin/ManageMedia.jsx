@@ -336,7 +336,7 @@ const ManageMedia = () => {
                     type="text"
                     value={formData.title}
                     onChange={(e) => setFormData({...formData, title: e.target.value})}
-                    className="w-full border rounded-lg px-3 py-2 text-gray-900"
+                    className="w-full border text-white rounded-lg px-3 py-2 text-gray-900"
                   />
                 </div>
 
@@ -346,7 +346,7 @@ const ManageMedia = () => {
                     type="text"
                     value={formData.subtitle}
                     onChange={(e) => setFormData({...formData, subtitle: e.target.value})}
-                    className="w-full border rounded-lg px-3 py-2 text-gray-900"
+                    className="w-full border text-white rounded-lg px-3 py-2 text-gray-900"
                   />
                 </div>
 
@@ -368,7 +368,7 @@ const ManageMedia = () => {
                         type="url"
                         value={formData.imageUrl}
                         onChange={(e) => setFormData({...formData, imageUrl: e.target.value})}
-                        className="w-full border rounded-lg px-3 py-2 text-gray-900"
+                        className="w-full text-white border rounded-lg px-3 py-2 text-gray-900"
                         placeholder="https://..."
                         required
                       />
@@ -379,7 +379,7 @@ const ManageMedia = () => {
                         type="url"
                         value={formData.mobileImageUrl}
                         onChange={(e) => setFormData({...formData, mobileImageUrl: e.target.value})}
-                        className="w-full border rounded-lg px-3 py-2 text-gray-900"
+                        className="w-full border text-white rounded-lg px-3 py-2 text-gray-900"
                         placeholder="https://..."
                       />
                     </div>
@@ -392,7 +392,7 @@ const ManageMedia = () => {
                         type="url"
                         value={formData.videoUrl}
                         onChange={(e) => setFormData({...formData, videoUrl: e.target.value})}
-                        className="w-full border rounded-lg px-3 py-2 text-gray-900"
+                        className="w-full border text-white rounded-lg px-3 py-2 text-gray-900"
                         placeholder="https://..."
                         required
                       />
@@ -403,7 +403,7 @@ const ManageMedia = () => {
                         type="number"
                         value={formData.duration}
                         onChange={(e) => setFormData({...formData, duration: parseInt(e.target.value) || 45})}
-                        className="w-full border rounded-lg px-3 py-2 text-gray-900"
+                        className="w-full border text-white rounded-lg px-3 py-2 text-gray-900"
                         min="1"
                       />
                     </div>
@@ -416,7 +416,7 @@ const ManageMedia = () => {
                     type="text"
                     value={formData.ctaText}
                     onChange={(e) => setFormData({...formData, ctaText: e.target.value})}
-                    className="w-full border rounded-lg px-3 py-2 text-gray-900"
+                    className="w-full border text-white rounded-lg px-3 py-2 text-gray-900"
                     placeholder="Shop Now"
                   />
                 </div>
@@ -426,7 +426,7 @@ const ManageMedia = () => {
                   <select
                     value={formData.ctaType}
                     onChange={(e) => handleCTATypeChange(e.target.value)}
-                    className="w-full border rounded-lg px-3 py-2 text-gray-900"
+                    className="w-full border text-white rounded-lg px-3 py-2 text-gray-900"
                   >
                     <option value="none">None</option>
                     <option value="product">Product</option>
@@ -443,7 +443,7 @@ const ManageMedia = () => {
                     <select
                       onChange={(e) => handleRouteSelect(e.target.value)}
                       value={formData.ctaSlug ? `${formData.ctaType}:${formData.ctaSlug}` : ''}
-                      className="w-full border rounded-lg px-3 py-2 text-gray-900"
+                      className="w-full border text-white rounded-lg px-3 py-2 text-gray-900"
                     >
                       <option value="">-- Select --</option>
                       
@@ -481,7 +481,7 @@ const ManageMedia = () => {
                       type="text"
                       value={formData.ctaLink}
                       onChange={(e) => setFormData({...formData, ctaLink: e.target.value})}
-                      className="w-full border rounded-lg px-3 py-2 text-gray-900"
+                      className="w-full border text-white rounded-lg px-3 py-2 text-gray-900"
                       placeholder="/custom-page"
                     />
                   </div>
