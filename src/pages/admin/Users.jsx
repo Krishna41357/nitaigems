@@ -18,7 +18,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../../components/ui/dialog";
-import { Search, Download, Eye, ShoppingCart, User, TrendingUp } from 'lucide-react';
+import { Search, Download, Eye, ShoppingCart, User, TrendingUp, AlertCircle } from 'lucide-react';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL_ADMIN || 'https://nitai-gems-backend.nitai-gems-backend.workers.dev/admin';
 
@@ -66,29 +66,88 @@ export default function Users() {
         }
       });
 
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
       const data = await response.json();
       
       if (data.success) {
-        setUsers(data.data);
-        setFilteredUsers(data.data);
+        // Process users to ensure cart data is properly structured
+        const processedUsers = data.data.map(user => {
+          let cartItems = [];
+          let itemCount = 0;
+          let cartValue = 0;
+          
+          if (user.cart) {
+            try {
+              // Parse cart items if it's a string
+              const items = typeof user.cart.items === 'string' 
+                ? JSON.parse(user.cart.items) 
+                : user.cart.items || [];
+              
+              // Map cart items to standardized format with correct field names
+              cartItems = items.map(item => ({
+                id: item.id,
+                productId: item.product_id,
+                name: item.product_name || item.name || 'Unnamed Product',
+                slug: item.product_slug || item.slug,
+                image: item.product_image || item.image,
+                sku: item.sku,
+                price: parseFloat(item.price) || 0,
+                quantity: parseInt(item.quantity) || 1,
+                subtotal: parseFloat(item.subtotal) || (parseFloat(item.price) || 0) * (parseInt(item.quantity) || 1),
+                metal: item.metal,
+                metalPurity: item.metal_purity,
+                stone: item.stone,
+                stoneType: item.stone_type,
+                addedAt: item.added_at,
+                updatedAt: item.updated_at
+              }));
+              
+              itemCount = cartItems.length;
+              cartValue = cartItems.reduce((sum, item) => {
+                return sum + (item.price * item.quantity);
+              }, 0);
+            } catch (e) {
+              console.error('Error parsing cart items:', e);
+            }
+          }
+          
+          return {
+            ...user,
+            cartItems,
+            itemCount,
+            cartValue,
+            hasCart: itemCount > 0
+          };
+        });
+        
+        setUsers(processedUsers);
+        setFilteredUsers(processedUsers);
+        
+        // Calculate stats
+        const usersWithItems = processedUsers.filter(u => u.itemCount > 0).length;
+        const totalValue = processedUsers.reduce((sum, u) => sum + (u.cartValue || 0), 0);
         
         setStats({
-          totalUsers: data.stats.totalUsers,
-          activeUsers: data.stats.usersWithItems,
-          usersWithCarts: data.stats.usersWithCarts,
-          totalCartValue: data.stats.totalCartValue
+          totalUsers: data.stats?.totalUsers || processedUsers.length,
+          activeUsers: usersWithItems,
+          usersWithCarts: data.stats?.usersWithCarts || usersWithItems,
+          totalCartValue: totalValue
         });
       } else {
-        console.error('Failed to fetch users:', data.message);
+        throw new Error(data.message || 'Failed to fetch users');
       }
     } catch (error) {
       console.error('Error fetching users:', error);
+      alert(`Error loading users: ${error.message}`);
     } finally {
       setLoading(false);
     }
   };
 
-  const viewUserCart = async (user) => {
+  const viewUserCart = (user) => {
     setSelectedUser(user);
     setCartDialogOpen(true);
   };
@@ -99,56 +158,82 @@ export default function Users() {
       return;
     }
 
-    const excelData = filteredUsers.map(user => ({
-      'Phone': user.phone || 'N/A',
-      'Name': user.name || 'N/A',
-      'Email': user.email || 'N/A',
-      'Is Admin': user.is_admin ? 'Yes' : 'No',
-      'Has Cart': user.hasCart ? 'Yes' : 'No',
-      'Items in Cart': user.itemCount || 0,
-      'Cart Value': user.cartValue ? `₹${user.cartValue.toFixed(2)}` : '₹0.00',
-      'Registered': new Date(user.created_at).toLocaleDateString(),
-      'Last Active': new Date(user.updated_at).toLocaleDateString()
-    }));
+    try {
+      const excelData = filteredUsers.map(user => ({
+        'Phone': user.phone || 'N/A',
+        'Name': user.name || 'N/A',
+        'Email': user.email || 'N/A',
+        'Is Admin': user.is_admin === 1 ? 'Yes' : 'No',
+        'Has Cart': user.hasCart ? 'Yes' : 'No',
+        'Items in Cart': user.itemCount || 0,
+        'Cart Value (₹)': user.cartValue ? user.cartValue.toFixed(2) : '0.00',
+        'Registered': user.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A',
+        'Last Active': user.updated_at ? new Date(user.updated_at).toLocaleDateString() : 'N/A'
+      }));
 
-    const headers = Object.keys(excelData[0]);
-    const csvContent = [
-      headers.join(','),
-      ...excelData.map(row => 
-        headers.map(header => {
-          const value = row[header];
-          if (typeof value === 'string' && (value.includes(',') || value.includes('"'))) {
-            return `"${value.replace(/"/g, '""')}"`;
-          }
-          return value;
-        }).join(',')
-      )
-    ].join('\n');
+      // Create CSV content with proper escaping
+      const headers = Object.keys(excelData[0]);
+      const csvRows = [
+        headers.join(','),
+        ...excelData.map(row => 
+          headers.map(header => {
+            const value = String(row[header] || '');
+            // Escape quotes and wrap in quotes if contains comma, quote, or newline
+            if (value.includes(',') || value.includes('"') || value.includes('\n')) {
+              return `"${value.replace(/"/g, '""')}"`;
+            }
+            return value;
+          }).join(',')
+        )
+      ];
 
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', `nitai_gems_users_${new Date().toISOString().split('T')[0]}.csv`);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+      const csvContent = csvRows.join('\n');
+      const BOM = '\uFEFF'; // UTF-8 BOM for proper Excel encoding
+      const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
+      
+      // Create download link
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      const timestamp = new Date().toISOString().split('T')[0];
+      
+      link.setAttribute('href', url);
+      link.setAttribute('download', `nitai_gems_users_${timestamp}.csv`);
+      link.style.visibility = 'hidden';
+      
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Clean up
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading Excel:', error);
+      alert('Error creating download file. Please try again.');
+    }
   };
 
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
+    try {
+      return new Date(dateString).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+    } catch {
+      return 'N/A';
+    }
+  };
+
+  const formatCurrency = (value) => {
+    if (!value || isNaN(value)) return '₹0.00';
+    return `₹${parseFloat(value).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
 
   if (loading) {
     return (
       <div className="space-y-6">
-        <h1 className="text-3xl font-bold text-foreground">Users</h1>
+        <h1 className="text-3xl font-bold text-foreground">Users Management</h1>
         <div className="flex items-center justify-center h-64">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
         </div>
@@ -160,12 +245,17 @@ export default function Users() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-foreground">Users Management</h1>
-        <Button onClick={downloadExcel} className="gap-2" disabled={filteredUsers.length === 0}>
+        <Button 
+          onClick={downloadExcel} 
+          className="gap-2" 
+          disabled={filteredUsers.length === 0}
+        >
           <Download className="h-4 w-4" />
-          Download Excel
+          Download CSV
         </Button>
       </div>
 
+      {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -174,6 +264,7 @@ export default function Users() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.totalUsers}</div>
+            <p className="text-xs text-muted-foreground mt-1">Registered accounts</p>
           </CardContent>
         </Card>
 
@@ -184,6 +275,7 @@ export default function Users() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.usersWithCarts}</div>
+            <p className="text-xs text-muted-foreground mt-1">Users with cart items</p>
           </CardContent>
         </Card>
 
@@ -194,6 +286,7 @@ export default function Users() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.activeUsers}</div>
+            <p className="text-xs text-muted-foreground mt-1">Active shoppers</p>
           </CardContent>
         </Card>
 
@@ -203,11 +296,13 @@ export default function Users() {
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">₹{stats.totalCartValue.toFixed(2)}</div>
+            <div className="text-2xl font-bold">{formatCurrency(stats.totalCartValue)}</div>
+            <p className="text-xs text-muted-foreground mt-1">Potential revenue</p>
           </CardContent>
         </Card>
       </div>
 
+      {/* Users Table */}
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -232,17 +327,20 @@ export default function Users() {
                   <TableHead>Name</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>Cart Items</TableHead>
-                  <TableHead>Cart Value</TableHead>
+                  <TableHead className="text-right">Cart Items</TableHead>
+                  <TableHead className="text-right">Cart Value</TableHead>
                   <TableHead>Registered</TableHead>
-                  <TableHead>Actions</TableHead>
+                  <TableHead className="text-center">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredUsers.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
-                      No users found
+                      <div className="flex flex-col items-center gap-2">
+                        <AlertCircle className="h-8 w-8 text-muted-foreground/50" />
+                        <p>No users found</p>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -250,35 +348,31 @@ export default function Users() {
                     <TableRow key={user.id}>
                       <TableCell className="font-medium">{user.phone || 'N/A'}</TableCell>
                       <TableCell>{user.name || 'N/A'}</TableCell>
-                      <TableCell>{user.email || 'N/A'}</TableCell>
+                      <TableCell className="text-sm">{user.email || 'N/A'}</TableCell>
                       <TableCell>
                         <div className="flex gap-1">
                           {user.is_admin === 1 && (
-                            <Badge variant="destructive">Admin</Badge>
+                            <Badge variant="destructive" className="text-xs">Admin</Badge>
                           )}
                           {user.hasCart && (
-                            <Badge variant="secondary">Has Cart</Badge>
+                            <Badge variant="secondary" className="text-xs">Has Cart</Badge>
                           )}
                         </div>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="text-right">
                         {user.itemCount > 0 ? (
                           <Badge variant="outline">{user.itemCount}</Badge>
                         ) : (
                           <span className="text-muted-foreground">0</span>
                         )}
                       </TableCell>
-                      <TableCell>
-                        {user.cartValue > 0 ? (
-                          <span className="font-medium">₹{user.cartValue.toFixed(2)}</span>
-                        ) : (
-                          <span className="text-muted-foreground">₹0.00</span>
-                        )}
+                      <TableCell className="text-right font-medium">
+                        {formatCurrency(user.cartValue)}
                       </TableCell>
                       <TableCell className="text-sm text-muted-foreground">
                         {formatDate(user.created_at)}
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="text-center">
                         <Button
                           variant="ghost"
                           size="sm"
@@ -299,8 +393,9 @@ export default function Users() {
         </CardContent>
       </Card>
 
+      {/* Cart Details Dialog */}
       <Dialog open={cartDialogOpen} onOpenChange={setCartDialogOpen}>
-        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Cart Details</DialogTitle>
             <DialogDescription>
@@ -310,10 +405,11 @@ export default function Users() {
           
           {selectedUser && (
             <div className="space-y-4">
+              {/* User Info */}
               <div className="grid grid-cols-2 gap-4 p-4 bg-muted rounded-lg">
                 <div>
                   <p className="text-sm text-muted-foreground">Phone</p>
-                  <p className="font-medium">{selectedUser.phone}</p>
+                  <p className="font-medium">{selectedUser.phone || 'N/A'}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Name</p>
@@ -324,65 +420,123 @@ export default function Users() {
                   <p className="font-medium">{selectedUser.email || 'N/A'}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Total Value</p>
-                  <p className="font-medium text-lg">₹{selectedUser.cartValue?.toFixed(2)}</p>
+                  <p className="text-sm text-muted-foreground">Total Cart Value</p>
+                  <p className="font-bold text-lg text-primary">
+                    {formatCurrency(selectedUser.cartValue)}
+                  </p>
                 </div>
               </div>
 
+              {/* Cart Items */}
               <div>
-                <h3 className="font-semibold mb-3">Cart Items ({selectedUser.itemCount})</h3>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Product</TableHead>
-                      <TableHead>Price</TableHead>
-                      <TableHead>Quantity</TableHead>
-                      <TableHead>Total</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {selectedUser.cart?.items?.map((item, index) => (
-                      <TableRow key={index}>
-                        <TableCell>
-                          <div className="flex items-center gap-3">
-                            {item.image && (
-                              <img 
-                                src={item.image} 
-                                alt={item.name}
-                                className="w-12 h-12 object-cover rounded"
-                              />
-                            )}
-                            <div>
-                              <p className="font-medium">{item.name || item.productId}</p>
-                              <p className="text-sm text-muted-foreground">ID: {item.productId}</p>
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>₹{item.price?.toFixed(2)}</TableCell>
-                        <TableCell>{item.quantity}</TableCell>
-                        <TableCell className="font-medium">
-                          ₹{(item.price * item.quantity).toFixed(2)}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                <h3 className="font-semibold mb-3 flex items-center gap-2">
+                  <ShoppingCart className="h-4 w-4" />
+                  Cart Items ({selectedUser.itemCount})
+                </h3>
+                
+                {selectedUser.cartItems && selectedUser.cartItems.length > 0 ? (
+                  <div className="border rounded-lg overflow-hidden">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Product</TableHead>
+                          <TableHead>Details</TableHead>
+                          <TableHead className="text-right">Price</TableHead>
+                          <TableHead className="text-center">Qty</TableHead>
+                          <TableHead className="text-right">Total</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {selectedUser.cartItems.map((item, index) => (
+                          <TableRow key={index}>
+                            <TableCell>
+                              <div className="flex items-center gap-3">
+                                {item.image ? (
+                                  <img 
+                                    src={item.image} 
+                                    alt={item.name || 'Product'}
+                                    className="w-16 h-16 object-cover rounded border"
+                                    onError={(e) => {
+                                      e.target.style.display = 'none';
+                                    }}
+                                  />
+                                ) : (
+                                  <div className="w-16 h-16 bg-muted rounded border flex items-center justify-center">
+                                    <ShoppingCart className="h-6 w-6 text-muted-foreground" />
+                                  </div>
+                                )}
+                                <div>
+                                  <p className="font-medium">{item.name}</p>
+                                  <p className="text-xs text-muted-foreground">
+                                    SKU: {item.sku || 'N/A'}
+                                  </p>
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="space-y-1 text-sm">
+                                <div className="flex gap-2">
+                                  <Badge variant="outline" className="text-xs">
+                                    {item.metal} {item.metalPurity}
+                                  </Badge>
+                                </div>
+                                {item.stone && (
+                                  <div className="flex gap-2">
+                                    <Badge variant="secondary" className="text-xs">
+                                      {item.stone} {item.stoneType && `(${item.stoneType})`}
+                                    </Badge>
+                                  </div>
+                                )}
+                              </div>
+                            </TableCell>
+                            <TableCell className="text-right">
+                              {formatCurrency(item.price)}
+                            </TableCell>
+                            <TableCell className="text-center">
+                              <Badge variant="outline">{item.quantity}</Badge>
+                            </TableCell>
+                            <TableCell className="text-right font-medium">
+                              {formatCurrency(item.price * item.quantity)}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                        {/* Total Row */}
+                        <TableRow className="bg-muted/50 font-bold">
+                          <TableCell colSpan={4} className="text-right">
+                            Total Cart Value:
+                          </TableCell>
+                          <TableCell className="text-right text-lg">
+                            {formatCurrency(selectedUser.cartValue)}
+                          </TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground border rounded-lg">
+                    <ShoppingCart className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                    <p>No items in cart</p>
+                  </div>
+                )}
               </div>
 
-              <div className="grid grid-cols-2 gap-4 p-4 bg-muted/50 rounded-lg text-sm">
-                <div>
-                  <p className="text-muted-foreground">Cart Created</p>
-                  <p className="font-medium">{formatDate(selectedUser.cart?.created_at)}</p>
+              {/* Cart Metadata */}
+              {selectedUser.cart && (
+                <div className="grid grid-cols-2 gap-4 p-4 bg-muted/50 rounded-lg text-sm">
+                  <div>
+                    <p className="text-muted-foreground">Cart Created</p>
+                    <p className="font-medium">{formatDate(selectedUser.cart.created_at)}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Last Updated</p>
+                    <p className="font-medium">{formatDate(selectedUser.cart.updated_at)}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-muted-foreground">Last Updated</p>
-                  <p className="font-medium">{formatDate(selectedUser.cart?.updated_at)}</p>
-                </div>
-              </div>
+              )}
             </div>
           )}
         </DialogContent>
       </Dialog>
     </div>
   );
-} 
+}
