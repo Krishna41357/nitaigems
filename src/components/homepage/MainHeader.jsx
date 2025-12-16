@@ -191,13 +191,7 @@ const MainHeader = () => {
         const wasAdmin = logout();
         console.log('Was admin?', wasAdmin);
         console.log('Navigating to:', wasAdmin ? '/admin/login' : '/');
-        
-        // Navigate based on user type
-        if (wasAdmin) {
-          navigate('/admin/login');
-        } else {
           navigate('/');
-        }
         break;
         
       case 'login':

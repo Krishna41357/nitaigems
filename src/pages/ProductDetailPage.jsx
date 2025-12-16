@@ -12,6 +12,7 @@ import {
   Package,
 } from "lucide-react";
 import MainHeader from "../components/homepage/MainHeader";
+import UserLoginModal from "../components/auth/UserLoginModal";
 
 
 import { useAuth } from "../contexts/AuthContext";
@@ -34,6 +35,7 @@ const ProductDetailPage = () => {
   const [buyNowLoading, setBuyNowLoading] = useState(false);
   const [recommendedProducts, setRecommendedProducts] = useState([]);
   const [recommendedLoading, setRecommendedLoading] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   const headerFont = "'Cinzel', 'Playfair Display', serif";
 
@@ -132,8 +134,7 @@ const ProductDetailPage = () => {
   /* ---- add to cart ---- */
   const handleAddToCart = async () => {
     if (!isAuthenticated) {
-      if (window.confirm("Please login to add items to cart. Login now?")) 
-        navigate("/login", { state: { from: location.pathname } });
+        setShowLoginModal(true);
       return;
     }
     setCartLoading(true);
@@ -175,7 +176,7 @@ const ProductDetailPage = () => {
   /* ---- buy now ---- */
   const handleBuyNow = async () => {
     if (!isAuthenticated) {
-      navigate("/login", { state: { from: location.pathname } });
+      setShowLoginModal(true);
       return;
     }
     if (!product.inventory?.inStock) {
@@ -261,6 +262,7 @@ const ProductDetailPage = () => {
   return (
     <>
       <MainHeader />
+      <UserLoginModal open={showLoginModal} onClose={() => setShowLoginModal(false)} />
       <div className="min-h-screen bg-white">
         <div className="w-screen px-4 md:px-8 lg:px-12 py-6 md:py-8">
           {/* Breadcrumbs */}

@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Trash2, Plus, Minus, ShoppingCart, ArrowRight, Home, Package, AlertTriangle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import MainHeader from '../components/homepage/MainHeader';
+import UserLoginModal from '../components/auth/UserLoginModal';
 
 import '../components/cart/cart.css';
 
@@ -15,7 +16,6 @@ const CartPage = () => {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [inventoryStatus, setInventoryStatus] = useState({}); // Track inventory for each item
   const [unavailableItems, setUnavailableItems] = useState([]); // Items that are out of stock
-
   const headerFont = "'Cinzel', 'Playfair Display', serif";
   const API_BASE = import.meta.env.VITE_APP_BASE_URL;
 
@@ -300,8 +300,7 @@ const CartPage = () => {
     return (
       <>
         <MainHeader />
-
-
+        {showLoginModal && <UserLoginModal open={showLoginModal} onClose={() => setShowLoginModal(false)} />}
         <div className="min-h-screen bg-[#fbf6ef] flex items-center justify-center px-4">
           <div className="bg-white rounded-xl shadow-lg p-8 max-w-md w-full">
             <div className="text-center">
@@ -311,7 +310,7 @@ const CartPage = () => {
               </h2>
               <p className="text-[#6b5342] mb-6">You need to be logged in to view your cart.</p>
               <button
-                onClick={() => navigate('/login')}
+                onClick={() => setShowLoginModal(true)}
                 className="w-full bg-gradient-to-r from-[#b8860b] to-[#d4a055] text-white px-6 py-3 rounded-full font-medium hover:from-[#a06f09] hover:to-[#b8860b] transition-all"
               >
                 Go to Login
