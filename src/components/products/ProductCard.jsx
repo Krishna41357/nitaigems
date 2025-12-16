@@ -33,14 +33,16 @@ const ProductCard = ({ product }) => {
     }
   };
 
-  // Generate product URL based on current route context
+  // UPDATED: Generate product URL using SKU instead of slug
   const getProductUrl = () => {
     if (categorySlug && subCategorySlug) {
-      return `/products/category/${categorySlug}/${subCategorySlug}/${product.slug}`;
+      return `/products/category/${categorySlug}/${subCategorySlug}/${product.sku}`;
     } else if (categorySlug) {
-      return `/products/category/${categorySlug}/${product.slug}`;
+      return `/products/category/${categorySlug}/${product.sku}`;
+    } else if (product.collectionSlug) {
+      return `/products/collection/${product.collectionSlug}/${product.sku}`;
     } else {
-      return `/product/${product.slug}`;
+      return `/product/${product.sku}`;
     }
   };
 

@@ -46,16 +46,23 @@ export default function App() {
           <AuthProvider>
             <CartProvider>
               <WishlistProvider>
-                {/* Main routes container */}
                 <Routes>
                   <Route path="/" element={<HomePage />} />
                   <Route path="/products" element={<ProductsListingPage />} />
+                  
+                  {/* Product detail routes - SKU-based (more specific, must come first) */}
+                  <Route path="/products/category/:categorySlug/:subCategorySlug/:sku" element={<ProductDetailPage />} />
+                  <Route path="/products/category/:categorySlug/:sku" element={<ProductDetailPage />} />
+                  <Route path="/products/collection/:collectionSlug/:sku" element={<ProductDetailPage />} />
+                  <Route path="/product/:sku" element={<ProductDetailPage />} />
+                  
+                  {/* Collection routes */}
                   <Route path="/products/collection/:collectionSlug" element={<ProductsListingPage />} />
-                  <Route path="/products/category/:categorySlug/:subCategorySlug/:slug" element={<ProductDetailPage />} />
+                  
+                  {/* Category routes */}
                   <Route path="/products/category/:categorySlug" element={<ProductsListingPage />} />
-                  <Route path="/product/:slug" element={<ProductDetailPage />} />
-                  <Route path="/products/category/:categorySlug/:slug" element={<ProductDetailPage />} />
-                  <Route path="/products/collection/:collectionSlug/:slug" element={<ProductDetailPage />} />
+                  <Route path="/products/category/:categorySlug/:subCategorySlug" element={<ProductsListingPage />} />
+                  
                   <Route path="/cart" element={<CartPage />} />
                   <Route path="/checkout" element={<CheckoutPage />} />
                   <Route path="/orders" element={<OrdersPage />} />
@@ -76,9 +83,6 @@ export default function App() {
 
                   <Route path="*" element={<NotFound />} />
                 </Routes>
-                {/* Global fixed components - rendered outside routes */}
-                {/* <MobileBottomNav />
-                <WhatsAppWidget /> */}
               </WishlistProvider>
             </CartProvider>
           </AuthProvider>

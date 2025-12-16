@@ -1,6 +1,3 @@
-/* -------------------------------------------------
-   ProductDetailPage.jsx  –  PART 1 of 2
--------------------------------------------------- */
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import {
@@ -16,11 +13,11 @@ import {
 } from "lucide-react";
 import MainHeader from "../components/homepage/MainHeader";
 
-import Footer from "../components/homepage/Footer";
+
 import { useAuth } from "../contexts/AuthContext";
 
 const ProductDetailPage = () => {
-  const { slug, categorySlug, subCategorySlug } = useParams();
+  const { sku, categorySlug, subCategorySlug } = useParams(); // NOW USING SKU
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated } = useAuth();
@@ -38,10 +35,9 @@ const ProductDetailPage = () => {
   const [recommendedProducts, setRecommendedProducts] = useState([]);
   const [recommendedLoading, setRecommendedLoading] = useState(false);
 
-  /* ---- font used in CartPage ---- */
   const headerFont = "'Cinzel', 'Playfair Display', serif";
 
-  /* ---- Auto-change images every 3 seconds ---- */
+  /* ---- Auto-change images ---- */
   useEffect(() => {
     if (!product?.images || product.images.length <= 1) return;
     
@@ -52,16 +48,17 @@ const ProductDetailPage = () => {
     return () => clearInterval(interval);
   }, [product?.images]);
 
-  /* ---- fetch product ---- */
+  /* ---- fetch product by SKU ---- */
   useEffect(() => {
     fetchProduct();
-  }, [slug]);
+  }, [sku]);
 
   const fetchProduct = async () => {
     setLoading(true);
     setError(null);
     try {
-      const url = `${import.meta.env.VITE_APP_BASE_URL}/products/slug/${slug}`;
+      // CHANGED: Now fetching by SKU instead of slug
+      const url = `${import.meta.env.VITE_APP_BASE_URL}/products/sku/${sku}`;
       const res = await fetch(url);
       if (!res.ok) throw new Error(res.status === 404 ? "Product not found" : "Failed to fetch");
       const data = await res.json();
@@ -91,8 +88,8 @@ const ProductDetailPage = () => {
       const res = await fetch(url);
       if (res.ok) {
         const data = await res.json();
-        // Filter out current product
-        setRecommendedProducts(data.filter(p => p.id !== product?.id).slice(0, 8));
+        // Filter out current product using SKU
+        setRecommendedProducts(data.filter(p => p.sku !== product?.sku).slice(0, 8));
       }
     } catch (err) {
       console.error("Failed to fetch recommendations:", err);
@@ -101,9 +98,9 @@ const ProductDetailPage = () => {
     }
   };
 
-  /* ---- breadcrumbs (CartPage style) ---- */
+  /* ---- breadcrumbs ---- */
   const getBreadcrumbs = () => {
-    const crumbs = [{ label: "Home", path: "/" } , { label: "Products", path: "/products" }];
+    const crumbs = [{ label: "Home", path: "/" }, { label: "Products", path: "/products" }];
     if (categorySlug) crumbs.push({ label: categorySlug.replace(/-/g, " "), path: `/products/category/${categorySlug}` });
     if (subCategorySlug) crumbs.push({ label: subCategorySlug.replace(/-/g, " "), path: `/products/category/${categorySlug}/${subCategorySlug}` });
     if (product) crumbs.push({ label: product.name, path: null });
@@ -112,23 +109,16 @@ const ProductDetailPage = () => {
 
   /* ---- helpers ---- */
   const getCurrentPrice = () => {
-    if (selectedLayer) {
-      return selectedLayer.price;
-    }
+    if (selectedLayer) return selectedLayer.price;
     return product?.pricing?.discountedPrice || product?.pricing?.basePrice || 0;
   };
 
   const getOriginalPrice = () => {
-    // If no layers, use base pricing
-    if (!product?.necklaceLayers?.length) {
-      return product?.pricing?.basePrice || 0;
-    }
-    // If layers exist, use selected layer price (no discount on layers)
+    if (!product?.necklaceLayers?.length) return product?.pricing?.basePrice || 0;
     return selectedLayer?.price || 0;
   };
 
   const hasDiscount = () => {
-    // Only show discount if no layers
     if (product?.necklaceLayers?.length) return false;
     return getCurrentPrice() < getOriginalPrice();
   };
@@ -138,12 +128,12 @@ const ProductDetailPage = () => {
   const formatPrice = (p) => (p ? `₹${p.toLocaleString("en-IN")}` : "₹0");
 
   const toggleWishlist = () => setIsInWishlist((v) => !v);
-  const toggleSection = (s) => setExpandedSection((v) => (v === s ? null : s));
 
   /* ---- add to cart ---- */
   const handleAddToCart = async () => {
     if (!isAuthenticated) {
-      if (window.confirm("Please login to add items to cart. Login now?")) navigate("/login", { state: { from: location.pathname } });
+      if (window.confirm("Please login to add items to cart. Login now?")) 
+        navigate("/login", { state: { from: location.pathname } });
       return;
     }
     setCartLoading(true);
@@ -152,9 +142,9 @@ const ProductDetailPage = () => {
       const body = {
         product_id: product.id,
         product_name: product.name,
-        product_slug: slug,
+        product_slug: product.slug,
         product_image: product.images?.[0] || "/placeholder.jpg",
-        sku: product.sku,
+        sku: product.sku, // SKU included
         quantity: 1,
         price: getCurrentPrice(),
         metal: product.details?.metal || null,
@@ -200,7 +190,8 @@ const ProductDetailPage = () => {
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ 
           product_id: product.id, 
-          quantity: 1, 
+          quantity: 1,
+          sku: product.sku, // SKU included
           ...(selectedLayer && { selectedLayer: selectedLayer.layer, selectedLayerPrice: selectedLayer.price }) 
         }),
       });
@@ -218,7 +209,7 @@ const ProductDetailPage = () => {
   };
 
   /* ---- loading / error ---- */
-  if (loading)
+  if (loading) {
     return (
       <>
         <MainHeader />
@@ -245,8 +236,9 @@ const ProductDetailPage = () => {
         </div>
       </>
     );
+  }
 
-  if (error || !product)
+  if (error || !product) {
     return (
       <>
         <MainHeader />
@@ -254,7 +246,7 @@ const ProductDetailPage = () => {
           <div className="text-center max-w-2xl">
             <div className="text-6xl mb-4">😞</div>
             <h2 className="text-3xl font-bold mb-4 text-gray-900">Product Not Found</h2>
-            <p className="text-gray-600 mb-2">We couldn't find a product with slug: <strong>"{slug}"</strong></p>
+            <p className="text-gray-600 mb-2">We couldn't find a product with SKU: <strong>"{sku}"</strong></p>
             <p className="text-red-600 text-sm mb-6">{error}</p>
             <div className="flex gap-4 justify-center">
               <button onClick={() => navigate(-1)} className="flex items-center gap-2 bg-gray-200 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-300 transition-colors">Go Back</button>
@@ -264,20 +256,14 @@ const ProductDetailPage = () => {
         </div>
       </>
     );
+  }
 
-  /* ------------------------------------------------------------------
-     MAIN RENDER - PART 1 ENDS HERE
-     Continue with PART 2 below...
-  ------------------------------------------------------------------ */
-  /* ------------------------------------------------------------------
-     MAIN RENDER - PART 2
-  ------------------------------------------------------------------ */
   return (
     <>
       <MainHeader />
       <div className="min-h-screen bg-white">
         <div className="w-screen px-4 md:px-8 lg:px-12 py-6 md:py-8">
-          {/* ===== Breadcrumbs – CartPage style ===== */}
+          {/* Breadcrumbs */}
           <div className="max-w-7xl mx-auto mb-6">
             <div style={{ fontFamily: headerFont }} className="flex items-center gap-1.5 mb-4 md:mb-6 text-xs md:text-sm overflow-x-auto pb-2">
               {getBreadcrumbs().map((crumb, idx) => (
@@ -299,7 +285,7 @@ const ProductDetailPage = () => {
 
           <div className="max-w-7xl mx-auto">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* --------------- IMAGE GALLERY --------------- */}
+              {/* IMAGE GALLERY */}
               <div className="space-y-4">
                 <div className="relative aspect-square bg-gray-50 rounded-2xl overflow-hidden">
                   <img src={product.images?.[selectedImage] || "/placeholder.jpg"} alt={product.name} className="w-full h-full object-cover" />
@@ -308,7 +294,6 @@ const ProductDetailPage = () => {
                       <span className="bg-white px-6 py-2 rounded-full font-semibold text-gray-900">Out of Stock</span>
                     </div>
                   )}
-                  {/* Image counter */}
                   {product.images?.length > 1 && (
                     <div className="absolute bottom-4 right-4 bg-black/60 text-white px-3 py-1 rounded-full text-sm">
                       {selectedImage + 1} / {product.images.length}
@@ -326,7 +311,7 @@ const ProductDetailPage = () => {
                 )}
               </div>
 
-              {/* --------------- PRODUCT INFO --------------- */}
+              {/* PRODUCT INFO */}
               <div className="space-y-6">
                 <div>
                   <h1 className="text-3xl font-serif text-gray-900 mb-2">{product.name}</h1>
@@ -346,7 +331,7 @@ const ProductDetailPage = () => {
                   <p className="text-xs text-gray-500 mt-1">Incl. taxes and charges</p>
                 </div>
 
-                {/* --------------- LAYER SELECTOR (Light Theme) --------------- */}
+                {/* LAYER SELECTOR */}
                 {product.necklaceLayers?.length > 0 && (
                   <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
                     <label className="block text-sm font-semibold text-gray-900 mb-3">
@@ -375,7 +360,7 @@ const ProductDetailPage = () => {
                   </div>
                 )}
 
-                {/* --------------- ACTION BUTTONS --------------- */}
+                {/* ACTION BUTTONS */}
                 <div className="space-y-3">
                   <div className="flex gap-3">
                     <button
@@ -420,7 +405,7 @@ const ProductDetailPage = () => {
                   </div>
                 </div>
 
-                {/* --------------- COLLAPSIBLE SECTIONS --------------- */}
+                {/* COLLAPSIBLE SECTIONS */}
                 <div className="border-gray-300 font-serif border-2 border-t-0 rounded-r-xl rounded-l-xl border-b-2 space-y-2">
                   {(product.details?.metal || product.details?.metalPurity || product.details?.metalWeight) && (
                     <DetailSection title="METAL DETAILS" icon={<div className="w-5 h-5 text-amber-600">⚜</div>}>
@@ -551,14 +536,13 @@ const ProductDetailPage = () => {
           </div>
         )}
       </div>
-      <Footer />
+
+
     </>
   );
 };
 
-/* ------------------------------------------------------------------
-   Re-usable collapsible section
------------------------------------------------------------------- */
+/* Re-usable collapsible section */
 const DetailSection = ({ title, children, icon }) => {
   const [expandedSection, setExpandedSection] = useState(null);
   const isOpen = expandedSection === title;
@@ -575,10 +559,6 @@ const DetailSection = ({ title, children, icon }) => {
     </div>
   );
 };
-
-/* ------------------------------------------------------------------
-   Recommended Products Carousel
------------------------------------------------------------------- */
 const RecommendedProducts = ({ products, loading, navigate }) => {
   const [scrollPosition, setScrollPosition] = useState(0);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -650,7 +630,7 @@ const RecommendedProducts = ({ products, loading, navigate }) => {
         {products.map((product) => (
           <div
             key={product.id}
-            onClick={() => navigate(`/products/${product.categorySlug}/${product.subCategorySlug}/${product.slug}`)}
+            onClick={() => navigate(`/products/category/${product.categorySlug}/${product.subCategorySlug}/${product.sku}`)}
             className="flex-shrink-0 w-72 bg-white rounded-xl shadow-md hover:shadow-xl transition-all cursor-pointer group border border-gray-200 hover:border-[#832729]"
           >
             <div className="relative aspect-square overflow-hidden rounded-t-xl bg-gray-100">

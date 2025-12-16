@@ -6,7 +6,8 @@ import { Home, Package, ShoppingCart, Plus, MapPin, Phone, Mail, Shield, Truck, 
 import { useAuth } from '../contexts/AuthContext';
 import MainHeader from '../components/homepage/MainHeader';
 
-import Footer from '../components/homepage/Footer';
+
+
 
 const CheckoutPage = () => {
   const navigate = useNavigate();
@@ -445,7 +446,7 @@ const CheckoutPage = () => {
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#b8860b] mb-4"></div>
           <p className="text-[#3b1b12]">Loading checkout...</p>
         </div>
-        <Footer />
+      
       </>
     );
   }
@@ -469,7 +470,7 @@ const CheckoutPage = () => {
             </button>
           </div>
         </div>
-        <Footer />
+
       </>
     );
   }
@@ -843,7 +844,8 @@ const CheckoutPage = () => {
           </div>
         </div>
       </div>
-      <Footer />
+
+
     </>
   );
 };

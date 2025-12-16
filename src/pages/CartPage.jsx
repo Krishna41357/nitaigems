@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Trash2, Plus, Minus, ShoppingCart, ArrowRight, Home, Package } from 'lucide-react';
+import { Trash2, Plus, Minus, ShoppingCart, ArrowRight, Home, Package, AlertTriangle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import MainHeader from '../components/homepage/MainHeader';
-import Navigation from '../components/homepage/Navigation';
+
 import '../components/cart/cart.css';
 
 const CartPage = () => {
@@ -13,6 +13,8 @@ const CartPage = () => {
   const [loading, setLoading] = useState(true);
   const [cartData, setCartData] = useState(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [inventoryStatus, setInventoryStatus] = useState({}); // Track inventory for each item
+  const [unavailableItems, setUnavailableItems] = useState([]); // Items that are out of stock
 
   const headerFont = "'Cinzel', 'Playfair Display', serif";
   const API_BASE = import.meta.env.VITE_APP_BASE_URL;
@@ -21,7 +23,6 @@ const CartPage = () => {
   const buildBreadcrumbs = () => {
     const crumbs = [{ label: 'Home', path: '/' }];
 
-    // If the navigator passed a breadcrumb trail
     if (location.state?.breadcrumb && Array.isArray(location.state.breadcrumb)) {
       location.state.breadcrumb.forEach((c) => crumbs.push(c));
     } else if (location.state?.from) {
@@ -38,14 +39,59 @@ const CartPage = () => {
       } else if (from.startsWith('/categories') || from.startsWith('/collections')) {
         crumbs.push({ label: 'Products', path: '/products' });
       } else {
-        // unknown, just add a generic
         crumbs.push({ label: 'Products', path: '/products' });
       }
     }
 
-    // Finally the cart
     crumbs.push({ label: 'Shopping Cart', path: null });
     return crumbs;
+  };
+
+  // Fetch product inventory status by SKU
+  const checkProductAvailability = async (sku) => {
+    try {
+      const response = await fetch(`${API_BASE}/products/sku/${sku}`);
+      if (response.ok) {
+        const product = await response.json();
+        return {
+          inStock: product.inventory?.inStock || false,
+          stock: product.inventory?.stock || 0,
+          price: product.pricing?.discountedPrice || product.pricing?.basePrice || 0
+        };
+      }
+      return { inStock: false, stock: 0, price: 0 };
+    } catch (error) {
+      console.error(`Error checking availability for SKU ${sku}:`, error);
+      return { inStock: false, stock: 0, price: 0 };
+    }
+  };
+
+  // Validate cart items against current inventory
+  const validateCartInventory = async (items) => {
+    const statusMap = {};
+    const unavailable = [];
+
+    for (const item of items) {
+      if (item.sku) {
+        const availability = await checkProductAvailability(item.sku);
+        statusMap[item.product_id] = availability;
+
+        if (!availability.inStock) {
+          unavailable.push({
+            ...item,
+            reason: 'Out of Stock'
+          });
+        } else if (item.quantity > availability.stock) {
+          unavailable.push({
+            ...item,
+            reason: `Only ${availability.stock} available`
+          });
+        }
+      }
+    }
+
+    setInventoryStatus(statusMap);
+    setUnavailableItems(unavailable);
   };
 
   // Fetch cart data
@@ -67,7 +113,13 @@ const CartPage = () => {
 
         if (response.ok) {
           const data = await response.json();
+          const items = data.data?.items || [];
           setCartData(data.data);
+
+          // Validate inventory for all items
+          if (items.length > 0) {
+            await validateCartInventory(items);
+          }
         }
       } catch (error) {
         console.error('Error fetching cart:', error);
@@ -79,28 +131,42 @@ const CartPage = () => {
     fetchCartData();
   }, [isAuthenticated, API_BASE]);
 
-  // Calculate totals
+  // Calculate totals (only for available items)
   const calculateTotals = () => {
     if (!cartData?.items || cartData.items.length === 0) {
-      return { subtotal: 0, tax: 0, total: 0, itemCount: 0 };
+      return { subtotal: 0, tax: 0, total: 0, itemCount: 0, availableItemCount: 0 };
     }
 
-    const subtotal = cartData.items.reduce(
+    // Only calculate for items that are in stock
+    const availableItems = cartData.items.filter(item => {
+      const status = inventoryStatus[item.product_id];
+      return status?.inStock && item.quantity <= (status?.stock || 0);
+    });
+
+    const subtotal = availableItems.reduce(
       (sum, item) => sum + (item.price || 0) * (item.quantity || 0),
       0
     );
-    const tax = subtotal * 0.1; // 10% tax
+    const tax = subtotal * 0.03; // 3% tax
     const total = subtotal + tax;
     const itemCount = cartData.items.reduce((sum, item) => sum + (item.quantity || 0), 0);
+    const availableItemCount = availableItems.reduce((sum, item) => sum + (item.quantity || 0), 0);
 
-    return { subtotal, tax, total, itemCount };
+    return { subtotal, tax, total, itemCount, availableItemCount };
   };
 
-  const { subtotal, tax, total, itemCount } = calculateTotals();
+  const { subtotal, tax, total, itemCount, availableItemCount } = calculateTotals();
 
   // Handle quantity update
-  const handleQuantityChange = async (productId, newQuantity) => {
+  const handleQuantityChange = async (productId, newQuantity, sku) => {
     if (newQuantity < 1) return;
+
+    // Check if quantity exceeds available stock
+    const status = inventoryStatus[productId];
+    if (status && newQuantity > status.stock) {
+      alert(`Only ${status.stock} items available in stock`);
+      return;
+    }
 
     try {
       const token = localStorage.getItem('authToken');
@@ -119,6 +185,9 @@ const CartPage = () => {
           ...prev,
           items: data.data.items,
         }));
+
+        // Re-validate inventory
+        await validateCartInventory(data.data.items);
       }
     } catch (error) {
       console.error('Error updating quantity:', error);
@@ -144,9 +213,26 @@ const CartPage = () => {
           ...prev,
           items: data.data.items,
         }));
+
+        // Re-validate inventory
+        if (data.data.items.length > 0) {
+          await validateCartInventory(data.data.items);
+        } else {
+          setInventoryStatus({});
+          setUnavailableItems([]);
+        }
       }
     } catch (error) {
       console.error('Error removing item:', error);
+    }
+  };
+
+  // Remove all unavailable items
+  const handleRemoveUnavailableItems = async () => {
+    if (!window.confirm('Remove all unavailable items from cart?')) return;
+
+    for (const item of unavailableItems) {
+      await handleRemoveItem(item.product_id);
     }
   };
 
@@ -165,15 +251,33 @@ const CartPage = () => {
 
       if (response.ok) {
         setCartData({ items: [] });
+        setInventoryStatus({});
+        setUnavailableItems([]);
       }
     } catch (error) {
       console.error('Error clearing cart:', error);
     }
   };
 
-  // Handle checkout
+  // Handle checkout - only proceed if all items are available
   const handleCheckout = () => {
+    if (unavailableItems.length > 0) {
+      alert('Please remove unavailable items before proceeding to checkout');
+      return;
+    }
+
+    if (availableItemCount === 0) {
+      alert('Your cart has no available items');
+      return;
+    }
+
     navigate('/checkout', { state: { cartTotal: total, items: cartData?.items } });
+  };
+
+  // Check if item is available
+  const isItemAvailable = (item) => {
+    const status = inventoryStatus[item.product_id];
+    return status?.inStock && item.quantity <= (status?.stock || 0);
   };
 
   // Show loading
@@ -181,7 +285,7 @@ const CartPage = () => {
     return (
       <>
         <MainHeader />
-        <Navigation />
+    
         <div className="min-h-screen bg-[#fbf6ef] flex items-center justify-center">
           <div className="animate-spin">
             <ShoppingCart size={48} className="text-[#b8860b]" />
@@ -196,7 +300,8 @@ const CartPage = () => {
     return (
       <>
         <MainHeader />
-        <Navigation />
+
+
         <div className="min-h-screen bg-[#fbf6ef] flex items-center justify-center px-4">
           <div className="bg-white rounded-xl shadow-lg p-8 max-w-md w-full">
             <div className="text-center">
@@ -223,7 +328,7 @@ const CartPage = () => {
     return (
       <>
         <MainHeader />
-        <Navigation />
+   
         <div className="min-h-[calc(100vh-120px)] bg-[#fbf6ef] flex flex-col items-center justify-center px-4">
           <ShoppingCart size={64} className="empty-cart-icon text-[#b8860b] mb-4" />
           <h2 style={{ fontFamily: headerFont }} className="text-2xl md:text-3xl font-bold text-[#3b1b12] mb-2 text-center">
@@ -250,11 +355,10 @@ const CartPage = () => {
       <div className="bg-[#fbf6ef] min-h-screen w-screen overflow-x-hidden">
         <div className="max-w-[1400px] mx-auto px-3 sm:px-4 md:px-6 py-4 md:py-6">
           
-          
           {/* Breadcrumbs */}
           <div style={{ fontFamily: headerFont }} className="flex mt-4 items-center gap-1.5 mb-4 md:mb-6 text-xs md:text-sm overflow-x-auto pb-2">
             {buildBreadcrumbs().map((crumb, idx) => (
-              <div key={idx} className="flex items-center gap-1. flex-shrink-0">
+              <div key={idx} className="flex items-center gap-1.5 flex-shrink-0">
                 {idx > 0 && <span className="text-[#b8860b]">{'>'}</span>}
 
                 {crumb.path ? (
@@ -272,6 +376,27 @@ const CartPage = () => {
             ))}
           </div>
 
+          {/* Unavailable Items Warning */}
+          {unavailableItems.length > 0 && (
+            <div className="mb-4 bg-red-50 border-2 border-red-200 rounded-xl p-4 flex items-start gap-3">
+              <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <h3 className="font-semibold text-red-900 mb-1">
+                  {unavailableItems.length} item(s) unavailable
+                </h3>
+                <p className="text-sm text-red-700 mb-2">
+                  Some items in your cart are out of stock or exceed available quantity
+                </p>
+                <button
+                  onClick={handleRemoveUnavailableItems}
+                  className="text-sm text-red-600 hover:text-red-800 font-medium underline"
+                >
+                  Remove unavailable items
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Main Content */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
             {/* Cart Items */}
@@ -287,77 +412,103 @@ const CartPage = () => {
 
                 {/* Items List */}
                 <div className="cart-items-container max-h-[50vh] overflow-y-auto">
-                  {cartData.items.map((item) => (
-                    <div
-                      key={item.product_id}
-                      className="cart-product-card border-b border-[#efe6d9] p-4 md:p-5 last:border-b-0 cart-item-enter"
-                    >
-                      <div className="flex gap-3 md:gap-4">
-                        {/* Product Image */}
-                        <div className="flex-shrink-0 w-16 h-16 md:w-20 md:h-20">
-                          <div className="w-full h-full bg-gradient-to-br from-[#fbf6ef] to-[#efefef] rounded-lg flex items-center justify-center overflow-hidden">
-                            {item.product_image ? (
-                              <img
-                                src={item.product_image}
-                                alt={item.product_name}
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <Package size={24} className="text-[#b8860b]" />
+                  {cartData.items.map((item) => {
+                    const available = isItemAvailable(item);
+                    const status = inventoryStatus[item.product_id];
+
+                    return (
+                      <div
+                        key={item.product_id}
+                        className={`cart-product-card border-b border-[#efe6d9] p-4 md:p-5 last:border-b-0 cart-item-enter ${
+                          !available ? 'bg-red-50/30' : ''
+                        }`}
+                      >
+                        <div className="flex gap-3 md:gap-4">
+                          {/* Product Image */}
+                          <div className="flex-shrink-0 w-16 h-16 md:w-20 md:h-20 relative">
+                            <div className="w-full h-full bg-gradient-to-br from-[#fbf6ef] to-[#efefef] rounded-lg flex items-center justify-center overflow-hidden">
+                              {item.product_image ? (
+                                <img
+                                  src={item.product_image}
+                                  alt={item.product_name}
+                                  className={`w-full h-full object-cover ${!available ? 'opacity-50' : ''}`}
+                                />
+                              ) : (
+                                <Package size={24} className="text-[#b8860b]" />
+                              )}
+                            </div>
+                            {!available && (
+                              <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-lg">
+                                <span className="text-white text-xs font-bold">N/A</span>
+                              </div>
                             )}
                           </div>
-                        </div>
 
-                        {/* Product Details */}
-                        <div className="flex-1 min-w-0">
-                          <h3 style={{ fontFamily: headerFont }} className="text-sm md:text-base font-bold text-[#3b1b12] mb-1 truncate">
-                            {item.product_name}
-                          </h3>
-                          <p className="text-[#6b5342] text-xs mb-3 truncate">SKU: {item.sku}</p>
+                          {/* Product Details */}
+                          <div className="flex-1 min-w-0">
+                            <h3 style={{ fontFamily: headerFont }} className="text-sm md:text-base font-bold text-[#3b1b12] mb-1 truncate">
+                              {item.product_name}
+                            </h3>
+                            <p className="text-[#6b5342] text-xs mb-2 truncate">SKU: {item.sku}</p>
 
-                          {/* Quantity and Price */}
-                          <div className="flex items-center justify-between gap-2">
-                            {/* Quantity Selector */}
-                            <div className="flex items-center gap-1 bg-[#fbf6ef] rounded-lg p-0.5">
+                            {/* Availability Status */}
+                            {!available && (
+                              <div className="mb-2">
+                                <span className="inline-flex items-center gap-1 text-xs font-medium text-red-600 bg-red-100 px-2 py-0.5 rounded">
+                                  <AlertTriangle size={12} />
+                                  {status?.inStock ? 
+                                    `Only ${status.stock} available` : 
+                                    'Out of Stock'
+                                  }
+                                </span>
+                              </div>
+                            )}
+
+                            {/* Quantity and Price */}
+                            <div className="flex items-center justify-between gap-2">
+                              {/* Quantity Selector */}
+                              <div className="flex items-center gap-1 bg-[#fbf6ef] rounded-lg p-0.5">
+                                <button
+                                  onClick={() => handleQuantityChange(item.product_id, item.quantity - 1, item.sku)}
+                                  disabled={item.quantity <= 1 || !available}
+                                  className="qty-btn p-1.5 bg-white border-black hover:bg-white rounded text-[#3b1b12] disabled:opacity-30"
+                                >
+                                  <Minus size={14} />
+                                </button>
+                                <span className="px-2 py-0.5 font-semibold text-[#3b1b12] min-w-[32px] text-center text-sm">
+                                  {item.quantity}
+                                </span>
+                                <button
+                                  onClick={() => handleQuantityChange(item.product_id, item.quantity + 1, item.sku)}
+                                  disabled={!available || (status && item.quantity >= status.stock)}
+                                  className="qty-btn p-1.5 bg-white border-black hover:bg-white rounded text-[#3b1b12] disabled:opacity-30"
+                                >
+                                  <Plus size={14} />
+                                </button>
+                              </div>
+
+                              {/* Price */}
+                              <div className="text-right flex-shrink-0">
+                                <p className="text-xs text-[#6b5342] mb-0.5">₹{item.price?.toFixed(2)} each</p>
+                                <p style={{ fontFamily: headerFont }} className={`text-base md:text-lg font-bold ${available ? 'text-[#3b1b12]' : 'text-gray-400'}`}>
+                                  ₹{((item.price || 0) * (item.quantity || 0)).toFixed(2)}
+                                </p>
+                              </div>
+
+                              {/* Remove Button */}
                               <button
-                                onClick={() => handleQuantityChange(item.product_id, item.quantity - 1)}
-                                disabled={item.quantity <= 1}
-                                className="qty-btn p-1.5 bg-white border-black hover:bg-white rounded text-[#3b1b12] disabled:opacity-30"
+                                onClick={() => handleRemoveItem(item.product_id)}
+                                className="remove-btn p-1.5 text-[#b8860b] hover:bg-red-50 rounded-lg transition-all flex-shrink-0"
+                                title="Remove item"
                               >
-                                <Minus size={14} />
-                              </button>
-                              <span className="px-2 py-0.5 font-semibold text-[#3b1b12] min-w-[32px] text-center text-sm">
-                                {item.quantity}
-                              </span>
-                              <button
-                                onClick={() => handleQuantityChange(item.product_id, item.quantity + 1)}
-                                className="qty-btn p-1.5 bg-white border-black hover:bg-white rounded text-[#3b1b12]"
-                              >
-                                <Plus size={14} />
+                                <Trash2 size={18} />
                               </button>
                             </div>
-
-                            {/* Price */}
-                            <div className="text-right flex-shrink-0">
-                              <p className="text-xs text-[#6b5342] mb-0.5">₹{item.price?.toFixed(2)} each</p>
-                              <p style={{ fontFamily: headerFont }} className="text-base md:text-lg font-bold text-[#3b1b12]">
-                                ₹{((item.price || 0) * (item.quantity || 0)).toFixed(2)}
-                              </p>
-                            </div>
-
-                            {/* Remove Button */}
-                            <button
-                              onClick={() => handleRemoveItem(item.product_id)}
-                              className="remove-btn p-1.5 text-[#b8860b] hover:bg-red-50 rounded-lg transition-all flex-shrink-0"
-                              title="Remove item"
-                            >
-                              <Trash2 size={18} />
-                            </button>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -372,13 +523,13 @@ const CartPage = () => {
                 {/* Summary Items */}
                 <div className="space-y-3 mb-5">
                   <div className="flex justify-between items-center">
-                    <span className="text-[#6b5342] text-sm">Subtotal ({itemCount} items)</span>
+                    <span className="text-[#6b5342] text-sm">Subtotal ({availableItemCount} items)</span>
                     <span style={{ fontFamily: headerFont }} className="font-semibold text-[#3b1b12] text-sm">
                       ₹{subtotal.toFixed(2)}
                     </span>
                   </div>
                   <div className="flex justify-between items-center pb-3 border-b border-[#d4a055]">
-                    <span className="text-[#6b5342] text-sm">Tax (10%)</span>
+                    <span className="text-[#6b5342] text-sm">Tax (3%)</span>
                     <span style={{ fontFamily: headerFont }} className="font-semibold text-[#3b1b12] text-sm">
                       ₹{tax.toFixed(2)}
                     </span>
@@ -393,11 +544,21 @@ const CartPage = () => {
                   </div>
                 </div>
 
+                {/* Warning for unavailable items */}
+                {unavailableItems.length > 0 && (
+                  <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                    <p className="text-xs text-red-700">
+                      {unavailableItems.length} item(s) will not be included in checkout
+                    </p>
+                  </div>
+                )}
+
                 {/* Buttons */}
                 <div className="space-y-2.5">
                   <button
                     onClick={handleCheckout}
-                    className="checkout-btn w-full text-white py-2.5 md:py-3 rounded-lg font-semibold transition-all flex items-center justify-center gap-2 text-sm md:text-base"
+                    disabled={availableItemCount === 0}
+                    className="checkout-btn w-full text-white py-2.5 md:py-3 rounded-lg font-semibold transition-all flex items-center justify-center gap-2 text-sm md:text-base disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Proceed to Checkout
                     <ArrowRight size={16} />

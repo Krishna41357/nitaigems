@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { Plus, Pencil, Trash2, Search, Loader2, X, Package, Tag, Image as ImageIcon } from "lucide-react";
-
+import { Plus, Pencil, Trash2,Upload, Search, Loader2, X, Package, Tag, Image as ImageIcon } from "lucide-react";
+import ExcelBulkUpload from "./ExcelBulkUpload";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL_ADMIN || 'http://localhost:8787/admin';
 
 async function handleResponse(response) {
@@ -135,6 +135,7 @@ export default function ProductsTab() {
   const [currentTag, setCurrentTag] = useState("");
 
   const [formData, setFormData] = useState(initialFormData);
+  const [showBulkUpload, setShowBulkUpload] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -328,6 +329,14 @@ export default function ProductsTab() {
               <span className="hidden xs:inline">Add Product</span>
               <span className="xs:hidden">Add</span>
             </button>
+            <button
+  onClick={() => setShowBulkUpload(true)}
+  className="bg-green-600 hover:bg-green-700 active:bg-green-800 text-white px-4 py-2.5 sm:px-6 sm:py-3 rounded-lg transition-colors flex items-center justify-center gap-2 font-medium shadow-lg text-sm sm:text-base touch-manipulation"
+>
+  <Upload className="w-4 h-4 sm:w-5 sm:h-5" />
+  <span className="hidden xs:inline">Bulk Upload</span>
+  <span className="xs:hidden">Upload</span>
+</button>
           </div>
 
           {/* Search Bar */}
@@ -909,6 +918,16 @@ export default function ProductsTab() {
           </div>
         )}
       </div>
+      {showBulkUpload && (
+  <ExcelBulkUpload
+    onClose={() => setShowBulkUpload(false)}
+    onSuccess={() => {
+      setShowBulkUpload(false);
+      fetchData(); // Refresh products list
+    }}
+  />
+)}
     </div>
+
   );
 }
