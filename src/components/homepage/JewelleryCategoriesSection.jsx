@@ -21,7 +21,7 @@ const ProductCard = ({ product, categorySlug }) => {
   };
 
   const handleProductClick = () => {
-    const url = `/products/category/${categorySlug}/${product.sku}`;
+    const url = `/product/category/${categorySlug}/${product.sku}`;
     window.location.href = url;
   };
 

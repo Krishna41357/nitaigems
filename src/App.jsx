@@ -48,28 +48,29 @@ export default function App() {
               <WishlistProvider>
                 <Routes>
                   <Route path="/" element={<HomePage />} />
+                  
+                  {/* PRODUCT LISTING ROUTES - Uses /products/ (plural) */}
                   <Route path="/products" element={<ProductsListingPage />} />
-                  
-                  {/* Product detail routes - SKU-based (more specific, must come first) */}
-                  <Route path="/products/category/:categorySlug/:subCategorySlug/:sku" element={<ProductDetailPage />} />
-                  <Route path="/products/category/:categorySlug/:sku" element={<ProductDetailPage />} />
-                  <Route path="/products/collection/:collectionSlug/:sku" element={<ProductDetailPage />} />
-                  <Route path="/product/:sku" element={<ProductDetailPage />} />
-                  
-                  {/* Collection routes */}
                   <Route path="/products/collection/:collectionSlug" element={<ProductsListingPage />} />
-                  
-                  {/* Category routes */}
                   <Route path="/products/category/:categorySlug" element={<ProductsListingPage />} />
                   <Route path="/products/category/:categorySlug/:subCategorySlug" element={<ProductsListingPage />} />
                   
+                  {/* PRODUCT DETAIL ROUTES - Uses /product/ (singular) 
+                      ALL variations lead to ProductDetailPage */}
+                  <Route path="/product/category/:categorySlug/:subCategorySlug/:sku" element={<ProductDetailPage />} />
+                  <Route path="/product/category/:categorySlug/:sku" element={<ProductDetailPage />} />
+                  <Route path="/product/collection/:collectionSlug/:sku" element={<ProductDetailPage />} />
+                  <Route path="/product/subcategory/:subCategorySlug/:sku" element={<ProductDetailPage />} />
+                  <Route path="/product/:sku" element={<ProductDetailPage />} />
+                  
+                  {/* Cart and Checkout */}
                   <Route path="/cart" element={<CartPage />} />
                   <Route path="/checkout" element={<CheckoutPage />} />
                   <Route path="/orders" element={<OrdersPage />} />
                   <Route path="/payment/callback" element={<PaymentCallbackPage />} />
 
+                  {/* Admin Routes */}
                   <Route path="/admin/login" element={<AdminLogin />} />
-
                   <Route path="/admin/*" element={<AdminGuard><AdminLayout /></AdminGuard>}>
                     <Route index element={<Dashboard />} />
                     <Route path="users" element={<Users />} />

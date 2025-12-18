@@ -8,6 +8,8 @@ import { useNavigate, useLocation } from 'react-router-dom';
 const MainHeader = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isScrolled, setIsScrolled] = useState(false);
+  const [showNav, setShowNav] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showMobileSearch, setShowMobileSearch] = useState(false);
@@ -35,14 +37,30 @@ const MainHeader = () => {
   const MAX_MAIN_CATEGORIES = 7;
   const API_BASE = import.meta.env.VITE_APP_BASE_URL;
 
-  // Scroll handler
+  // Enhanced scroll handler with navigation hide/show
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
+      const currentScrollY = window.scrollY;
+      
+      if (currentScrollY < 10) {
+        setShowNav(true);
+        setIsScrolled(false);
+      } else {
+        setIsScrolled(true);
+        
+        if (currentScrollY > lastScrollY && currentScrollY > 100) {
+          setShowNav(false);
+        } else if (currentScrollY < lastScrollY) {
+          setShowNav(true);
+        }
+      }
+      
+      setLastScrollY(currentScrollY);
     };
-    window.addEventListener('scroll', handleScroll);
+    
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [lastScrollY]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -122,7 +140,6 @@ const MainHeader = () => {
   };
 
   const handleNavigation = (path) => {
-    // Protected routes - require authentication
     const protectedRoutes = ['/account', '/orders', '/wishlist', '/cart'];
     
     if (protectedRoutes.includes(path) && !isAuthenticated) {
@@ -132,7 +149,6 @@ const MainHeader = () => {
       return;
     }
 
-    // Handle cart navigation with state
     if (path === '/cart') {
       navigate('/cart', { state: { from: location.pathname } });
       setHoveredCategory(null);
@@ -140,68 +156,46 @@ const MainHeader = () => {
       return;
     }
 
-    // Handle category paths
     if (path.startsWith('/category/')) {
       navigate(`/products${path}`);
     } else {
       navigate(path);
     }
     
-    // Clean up UI states
     setHoveredCategory(null);
     setShowMobileSidebar(false);
   };
 
   const handleUserAction = (action) => {
-    console.log('=== handleUserAction called ===');
-    console.log('Action:', action);
-    console.log('isAuthenticated:', isAuthenticated);
-    console.log('user:', user);
-    
-    // Close dropdown immediately for all actions
     setShowUserDropdown(false);
     
     switch (action) {
       case 'account':
-        console.log('Account clicked');
         if (!isAuthenticated) {
-          console.log('Not authenticated, showing login modal');
           setShowLoginModal(true);
           return;
         }
-        console.log('Authenticated, navigating to account');
         handleNavigation('/account');
         break;
         
       case 'orders':
-        console.log('Orders clicked');
         if (!isAuthenticated) {
-          console.log('Not authenticated, showing login modal');
           setShowLoginModal(true);
           return;
         }
-        console.log('Authenticated, navigating to orders');
         handleNavigation('/orders');
         break;
         
       case 'logout':
-        console.log('Logout clicked');
-        console.log('User before logout:', user);
-        
-        const wasAdmin = logout();
-        console.log('Was admin?', wasAdmin);
-        console.log('Navigating to:', wasAdmin ? '/admin/login' : '/');
-          navigate('/');
+        logout();
+        navigate('/');
         break;
         
       case 'login':
-        console.log('Login clicked');
         setShowLoginModal(true);
-        console.log('Login modal should open, showLoginModal:', showLoginModal);
         break;
         
       default:
-        console.log('Unknown action:', action);
         break;
     }
   };
@@ -224,7 +218,7 @@ const MainHeader = () => {
   return (
     <>
       {/* Sticky Header Container */}
-      <div className="sticky top-0 z-50">
+      <div className=" top-0 z-50">
         {/* Main Header */}
         <header
           style={{ fontFamily: headerFont }}
@@ -354,30 +348,35 @@ const MainHeader = () => {
           </div>
         </header>
 
-        {/* Desktop Navigation */}
-        <nav style={{ fontFamily: headerFont }} className="hidden md:block bg-[#E8DEC9] border-b border-[#D4C5B0] shadow-sm">
-          <div className="w-full flex justify-center pt-1">
-            <span className="text-[#CFAF68] text-lg lg:text-xl" aria-hidden>✦</span>
+        {/* Desktop Navigation - Smaller height with slide animation */}
+        <nav 
+          style={{ fontFamily: headerFont }} 
+          className={`hidden md:block bg-[#E8DEC9] border-b border-[#D4C5B0] shadow-sm transition-all duration-300 ease-in-out ${
+            showNav ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0'
+          }`}
+        >
+          <div className="w-full flex justify-center pt-0.5">
+            <span className="text-[#CFAF68] text-base lg:text-lg" aria-hidden>✦</span>
           </div>
           <div className="w-full max-w-full px-2 lg:px-4">
-            <div className="flex items-center justify-center gap-3 lg:gap-6 h-12 lg:h-14 py-1">
+            <div className="flex items-center justify-center gap-3 lg:gap-6 h-9 lg:h-11 py-0.5">
               {!loading && mainCategories.map((category) => (
                 <div key={category.id} className="relative" onMouseEnter={() => handleCategoryHover(category)} onMouseLeave={handleMouseLeave}>
                   <button
                     onClick={() => handleNavigation(`/category/${category.slug}`)}
-                    className="text-[#5A4638] bg-transparent font-semibold text-xs lg:text-sm tracking-wide transition-all hover:text-[#8A6B52] hover:scale-105 py-2 px-1.5 lg:px-2 group whitespace-nowrap"
+                    className="text-[#5A4638] bg-transparent font-semibold text-xs lg:text-sm tracking-wide transition-all hover:text-[#8A6B52] hover:scale-105 py-1.5 px-1.5 lg:px-2 group whitespace-nowrap"
                   >
                     <span style={{ textShadow: '0 0 20px rgba(255, 250, 240, 0.6)' }}>{category.name}</span>
-                    <span className="absolute bottom-2 left-1/2 w-0 h-0.5 bg-[#CFAF68] transition-all duration-300 group-hover:w-full group-hover:left-0"></span>
+                    <span className="absolute bottom-1 left-1/2 w-0 h-0.5 bg-[#CFAF68] transition-all duration-300 group-hover:w-full group-hover:left-0"></span>
                   </button>
                 </div>
               ))}
 
               {moreCategories.length > 0 && (
                 <div className="relative group">
-                  <button className="text-[#5A4638] font-semibold text-xs lg:text-sm transition-all relative py-2 px-1.5 lg:px-2 hover:text-[#8A6B52] whitespace-nowrap">
+                  <button className="text-[#5A4638] font-semibold text-xs lg:text-sm transition-all relative py-1.5 px-1.5 lg:px-2 hover:text-[#8A6B52] whitespace-nowrap">
                     <span style={{ textShadow: '0 0 20px rgba(255, 250, 240, 0.6)' }}>More</span>
-                    <span className="absolute bottom-2 left-1/2 w-0 h-0.5 bg-[#CFAF68] transition-all duration-300 group-hover:w-full group-hover:left-0"></span>
+                    <span className="absolute bottom-1 left-1/2 w-0 h-0.5 bg-[#CFAF68] transition-all duration-300 group-hover:w-full group-hover:left-0"></span>
                   </button>
                   <div className="absolute top-full right-0 mt-2 w-56 bg-white border border-[#D4C5B0] rounded-lg shadow-lg py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-[100]">
                     {moreCategories.map((category) => (
@@ -397,16 +396,14 @@ const MainHeader = () => {
         </nav>
       </div>
 
-      {/* User Dropdown - Positioned absolutely relative to viewport */}
+      {/* User Dropdown */}
       {showUserDropdown && (
         <>
-          {/* Backdrop overlay with lower z-index */}
           <div 
             className="fixed inset-0 z-[55]" 
             onClick={() => setShowUserDropdown(false)}
           />
           
-          {/* Dropdown menu with higher z-index */}
           <div 
             ref={dropdownRef}
             className="fixed right-4 top-16 lg:top-[5.5rem] z-[100] w-44 lg:w-48 bg-white border border-[#efe6d9] rounded-lg shadow-xl py-2"
@@ -422,29 +419,20 @@ const MainHeader = () => {
                   </div>
                 )}
                 <button 
-                  onClick={() => {
-                    console.log('Desktop - Account clicked');
-                    handleUserAction('account');
-                  }} 
+                  onClick={() => handleUserAction('account')} 
                   className="w-full text-left px-3 lg:px-4 py-2 hover:bg-gray-50 text-xs lg:text-sm transition-colors bg-transparent text-gray-900"
                 >
                   My Account
                 </button>
                 <button 
-                  onClick={() => {
-                    console.log('Desktop - Orders clicked');
-                    handleUserAction('orders');
-                  }} 
+                  onClick={() => handleUserAction('orders')} 
                   className="w-full text-left px-3 lg:px-4 py-2 hover:bg-gray-50 text-xs lg:text-sm transition-colors bg-transparent text-gray-900"
                 >
                   My Orders
                 </button>
                 <button 
-                  onClick={() => {
-                    console.log('Desktop - Logout clicked');
-                    handleUserAction('logout');
-                  }} 
-                  className="w-full text-left px-3 lg:px-4 py-2 hover:bg-red-50 text-xs lg:text-sm text-red-600 bg-red-50 transition-colors"
+                  onClick={() => handleUserAction('logout')} 
+                  className="w-full text-left px-3 lg:px-4 py-2 hover:bg-red-50 text-xs lg:text-sm text-red-600 transition-colors"
                 >
                   Sign Out
                 </button>
@@ -452,10 +440,7 @@ const MainHeader = () => {
             ) : (
               <>
                 <button 
-                  onClick={() => {
-                    console.log('Desktop - Login clicked');
-                    handleUserAction('login');
-                  }} 
+                  onClick={() => handleUserAction('login')} 
                   className="w-full text-left px-3 lg:px-4 py-2 hover:bg-gray-50 text-xs lg:text-sm transition-colors bg-transparent text-gray-900"
                 >
                   Login
@@ -472,7 +457,7 @@ const MainHeader = () => {
           ref={megaMenuRef}
           onMouseEnter={() => handleCategoryHover(hoveredCategory)}
           onMouseLeave={handleMouseLeave}
-          style={{ position: 'fixed', left: 0, right: 0, top: 'calc(5rem + 3.5rem)', zIndex: 90 }}
+          style={{ position: 'fixed', left: 0, right: 0, top: 'calc(5rem + 2.75rem)', zIndex: 90 }}
           className="hidden md:block bg-white border-t-2 border-[#CFAF68] shadow-lg animate-fadeIn rounded-b-xl"
         >
           <div className="w-full max-w-full px-2 lg:px-4 py-4 lg:py-8">
@@ -553,7 +538,6 @@ const MainHeader = () => {
               </button>
             </div>
 
-            {/* User Profile Section in Mobile */}
             <div className="border-b border-[#D4C5B0] bg-[#FFFAF3] px-3 sm:px-4 py-3">
               {isAuthenticated ? (
                 <>
@@ -564,30 +548,21 @@ const MainHeader = () => {
                     <p className="text-xs text-[#8A6B52] mt-1">Welcome back!</p>
                   </div>
                   <button
-                    onClick={() => {
-                      console.log('Mobile - Account clicked');
-                      handleUserAction('account');
-                    }}
+                    onClick={() => handleUserAction('account')}
                     className="w-full text-left px-3 py-2.5 mb-2 bg-white hover:bg-[#E8DEC9] rounded-lg text-sm text-[#5A4638] transition-colors flex items-center gap-2"
                   >
                     <User size={16} className="text-[#8A6B52]" />
                     My Account
                   </button>
                   <button
-                    onClick={() => {
-                      console.log('Mobile - Orders clicked');
-                      handleUserAction('orders');
-                    }}
+                    onClick={() => handleUserAction('orders')}
                     className="w-full text-left px-3 py-2.5 mb-2 bg-white hover:bg-[#E8DEC9] rounded-lg text-sm text-[#5A4638] transition-colors flex items-center gap-2"
                   >
                     <ShoppingCart size={16} className="text-[#8A6B52]" />
                     My Orders
                   </button>
                   <button
-                    onClick={() => {
-                      console.log('Mobile - Logout clicked');
-                      handleUserAction('logout');
-                    }}
+                    onClick={() => handleUserAction('logout')}
                     className="w-full text-left px-3 py-2.5 bg-red-50 hover:bg-red-100 rounded-lg text-sm text-red-600 transition-colors flex items-center gap-2"
                   >
                     <X size={16} />
@@ -599,7 +574,6 @@ const MainHeader = () => {
                   <p className="text-xs text-[#8A6B52] mb-3">Sign in to access your account</p>
                   <button
                     onClick={() => {
-                      console.log('Mobile - Login clicked');
                       setShowMobileSidebar(false);
                       setShowLoginModal(true);
                     }}
@@ -611,7 +585,6 @@ const MainHeader = () => {
               )}
             </div>
 
-            {/* Categories Section */}
             <div className="py-2">
               {categories.map((category) => (
                 <div key={category.id} className="border-b border-[#E8DEC9]">

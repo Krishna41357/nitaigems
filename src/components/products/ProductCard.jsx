@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { Heart } from 'lucide-react';
-import { Link, useParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 const ProductCard = ({ product }) => {
-  const { categorySlug, subCategorySlug } = useParams();
   const [isHovered, setIsHovered] = useState(false);
   const [isTogglingWishlist, setIsTogglingWishlist] = useState(false);
   const [isInWishlist, setIsInWishlist] = useState(false);
@@ -33,17 +32,9 @@ const ProductCard = ({ product }) => {
     }
   };
 
-  // UPDATED: Generate product URL using SKU instead of slug
+  // Simple product detail URL - always use /product/{sku}
   const getProductUrl = () => {
-    if (categorySlug && subCategorySlug) {
-      return `/products/category/${categorySlug}/${subCategorySlug}/${product.sku}`;
-    } else if (categorySlug) {
-      return `/products/category/${categorySlug}/${product.sku}`;
-    } else if (product.collectionSlug) {
-      return `/products/collection/${product.collectionSlug}/${product.sku}`;
-    } else {
-      return `/product/${product.sku}`;
-    }
+    return `/product/${product.sku}`;
   };
 
   return (
