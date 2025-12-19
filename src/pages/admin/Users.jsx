@@ -20,7 +20,7 @@ import {
 } from "../../components/ui/dialog";
 import { Search, Download, Eye, ShoppingCart, User, TrendingUp, AlertCircle } from 'lucide-react';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL_ADMIN || 'https://nitai-gems-backend.nitai-gems-backend.workers.dev/admin';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL_ADMIN || 'https://nitai-gems-backend.nitai-gems.workers.dev/admin';
 
 export default function Users() {
   const [users, setUsers] = useState([]);
@@ -54,98 +54,95 @@ export default function Users() {
     }
   }, [searchQuery, users]);
 
-  const fetchUsersWithCarts = async () => {
-    try {
-      setLoading(true);
-      const token = localStorage.getItem('adminToken');
-      
-      const response = await fetch(`${API_BASE_URL}/users-with-carts`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+ const fetchUsersWithCarts = async () => {
+  try {
+    setLoading(true);
+    const token = localStorage.getItem('adminToken');
+    
+    const response = await fetch(`${API_BASE_URL}/users-with-carts`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
       }
+    });
 
-      const data = await response.json();
-      
-      if (data.success) {
-        // Process users to ensure cart data is properly structured
-        const processedUsers = data.data.map(user => {
-          let cartItems = [];
-          let itemCount = 0;
-          let cartValue = 0;
-          
-          if (user.cart) {
-            try {
-              // Parse cart items if it's a string
-              const items = typeof user.cart.items === 'string' 
-                ? JSON.parse(user.cart.items) 
-                : user.cart.items || [];
-              
-              // Map cart items to standardized format with correct field names
-              cartItems = items.map(item => ({
-                id: item.id,
-                productId: item.product_id,
-                name: item.product_name || item.name || 'Unnamed Product',
-                slug: item.product_slug || item.slug,
-                image: item.product_image || item.image,
-                sku: item.sku,
-                price: parseFloat(item.price) || 0,
-                quantity: parseInt(item.quantity) || 1,
-                subtotal: parseFloat(item.subtotal) || (parseFloat(item.price) || 0) * (parseInt(item.quantity) || 1),
-                metal: item.metal,
-                metalPurity: item.metal_purity,
-                stone: item.stone,
-                stoneType: item.stone_type,
-                addedAt: item.added_at,
-                updatedAt: item.updated_at
-              }));
-              
-              itemCount = cartItems.length;
-              cartValue = cartItems.reduce((sum, item) => {
-                return sum + (item.price * item.quantity);
-              }, 0);
-            } catch (e) {
-              console.error('Error parsing cart items:', e);
-            }
-          }
-          
-          return {
-            ...user,
-            cartItems,
-            itemCount,
-            cartValue,
-            hasCart: itemCount > 0
-          };
-        });
-        
-        setUsers(processedUsers);
-        setFilteredUsers(processedUsers);
-        
-        // Calculate stats
-        const usersWithItems = processedUsers.filter(u => u.itemCount > 0).length;
-        const totalValue = processedUsers.reduce((sum, u) => sum + (u.cartValue || 0), 0);
-        
-        setStats({
-          totalUsers: data.stats?.totalUsers || processedUsers.length,
-          activeUsers: usersWithItems,
-          usersWithCarts: data.stats?.usersWithCarts || usersWithItems,
-          totalCartValue: totalValue
-        });
-      } else {
-        throw new Error(data.message || 'Failed to fetch users');
-      }
-    } catch (error) {
-      console.error('Error fetching users:', error);
-      alert(`Error loading users: ${error.message}`);
-    } finally {
-      setLoading(false);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
-  };
+
+    const data = await response.json();
+    
+    if (data.success) {
+      // Process users to ensure cart data is properly structured
+      const processedUsers = data.data.map(user => {
+        let cartItems = [];
+        let itemCount = 0;
+        let cartValue = 0;
+        
+        // Check if user has a cart and items
+        if (user.cart && user.cart.items && user.cart.items.length > 0) {
+          // Map cart items to standardized format
+          cartItems = user.cart.items.map(item => ({
+            id: item.id,
+            productId: item.product_id,
+            name: item.product_name || 'Unnamed Product',
+            slug: item.product_slug || '',
+            image: item.product_image || '',
+            sku: item.sku,
+            price: parseFloat(item.price) || 0,
+            quantity: parseInt(item.quantity) || 1,
+            subtotal: parseFloat(item.subtotal) || 0,
+            metal: item.metal,
+            metalPurity: item.metal_purity,
+            stone: item.stone,
+            stoneType: item.stone_type,
+            addedAt: item.added_at,
+            updatedAt: item.updated_at
+          }));
+          
+          itemCount = cartItems.length;
+          cartValue = cartItems.reduce((sum, item) => sum + item.subtotal, 0);
+        }
+        
+        return {
+          id: user.user_id,
+          phone: user.phone,
+          name: user.name,
+          email: user.email,
+          is_admin: user.is_admin,
+          created_at: user.user_created_at,
+          updated_at: user.user_updated_at,
+          cart: user.cart,
+          cartItems,
+          itemCount,
+          cartValue,
+          hasCart: itemCount > 0
+        };
+      });
+      
+      setUsers(processedUsers);
+      setFilteredUsers(processedUsers);
+      
+      // Calculate stats from the processed data
+      const usersWithItems = processedUsers.filter(u => u.itemCount > 0).length;
+      const totalValue = processedUsers.reduce((sum, u) => sum + (u.cartValue || 0), 0);
+      
+      setStats({
+        totalUsers: processedUsers.length,
+        activeUsers: usersWithItems,
+        usersWithCarts: data.stats?.usersWithCarts || usersWithItems,
+        totalCartValue: totalValue
+      });
+    } else {
+      throw new Error(data.message || 'Failed to fetch users');
+    }
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    alert(`Error loading users: ${error.message}`);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const viewUserCart = (user) => {
     setSelectedUser(user);

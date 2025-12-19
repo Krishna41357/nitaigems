@@ -40,6 +40,16 @@ const subcategoryAPI = {
 };
 
 const productAPI = {
+  getAll: async () => {
+    const token = getAuthToken();
+    const response = await fetch(`${API_BASE_URL}/products`, {
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
+      }
+    });
+    return handleResponse(response);
+  },
   bulkCreate: async (products) => {
     const token = getAuthToken();
     const response = await fetch(`${API_BASE_URL}/products/bulk`, {
@@ -142,12 +152,12 @@ const parseArray = (value) => {
 export default function ExcelBulkUpload({ onClose, onSuccess }) {
   const [categories, setCategories] = useState([]);
   const [subcategories, setSubcategories] = useState([]);
+  const [existingProducts, setExistingProducts] = useState([]);
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [validationResults, setValidationResults] = useState(null);
-  const [errors, setErrors] = useState([]);
-  const [successCount, setSuccessCount] = useState(0);
+  const [uploadResults, setUploadResults] = useState(null);
 
   useEffect(() => {
     fetchData();
@@ -156,14 +166,17 @@ export default function ExcelBulkUpload({ onClose, onSuccess }) {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [catsData, subcatsData] = await Promise.all([
+      const [catsData, subcatsData, productsData] = await Promise.all([
         categoryAPI.getAll(),
         subcategoryAPI.getAll(),
+        productAPI.getAll(),
       ]);
       setCategories(catsData);
       setSubcategories(subcatsData);
+      setExistingProducts(productsData);
     } catch (error) {
       console.error('Error fetching data:', error);
+      alert('Error loading data: ' + error.message);
     }
     setLoading(false);
   };
@@ -226,8 +239,14 @@ export default function ExcelBulkUpload({ onClose, onSuccess }) {
             return;
           }
 
+          // Build set of existing SKUs from database
+          const existingSKUSet = new Set(existingProducts.map(p => p.sku.toLowerCase()));
+          
+          // Track SKUs in current batch to detect within-file duplicates
+          const batchSKUMap = new Map(); // Map SKU -> first row number
+
           const validProducts = [];
-          const errorList = [];
+          const duplicateErrors = [];
 
           jsonData.forEach((row, index) => {
             const rowNumber = index + 2; // Excel row number (header is row 1)
@@ -251,6 +270,20 @@ export default function ExcelBulkUpload({ onClose, onSuccess }) {
             const sku = normalizedRow.sku?.toString().trim();
             if (!sku) {
               errors.push('SKU is required');
+            } else {
+              const skuLower = sku.toLowerCase();
+              
+              // Check against existing products in database
+              if (existingSKUSet.has(skuLower)) {
+                errors.push(`SKU "${sku}" already exists in database`);
+              }
+              
+              // Check against previous rows in this batch
+              if (batchSKUMap.has(skuLower)) {
+                errors.push(`SKU "${sku}" duplicated in Excel (first appeared in row ${batchSKUMap.get(skuLower)})`);
+              } else {
+                batchSKUMap.set(skuLower, rowNumber);
+              }
             }
 
             const categoryInput = normalizedRow.categorySlug?.toString().trim();
@@ -274,9 +307,10 @@ export default function ExcelBulkUpload({ onClose, onSuccess }) {
             }
 
             if (errors.length > 0) {
-              errorList.push({
+              duplicateErrors.push({
                 row: rowNumber,
                 productName: name || 'Unknown',
+                sku: sku || 'N/A',
                 errors: errors
               });
             } else {
@@ -325,7 +359,7 @@ export default function ExcelBulkUpload({ onClose, onSuccess }) {
 
           resolve({
             validProducts,
-            errors: errorList,
+            duplicateErrors,
             totalRows: jsonData.length
           });
         } catch (error) {
@@ -352,14 +386,17 @@ export default function ExcelBulkUpload({ onClose, onSuccess }) {
 
     setFile(selectedFile);
     setValidationResults(null);
-    setErrors([]);
-    setSuccessCount(0);
+    setUploadResults(null);
     
     setLoading(true);
     try {
       const results = await validateAndParseExcel(selectedFile);
       setValidationResults(results);
-      setErrors(results.errors);
+      
+      // Auto-upload valid products if there are any
+      if (results.validProducts.length > 0) {
+        await handleAutoUpload(results.validProducts);
+      }
     } catch (error) {
       alert('Error parsing Excel file: ' + error.message);
       setFile(null);
@@ -367,29 +404,36 @@ export default function ExcelBulkUpload({ onClose, onSuccess }) {
     setLoading(false);
   };
 
-  const handleUpload = async () => {
-    if (!validationResults || validationResults.validProducts.length === 0) {
-      alert('No valid products to upload');
-      return;
-    }
-
-    if (!confirm(`Upload ${validationResults.validProducts.length} products?`)) {
-      return;
-    }
-
+  const handleAutoUpload = async (products) => {
     setUploading(true);
     try {
-      const result = await productAPI.bulkCreate(validationResults.validProducts);
-      setSuccessCount(result.successCount || validationResults.validProducts.length);
-      alert(`Successfully uploaded ${result.successCount || validationResults.validProducts.length} products!`);
+      const result = await productAPI.bulkCreate(products);
+      setUploadResults(result);
       
+      if (result.successCount > 0) {
+        // Refresh the existing products list
+        const updatedProducts = await productAPI.getAll();
+        setExistingProducts(updatedProducts);
+      }
+    } catch (error) {
+      console.error('Error uploading products:', error);
+      setUploadResults({
+        successCount: 0,
+        failedCount: products.length,
+        errors: [{ error: error.message }],
+        createdProducts: []
+      });
+    }
+    setUploading(false);
+  };
+
+  const handleDone = () => {
+    if (uploadResults && uploadResults.successCount > 0) {
       if (onSuccess) {
         onSuccess();
       }
-    } catch (error) {
-      alert('Error uploading products: ' + error.message);
     }
-    setUploading(false);
+    onClose();
   };
 
   const downloadTemplate = () => {
@@ -442,7 +486,7 @@ export default function ExcelBulkUpload({ onClose, onSuccess }) {
             </div>
           </div>
           <button
-            onClick={onClose}
+            onClick={handleDone}
             className="hover:bg-blue-700 p-2 rounded-lg transition-colors"
           >
             <X className="w-6 h-6" />
@@ -500,109 +544,126 @@ export default function ExcelBulkUpload({ onClose, onSuccess }) {
           {loading && (
             <div className="flex items-center justify-center py-8">
               <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
-              <span className="ml-3 text-white">Validating products...</span>
+              <span className="ml-3 text-white">Processing Excel file...</span>
             </div>
           )}
 
-          {/* Validation Results */}
-          {validationResults && !loading && (
+          {/* Upload in Progress */}
+          {uploading && (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="w-8 h-8 animate-spin text-green-500" />
+              <span className="ml-3 text-white">Uploading products...</span>
+            </div>
+          )}
+
+          {/* Upload Results */}
+          {uploadResults && !uploading && (
             <div className="space-y-4">
               {/* Summary */}
-              <div className="grid grid-cols-3 gap-4">
-                <div className="bg-blue-600/20 border border-blue-600/30 rounded-lg p-4">
-                  <div className="text-blue-400 text-sm font-medium mb-1">Total Rows</div>
-                  <div className="text-2xl font-bold text-white">{validationResults.totalRows}</div>
-                </div>
+              <div className="grid grid-cols-2 gap-4">
                 <div className="bg-green-600/20 border border-green-600/30 rounded-lg p-4">
-                  <div className="text-green-400 text-sm font-medium mb-1">Valid Products</div>
-                  <div className="text-2xl font-bold text-white">{validationResults.validProducts.length}</div>
+                  <div className="text-green-400 text-sm font-medium mb-1">✓ Uploaded Successfully</div>
+                  <div className="text-2xl font-bold text-white">{uploadResults.successCount}</div>
                 </div>
                 <div className="bg-red-600/20 border border-red-600/30 rounded-lg p-4">
-                  <div className="text-red-400 text-sm font-medium mb-1">Errors</div>
-                  <div className="text-2xl font-bold text-white">{validationResults.errors.length}</div>
+                  <div className="text-red-400 text-sm font-medium mb-1">✗ Failed</div>
+                  <div className="text-2xl font-bold text-white">{uploadResults.failedCount}</div>
                 </div>
               </div>
 
-              {/* Errors List */}
-              {errors.length > 0 && (
-                <div className="bg-red-900/20 border border-red-700 rounded-lg p-4">
-                  <h3 className="text-red-400 font-semibold mb-3 flex items-center gap-2">
-                    <AlertCircle className="w-5 h-5" />
-                    Validation Errors
+              {/* Success Message */}
+              {uploadResults.successCount > 0 && (
+                <div className="bg-green-900/20 border border-green-700 rounded-lg p-4">
+                  <h3 className="text-green-400 font-semibold mb-2 flex items-center gap-2">
+                    <CheckCircle className="w-5 h-5" />
+                    Products Uploaded Successfully
                   </h3>
-                  <div className="space-y-2 max-h-60 overflow-y-auto">
-                    {errors.map((error, index) => (
-                      <div key={index} className="bg-red-900/30 rounded p-3">
-                        <div className="text-red-300 font-medium mb-1">
-                          Row {error.row}: {error.productName}
-                        </div>
-                        <ul className="list-disc list-inside text-red-400 text-sm space-y-1">
-                          {error.errors.map((err, i) => (
-                            <li key={i}>{err}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    ))}
-                  </div>
+                  <p className="text-green-300 text-sm">
+                    {uploadResults.successCount} product(s) have been added to your inventory.
+                  </p>
                 </div>
               )}
 
-              {/* Success Preview */}
-              {validationResults.validProducts.length > 0 && (
-                <div className="bg-green-900/20 border border-green-700 rounded-lg p-4">
-                  <h3 className="text-green-400 font-semibold mb-3 flex items-center gap-2">
-                    <CheckCircle className="w-5 h-5" />
-                    Valid Products Ready to Upload
+              {/* Backend Errors (if any) */}
+              {uploadResults.errors && uploadResults.errors.length > 0 && (
+                <div className="bg-red-900/20 border border-red-700 rounded-lg p-4">
+                  <h3 className="text-red-400 font-semibold mb-3 flex items-center gap-2">
+                    <XCircle className="w-5 h-5" />
+                    Upload Errors
                   </h3>
                   <div className="space-y-2 max-h-60 overflow-y-auto">
-                    {validationResults.validProducts.slice(0, 5).map((product, index) => (
-                      <div key={index} className="bg-green-900/30 rounded p-3 text-sm">
-                        <div className="text-green-300 font-medium">{product.name}</div>
-                        <div className="text-green-400/70">
-                          SKU: {product.sku} | Category: {product.categorySlug}
-                          {product.necklaceLayers.length > 0 && (
-                            <span className="ml-2">| Layers: {product.necklaceLayers.length}</span>
-                          )}
+                    {uploadResults.errors.map((error, index) => (
+                      <div key={index} className="bg-red-900/30 rounded p-3 text-sm">
+                        <div className="text-red-300 font-medium">
+                          {error.product || 'Unknown Product'}
                         </div>
+                        <div className="text-red-400">{error.error}</div>
                       </div>
                     ))}
-                    {validationResults.validProducts.length > 5 && (
-                      <div className="text-green-400 text-sm text-center py-2">
-                        ... and {validationResults.validProducts.length - 5} more products
-                      </div>
-                    )}
                   </div>
                 </div>
               )}
             </div>
           )}
 
-          {/* Upload Button */}
-          {validationResults && validationResults.validProducts.length > 0 && (
+          {/* Validation Results - Duplicate Errors Only */}
+          {validationResults && !uploading && validationResults.duplicateErrors.length > 0 && (
+            <div className="bg-yellow-900/20 border border-yellow-700 rounded-lg p-4">
+              <h3 className="text-yellow-400 font-semibold mb-3 flex items-center gap-2">
+                <AlertCircle className="w-5 h-5" />
+                ⚠️ Duplicate SKUs Detected - {validationResults.duplicateErrors.length} Row(s) Skipped
+              </h3>
+              <p className="text-yellow-300 text-sm mb-3">
+                The following products were skipped due to duplicate SKUs. Only unique SKUs were uploaded.
+              </p>
+              <div className="space-y-2 max-h-60 overflow-y-auto">
+                {validationResults.duplicateErrors.map((error, index) => (
+                  <div key={index} className="bg-yellow-900/30 rounded p-3">
+                    <div className="text-yellow-300 font-medium mb-1">
+                      Row {error.row}: {error.productName}
+                    </div>
+                    <div className="text-yellow-400 text-sm mb-2">
+                      <strong>SKU:</strong> {error.sku}
+                    </div>
+                    <ul className="list-disc list-inside text-yellow-400 text-sm space-y-1">
+                      {error.errors.map((err, i) => (
+                        <li key={i}>{err}</li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Summary Info */}
+          {validationResults && !loading && (
+            <div className="bg-slate-700/30 border border-slate-600 rounded-lg p-4">
+              <div className="grid grid-cols-3 gap-4 text-center">
+                <div>
+                  <div className="text-slate-400 text-sm mb-1">Total Rows</div>
+                  <div className="text-xl font-bold text-white">{validationResults.totalRows}</div>
+                </div>
+                <div>
+                  <div className="text-green-400 text-sm mb-1">Valid & Uploaded</div>
+                  <div className="text-xl font-bold text-white">{validationResults.validProducts.length}</div>
+                </div>
+                <div>
+                  <div className="text-yellow-400 text-sm mb-1">Duplicates Skipped</div>
+                  <div className="text-xl font-bold text-white">{validationResults.duplicateErrors.length}</div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Done Button */}
+          {uploadResults && (
             <div className="flex justify-end gap-3 pt-4 border-t border-slate-700">
               <button
-                onClick={onClose}
-                className="px-6 py-2 border border-slate-600 rounded-lg hover:bg-slate-700 transition-colors text-slate-300 font-medium"
-                disabled={uploading}
+                onClick={handleDone}
+                className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium shadow-lg"
               >
-                Cancel
-              </button>
-              <button
-                onClick={handleUpload}
-                disabled={uploading}
-                className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-              >
-                {uploading ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    Uploading...
-                  </>
-                ) : (
-                  <>
-                    <Plus className="w-5 h-5" />
-                    Upload {validationResults.validProducts.length} Products
-                  </>
-                )}
+                Done
               </button>
             </div>
           )}
