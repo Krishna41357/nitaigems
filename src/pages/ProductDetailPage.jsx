@@ -209,39 +209,72 @@ const ProductDetailPage = () => {
 
   /* ---- buy now ---- */
   const handleBuyNow = async () => {
-    if (!isAuthenticated) {
-      setShowLoginModal(true);
-      return;
-    }
-    if (!product.inventory?.inStock) {
-      alert("Product is out of stock");
-      return;
-    }
-    setBuyNowLoading(true);
-    try {
-      const token = localStorage.getItem("authToken");
-      const res = await fetch(`${import.meta.env.VITE_APP_BASE_URL}/cart/buy-now`, {
+  if (!isAuthenticated) {
+    setShowLoginModal(true);
+    return;
+  }
+
+  if (!product?.inventory?.inStock) {
+    alert("Product is out of stock");
+    return;
+  }
+
+  const token = localStorage.getItem("authToken");
+  if (!token) {
+    setShowLoginModal(true);
+    return;
+  }
+
+  setBuyNowLoading(true);
+
+  try {
+    const price =
+      selectedLayer?.price ??
+      product.price; // fallback to base price
+
+    const res = await fetch(
+      `${import.meta.env.VITE_APP_BASE_URL}/cart/add`,
+      {
         method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ 
-          product_id: product.id, 
-          quantity: 1,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          product_id: product.id,
+          product_name: product.name,
+          product_slug: product.slug,
+          product_image: product.images?.[0],
           sku: product.sku,
-          ...(selectedLayer && { selectedLayer: selectedLayer.layer, selectedLayerPrice: selectedLayer.price }) 
+          quantity: 1,
+          price,
+          buyNow: true,
+
+          // optional variant info
+          ...(selectedLayer && {
+            metal: selectedLayer.layer,
+            metal_purity: selectedLayer.purity,
+          }),
         }),
-      });
-      if (res.ok) {
-        navigate("/checkout", { state: { buyNow: true } });
-      } else {
-        const data = await res.json();
-        alert(data.message || "Could not proceed to checkout");
       }
-    } catch {
-      alert("Network error. Please try again.");
-    } finally {
-      setBuyNowLoading(false);
+    );
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.message || "Could not proceed to checkout");
     }
-  };
+
+    navigate("/checkout", { state: { buyNow: true } });
+
+  } catch (error) {
+    console.error("Buy Now error:", error);
+    alert(error.message || "Network error. Please try again.");
+  } finally {
+    setBuyNowLoading(false);
+  }
+};
+
 
   /* ---- loading / error ---- */
   if (loading) {

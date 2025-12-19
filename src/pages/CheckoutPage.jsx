@@ -1,10 +1,11 @@
 // src/pages/CheckoutPage.jsx - COMPLETE VERSION WITH EVERYTHING
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate , useLocation } from 'react-router-dom';
 import { Home, Package, ShoppingCart, Plus, MapPin, Phone, Mail, Shield, Truck, Lock, CreditCard, Trash2, AlertCircle, X, Tag, Check } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import MainHeader from '../components/homepage/MainHeader';
+
 
 
 
@@ -53,7 +54,7 @@ const CheckoutPage = () => {
 
   const headerFont = "'Cinzel', 'Playfair Display', serif";
   const API_BASE = import.meta.env.VITE_APP_BASE_URL || 'http://localhost:8787';
-
+  
   const buildBreadcrumbs = () => {
     return [
       { label: 'Home', path: '/' },
@@ -523,7 +524,384 @@ const CheckoutPage = () => {
           )}
 
           {/* YOUR COMPLETE ADDRESS MODAL FROM DOCUMENT 2 - PASTE HERE */}
+{/* ADDRESS MODAL */}
+       
+{/* CUSTOM SCROLLBAR STYLES - Add this to your global CSS or as a style tag */}
+<style>{`
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: #fbf6ef;
+    border-radius: 10px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #b8860b 0%, #d4a055 100%);
+    border-radius: 10px;
+    border: 2px solid #fbf6ef;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #916c0a 0%, #b8860b 100%);
+  }
+  
+  @keyframes modalSlideIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95) translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+  
+  .modal-animate {
+    animation: modalSlideIn 0.3s ease-out;
+  }
+  
+  .backdrop-blur-custom {
+    backdrop-filter: blur(8px);
+  }
+`}</style>
 
+{/* ADDRESS MODAL */}
+{showAddressModal && (
+  <div className="fixed inset-0 bg-gradient-to-br from-black/60 via-black/50 to-black/60 backdrop-blur-custom flex items-center justify-center z-50 p-4 animate-in fade-in duration-300">
+    <div className="bg-gradient-to-br from-white to-[#fbf6ef]/30 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden border border-[#d4a055]/20 modal-animate">
+      {/* Modal Header with Gradient */}
+      <div className="sticky top-0 bg-gradient-to-r from-[#fbf6ef] via-white to-[#fbf6ef] border-b-2 border-[#d4a055]/30 px-6 py-5 flex items-center justify-between backdrop-blur-sm z-10 shadow-sm">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-gradient-to-br from-[#b8860b] to-[#d4a055] rounded-xl flex items-center justify-center shadow-md">
+            <MapPin className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <h3 style={{ fontFamily: headerFont }} className="text-xl font-bold text-[#3b1b12]">
+              Add New Address
+            </h3>
+            <p className="text-xs text-[#6b5342] mt-0.5">Complete your delivery details</p>
+          </div>
+        </div>
+        <button
+          onClick={() => {
+            setShowAddressModal(false);
+            setErrors({});
+            setApiError('');
+          }}
+          className="w-9 h-9 flex items-center justify-center rounded-full bg-[#6b5342]/10 hover:bg-red-50 text-[#6b5342] hover:text-red-600 transition-all duration-200 bg-transparent border-0"
+        >
+          <X size={20} />
+        </button>
+      </div>
+
+      {/* Modal Form with Custom Scrollbar */}
+      <form onSubmit={handleSaveAddress} className="p-6 space-y-5 overflow-y-auto custom-scrollbar max-h-[calc(90vh-80px)]">
+        {/* Error Alert inside Modal with Animation */}
+        {apiError && (
+          <div className="bg-gradient-to-r from-red-50 to-red-100/50 border-l-4 border-red-500 rounded-lg p-4 flex items-start gap-3 shadow-sm animate-in slide-in-from-top duration-300">
+            <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center flex-shrink-0">
+              <AlertCircle className="w-5 h-5 text-white" />
+            </div>
+            <div className="flex-1">
+              <p className="text-red-800 font-semibold text-sm">Error</p>
+              <p className="text-red-600 text-xs mt-1">{apiError}</p>
+            </div>
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          {/* Label (Optional) with Icon */}
+          <div className="md:col-span-2">
+            <label className="block text-sm font-semibold text-[#3b1b12] mb-2 flex items-center gap-2">
+              <Tag size={14} className="text-[#b8860b]" />
+              Address Label
+              <span className="text-xs font-normal text-[#6b5342]">(Optional)</span>
+            </label>
+            <input
+              type="text"
+              name="label"
+              value={addressForm.label}
+              onChange={handleAddressInputChange}
+              placeholder="e.g., Home, Office, etc."
+              className="w-full px-4 py-3 border-2 border-[#d4a055]/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#b8860b] focus:border-[#b8860b] text-sm transition-all duration-200 bg-white/50 backdrop-blur-sm hover:border-[#d4a055]/50"
+            />
+          </div>
+
+          {/* Full Name with Icon */}
+          <div className="group">
+            <label className="block text-sm font-semibold text-[#3b1b12] mb-2 flex items-center gap-2">
+              <Mail size={14} className="text-[#b8860b]" />
+              Full Name <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              name="full_name"
+              value={addressForm.full_name}
+              onChange={handleAddressInputChange}
+              placeholder="Enter full name"
+              className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#b8860b] text-sm transition-all duration-200 bg-white/50 backdrop-blur-sm ${
+                errors.full_name 
+                  ? 'border-red-500 focus:border-red-500' 
+                  : 'border-[#d4a055]/30 focus:border-[#b8860b] hover:border-[#d4a055]/50'
+              }`}
+            />
+            {errors.full_name && (
+              <p className="text-red-500 text-xs mt-1.5 flex items-center gap-1 animate-in slide-in-from-top duration-200">
+                <AlertCircle size={12} />
+                {errors.full_name}
+              </p>
+            )}
+          </div>
+
+          {/* Phone with Icon */}
+          <div className="group">
+            <label className="block text-sm font-semibold text-[#3b1b12] mb-2 flex items-center gap-2">
+              <Phone size={14} className="text-[#b8860b]" />
+              Phone Number <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="tel"
+              name="phone"
+              value={addressForm.phone}
+              onChange={handleAddressInputChange}
+              placeholder="10-digit mobile number"
+              maxLength="10"
+              className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#b8860b] text-sm transition-all duration-200 bg-white/50 backdrop-blur-sm ${
+                errors.phone 
+                  ? 'border-red-500 focus:border-red-500' 
+                  : 'border-[#d4a055]/30 focus:border-[#b8860b] hover:border-[#d4a055]/50'
+              }`}
+            />
+            {errors.phone && (
+              <p className="text-red-500 text-xs mt-1.5 flex items-center gap-1 animate-in slide-in-from-top duration-200">
+                <AlertCircle size={12} />
+                {errors.phone}
+              </p>
+            )}
+          </div>
+
+          {/* Email (Optional) with Icon */}
+          <div className="md:col-span-2">
+            <label className="block text-sm font-semibold text-[#3b1b12] mb-2 flex items-center gap-2">
+              <Mail size={14} className="text-[#b8860b]" />
+              Email
+              <span className="text-xs font-normal text-[#6b5342]">(Optional)</span>
+            </label>
+            <input
+              type="email"
+              name="email"
+              value={addressForm.email}
+              onChange={handleAddressInputChange}
+              placeholder="your@email.com"
+              className="w-full px-4 py-3 border-2 border-[#d4a055]/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#b8860b] focus:border-[#b8860b] text-sm transition-all duration-200 bg-white/50 backdrop-blur-sm hover:border-[#d4a055]/50"
+            />
+          </div>
+
+          {/* Address Line 1 with Icon */}
+          <div className="md:col-span-2">
+            <label className="block text-sm font-semibold text-[#3b1b12] mb-2 flex items-center gap-2">
+              <MapPin size={14} className="text-[#b8860b]" />
+              Address Line 1 <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              name="address_line1"
+              value={addressForm.address_line1}
+              onChange={handleAddressInputChange}
+              placeholder="House No., Building Name"
+              className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#b8860b] text-sm transition-all duration-200 bg-white/50 backdrop-blur-sm ${
+                errors.address_line1 
+                  ? 'border-red-500 focus:border-red-500' 
+                  : 'border-[#d4a055]/30 focus:border-[#b8860b] hover:border-[#d4a055]/50'
+              }`}
+            />
+            {errors.address_line1 && (
+              <p className="text-red-500 text-xs mt-1.5 flex items-center gap-1 animate-in slide-in-from-top duration-200">
+                <AlertCircle size={12} />
+                {errors.address_line1}
+              </p>
+            )}
+          </div>
+
+          {/* Address Line 2 (Optional) */}
+          <div className="md:col-span-2">
+            <label className="block text-sm font-semibold text-[#3b1b12] mb-2 flex items-center gap-2">
+              <MapPin size={14} className="text-[#b8860b]" />
+              Address Line 2
+              <span className="text-xs font-normal text-[#6b5342]">(Optional)</span>
+            </label>
+            <input
+              type="text"
+              name="address_line2"
+              value={addressForm.address_line2}
+              onChange={handleAddressInputChange}
+              placeholder="Road Name, Area, Colony"
+              className="w-full px-4 py-3 border-2 border-[#d4a055]/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#b8860b] focus:border-[#b8860b] text-sm transition-all duration-200 bg-white/50 backdrop-blur-sm hover:border-[#d4a055]/50"
+            />
+          </div>
+
+          {/* City */}
+          <div>
+            <label className="block text-sm font-semibold text-[#3b1b12] mb-2">
+              City <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              name="city"
+              value={addressForm.city}
+              onChange={handleAddressInputChange}
+              placeholder="City"
+              className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#b8860b] text-sm transition-all duration-200 bg-white/50 backdrop-blur-sm ${
+                errors.city 
+                  ? 'border-red-500 focus:border-red-500' 
+                  : 'border-[#d4a055]/30 focus:border-[#b8860b] hover:border-[#d4a055]/50'
+              }`}
+            />
+            {errors.city && (
+              <p className="text-red-500 text-xs mt-1.5 flex items-center gap-1 animate-in slide-in-from-top duration-200">
+                <AlertCircle size={12} />
+                {errors.city}
+              </p>
+            )}
+          </div>
+
+          {/* State */}
+          <div>
+            <label className="block text-sm font-semibold text-[#3b1b12] mb-2">
+              State <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              name="state"
+              value={addressForm.state}
+              onChange={handleAddressInputChange}
+              placeholder="State"
+              className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#b8860b] text-sm transition-all duration-200 bg-white/50 backdrop-blur-sm ${
+                errors.state 
+                  ? 'border-red-500 focus:border-red-500' 
+                  : 'border-[#d4a055]/30 focus:border-[#b8860b] hover:border-[#d4a055]/50'
+              }`}
+            />
+            {errors.state && (
+              <p className="text-red-500 text-xs mt-1.5 flex items-center gap-1 animate-in slide-in-from-top duration-200">
+                <AlertCircle size={12} />
+                {errors.state}
+              </p>
+            )}
+          </div>
+
+          {/* Postal Code */}
+          <div>
+            <label className="block text-sm font-semibold text-[#3b1b12] mb-2">
+              Postal Code <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              name="postal_code"
+              value={addressForm.postal_code}
+              onChange={handleAddressInputChange}
+              placeholder="6-digit PIN code"
+              maxLength="6"
+              className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#b8860b] text-sm transition-all duration-200 bg-white/50 backdrop-blur-sm ${
+                errors.postal_code 
+                  ? 'border-red-500 focus:border-red-500' 
+                  : 'border-[#d4a055]/30 focus:border-[#b8860b] hover:border-[#d4a055]/50'
+              }`}
+            />
+            {errors.postal_code && (
+              <p className="text-red-500 text-xs mt-1.5 flex items-center gap-1 animate-in slide-in-from-top duration-200">
+                <AlertCircle size={12} />
+                {errors.postal_code}
+              </p>
+            )}
+          </div>
+
+          {/* Country */}
+          <div>
+            <label className="block text-sm font-semibold text-[#3b1b12] mb-2">
+              Country
+            </label>
+            <div className="relative">
+              <input
+                type="text"
+                name="country"
+                value={addressForm.country}
+                readOnly
+                className="w-full px-4 py-3 border-2 border-[#d4a055]/30 rounded-xl bg-gradient-to-br from-gray-50 to-gray-100 text-sm cursor-not-allowed font-medium text-[#6b5342]"
+              />
+              <Lock size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#6b5342]" />
+            </div>
+          </div>
+
+          {/* Default Address Checkbox with Card Style */}
+          <div className="md:col-span-2">
+            <label className="flex items-center gap-3 p-4 rounded-xl border-2 border-[#d4a055]/30 hover:border-[#b8860b]/50 cursor-pointer transition-all duration-200 bg-gradient-to-br from-white to-[#fbf6ef]/30 hover:shadow-md group">
+              <input
+                type="checkbox"
+                name="is_default"
+                checked={addressForm.is_default}
+                onChange={handleAddressInputChange}
+                className="w-5 h-5 text-[#b8860b] border-2 border-[#d4a055] rounded focus:ring-2 focus:ring-[#b8860b] transition-all"
+              />
+              <div className="flex-1">
+                <span className="text-sm font-semibold text-[#3b1b12] group-hover:text-[#b8860b] transition-colors">
+                  Set as default address
+                </span>
+                <p className="text-xs text-[#6b5342] mt-0.5">
+                  This will be used as your primary delivery address
+                </p>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        {/* Modal Footer Buttons with Gradient */}
+        <div className="flex gap-3 pt-5 border-t-2 border-[#d4a055]/20">
+          <button
+            type="button"
+            onClick={() => {
+              setShowAddressModal(false);
+              setErrors({});
+              setApiError('');
+              setAddressForm({
+                label: '',
+                full_name: '',
+                phone: '',
+                email: '',
+                address_line1: '',
+                address_line2: '',
+                city: '',
+                state: '',
+                postal_code: '',
+                country: 'India',
+                is_default: false
+              });
+            }}
+            className="flex-1 px-6 py-3.5 border-2 border-[#d4a055] text-[#6b5342] rounded-xl font-semibold hover:bg-gradient-to-r hover:from-[#fbf6ef] hover:to-[#efe6d9] transition-all duration-200 text-sm shadow-sm hover:shadow-md"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={loading}
+            className="flex-1 px-6 py-3.5 bg-gradient-to-r from-[#b8860b] to-[#d4a055] text-white rounded-xl font-semibold hover:from-[#916c0a] hover:to-[#b8860b] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm shadow-md hover:shadow-lg transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2"
+          >
+            {loading ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                <span>Saving...</span>
+              </>
+            ) : (
+              <>
+                <Check size={16} />
+                <span>Save Address</span>
+              </>
+            )}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+)}
           {/* Alerts */}
           {apiError && (
             <div className="mb-4 bg-red-50 border border-red-200 rounded-lg p-3 flex items-start gap-2">
