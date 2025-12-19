@@ -1,5 +1,5 @@
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Heart,
   Share2,
@@ -13,15 +13,14 @@ import {
 } from "lucide-react";
 import MainHeader from "../components/homepage/MainHeader";
 import UserLoginModal from "../components/auth/UserLoginModal";
-
-
 import { useAuth } from "../contexts/AuthContext";
 
 const ProductDetailPage = () => {
-  const { sku, categorySlug, subCategorySlug } = useParams(); // NOW USING SKU
+  const { sku, categorySlug, subCategorySlug } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated } = useAuth();
+  const carouselRef = useRef(null);
 
   /* ---- state ---- */
   const [product, setProduct] = useState(null);
@@ -36,6 +35,9 @@ const ProductDetailPage = () => {
   const [recommendedProducts, setRecommendedProducts] = useState([]);
   const [recommendedLoading, setRecommendedLoading] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [scrollPosition, setScrollPosition] = useState(0);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
 
   const headerFont = "'Cinzel', 'Playfair Display', serif";
 
@@ -59,13 +61,11 @@ const ProductDetailPage = () => {
     setLoading(true);
     setError(null);
     try {
-      // CHANGED: Now fetching by SKU instead of slug
       const url = `${import.meta.env.VITE_APP_BASE_URL}/products/sku/${sku}`;
       const res = await fetch(url);
       if (!res.ok) throw new Error(res.status === 404 ? "Product not found" : "Failed to fetch");
       const data = await res.json();
       setProduct(data);
-      // Set first layer as default if layers exist
       if (data.necklaceLayers?.length) {
         setSelectedLayer(data.necklaceLayers[0]);
       }
@@ -90,7 +90,6 @@ const ProductDetailPage = () => {
       const res = await fetch(url);
       if (res.ok) {
         const data = await res.json();
-        // Filter out current product using SKU
         setRecommendedProducts(data.filter(p => p.sku !== product?.sku).slice(0, 8));
       }
     } catch (err) {
@@ -100,12 +99,47 @@ const ProductDetailPage = () => {
     }
   };
 
+  /* ---- Helper to truncate text ---- */
+  const truncateText = (text, maxLength = 7) => {
+    if (!text) return '';
+    const cleanText = text.replace(/-/g, ' ');
+    if (cleanText.length <= maxLength) return cleanText;
+    return cleanText.substring(0, maxLength) + '...';
+  };
+
   /* ---- breadcrumbs ---- */
   const getBreadcrumbs = () => {
-    const crumbs = [{ label: "Home", path: "/" }, { label: "Products", path: "/products" }];
-    if (categorySlug) crumbs.push({ label: categorySlug.replace(/-/g, " "), path: `/products/category/${categorySlug}` });
-    if (subCategorySlug) crumbs.push({ label: subCategorySlug.replace(/-/g, " "), path: `/products/category/${categorySlug}/${subCategorySlug}` });
-    if (product) crumbs.push({ label: product.name, path: null });
+    const crumbs = [
+      { label: "Home", path: "/", fullLabel: "Home" },
+      { label: "Products", path: "/products", fullLabel: "Products" }
+    ];
+    
+    if (categorySlug) {
+      const fullLabel = categorySlug.replace(/-/g, " ");
+      crumbs.push({
+        label: truncateText(fullLabel, 10),
+        path: `/products/category/${categorySlug}`,
+        fullLabel: fullLabel
+      });
+    }
+    
+    if (subCategorySlug) {
+      const fullLabel = subCategorySlug.replace(/-/g, " ");
+      crumbs.push({
+        label: truncateText(fullLabel, 10),
+        path: `/products/category/${categorySlug}/${subCategorySlug}`,
+        fullLabel: fullLabel
+      });
+    }
+    
+    if (product) {
+      crumbs.push({
+        label: truncateText(product.name, 15),
+        path: null,
+        fullLabel: product.name
+      });
+    }
+    
     return crumbs;
   };
 
@@ -134,7 +168,7 @@ const ProductDetailPage = () => {
   /* ---- add to cart ---- */
   const handleAddToCart = async () => {
     if (!isAuthenticated) {
-        setShowLoginModal(true);
+      setShowLoginModal(true);
       return;
     }
     setCartLoading(true);
@@ -145,7 +179,7 @@ const ProductDetailPage = () => {
         product_name: product.name,
         product_slug: product.slug,
         product_image: product.images?.[0] || "/placeholder.jpg",
-        sku: product.sku, // SKU included
+        sku: product.sku,
         quantity: 1,
         price: getCurrentPrice(),
         metal: product.details?.metal || null,
@@ -192,7 +226,7 @@ const ProductDetailPage = () => {
         body: JSON.stringify({ 
           product_id: product.id, 
           quantity: 1,
-          sku: product.sku, // SKU included
+          sku: product.sku,
           ...(selectedLayer && { selectedLayer: selectedLayer.layer, selectedLayerPrice: selectedLayer.price }) 
         }),
       });
@@ -258,7 +292,6 @@ const ProductDetailPage = () => {
       </>
     );
   }
-
   return (
     <>
       <MainHeader />
@@ -267,18 +300,24 @@ const ProductDetailPage = () => {
         <div className="w-screen px-4 md:px-8 lg:px-12 py-6 md:py-8">
           {/* Breadcrumbs */}
           <div className="max-w-7xl mx-auto mb-6">
-            <div style={{ fontFamily: headerFont }} className="flex items-center gap-1.5 mb-4 md:mb-6 text-xs md:text-sm overflow-x-auto pb-2">
+            <div style={{ fontFamily: headerFont }} className="flex items-center gap-1.5 mb-4 md:mb-6 text-xs md:text-sm">
               {getBreadcrumbs().map((crumb, idx) => (
                 <div key={idx} className="flex items-center gap-1 flex-shrink-0">
                   {idx > 0 && <span className="text-[#b8860b]">{'>'}</span>}
                   {crumb.path ? (
-                    <button onClick={() => navigate(crumb.path)} className="breadcrumb-item flex bg-transparent items-center gap-1 text-[#6b5342] hover:text-[#b8860b] transition-colors whitespace-nowrap">
+                    <button 
+                      onClick={() => navigate(crumb.path)} 
+                      className="breadcrumb-item flex bg-transparent items-center gap-1 text-[#6b5342] hover:text-[#b8860b] transition-colors"
+                      title={crumb.fullLabel}
+                    >
                       {idx === 0 && <Home size={14} />}
                       {idx === 1 && <Package size={14} />}
-                      {crumb.label}
+                      <span className="max-w-[120px] truncate">{crumb.label}</span>
                     </button>
                   ) : (
-                    <span className="text-[#3b1b12] font-semibold ml-2 whitespace-nowrap">{crumb.label}</span>
+                    <span className="text-[#3b1b12] font-semibold ml-2 max-w-[150px] truncate" title={crumb.fullLabel}>
+                      {crumb.label}
+                    </span>
                   )}
                 </div>
               ))}
@@ -530,16 +569,15 @@ const ProductDetailPage = () => {
           </div>
         </div>
 
-        {/* --------------- YOU MAY ALSO LIKE SECTION --------------- */}
+        {/* --------------- RECOMMENDED PRODUCTS CAROUSEL SECTION --------------- */}
         {recommendedProducts.length > 0 && (
-          <div className="max-w-7xl mx-auto px-4 md:px-8 lg:px-12 py-12">
-            <h2 className="text-2xl md:text-3xl font-serif text-gray-900 mb-8">You May Also Like</h2>
-            <RecommendedProducts products={recommendedProducts} loading={recommendedLoading} navigate={navigate} />
-          </div>
+          <RecommendedProductsCarousel
+            products={recommendedProducts}
+            loading={recommendedLoading}
+            navigate={navigate}
+          />
         )}
       </div>
-
-
     </>
   );
 };
@@ -561,128 +599,218 @@ const DetailSection = ({ title, children, icon }) => {
     </div>
   );
 };
-const RecommendedProducts = ({ products, loading, navigate }) => {
-  const [scrollPosition, setScrollPosition] = useState(0);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(true);
 
-  const formatPrice = (product) => {
-    const price = product.pricing?.discountedPrice || product.pricing?.basePrice || 0;
+/* RECOMMENDED PRODUCTS CAROUSEL COMPONENT */
+/* RECOMMENDED PRODUCTS CAROUSEL COMPONENT – always carousel, never grid */
+const RecommendedProductsCarousel = ({ products, loading, navigate }) => {
+  const [scrollPosition, setScrollPosition] = useState(0);
+  const [canScrollLeft, setCanScrollLeft]  = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+  const carouselRef = useRef(null);
+
+  /* ---------- helpers ---------- */
+  const formatPrice = (p) => {
+    const price = p.pricing?.discountedPrice || p.pricing?.basePrice || 0;
     return price ? `₹${price.toLocaleString("en-IN")}` : "₹0";
   };
+  const hasDiscount = (p) =>
+    p.pricing?.discountedPrice && p.pricing.discountedPrice < p.pricing.basePrice;
+  const getDiscountPercent = (p) =>
+    hasDiscount(p)
+      ? Math.round(
+          ((p.pricing.basePrice - p.pricing.discountedPrice) /
+            p.pricing.basePrice) *
+            100
+        )
+      : 0;
 
-  const updateScrollButtons = () => {
-    const container = document.getElementById('recommended-carousel');
-    if (!container) return;
-    setCanScrollLeft(container.scrollLeft > 0);
-    setCanScrollRight(container.scrollLeft < container.scrollWidth - container.clientWidth - 10);
+  /* ---------- scroll logic ---------- */
+  const updateButtons = () => {
+    if (!carouselRef.current) return;
+    const el = carouselRef.current;
+    setCanScrollLeft(el.scrollLeft > 10);
+    setCanScrollRight(
+      el.scrollLeft < el.scrollWidth - el.clientWidth - 10
+    );
+    setScrollPosition(el.scrollLeft);
   };
 
-  const scroll = (direction) => {
-    const container = document.getElementById('recommended-carousel');
-    if (!container) return;
-    
-    const scrollAmount = 320;
-    const newPosition = direction === 'left' 
-      ? container.scrollLeft - scrollAmount
-      : container.scrollLeft + scrollAmount;
-    
-    container.scrollTo({ left: newPosition, behavior: 'smooth' });
-    setTimeout(updateScrollButtons, 300);
+  const scroll = (dir) => {
+    if (!carouselRef.current) return;
+    const cardWidth =
+      window.innerWidth < 640 ? 190 : window.innerWidth < 768 ? 220 : window.innerWidth < 1024 ? 260 : 300;
+    carouselRef.current.scrollBy({
+      left: dir === "left" ? -cardWidth * 2 : cardWidth * 2,
+      behavior: "smooth",
+    });
+    setTimeout(updateButtons, 300);
   };
 
   useEffect(() => {
-    updateScrollButtons();
-    const container = document.getElementById('recommended-carousel');
-    if (container) {
-      container.addEventListener('scroll', updateScrollButtons);
-      return () => container.removeEventListener('scroll', updateScrollButtons);
-    }
+    updateButtons();
+    const el = carouselRef.current;
+    if (!el) return;
+    el.addEventListener("scroll", updateButtons);
+    window.addEventListener("resize", updateButtons);
+    return () => {
+      el.removeEventListener("scroll", updateButtons);
+      window.removeEventListener("resize", updateButtons);
+    };
   }, [products]);
 
+  /* ---------- render ---------- */
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#832729]"></div>
+      <div className="w-full py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#832729]" />
+          </div>
+        </div>
       </div>
     );
   }
-
-  if (products.length === 0) return null;
+  if (!products?.length) return null;
 
   return (
-    <div className="relative">
-      {/* Left Arrow */}
-      {canScrollLeft && (
-        <button
-          onClick={() => scroll('left')}
-          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white shadow-lg rounded-full p-3 transition-all hover:scale-110"
-          aria-label="Scroll left"
-        >
-          <ChevronLeft className="w-6 h-6 text-gray-700" />
-        </button>
-      )}
+    <div className="w-full bg-gray-50 py-12 border-t border-gray-200">
+      <div className="w-full">
+        {/* heading */}
+        <div className="mb-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+          <h2 className="text-2xl sm:text-3xl font-serif text-gray-900">
+            You May Also Like
+          </h2>
+          <p className="text-sm text-gray-600 mt-2">
+            Discover similar items you might love
+          </p>
+        </div>
 
-      {/* Carousel Container */}
-      <div
-        id="recommended-carousel"
-        className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth"
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-      >
-        {products.map((product) => (
-          <div
-            key={product.id}
-            onClick={() => navigate(`/products/category/${product.categorySlug}/${product.subCategorySlug}/${product.sku}`)}
-            className="flex-shrink-0 w-72 bg-white rounded-xl shadow-md hover:shadow-xl transition-all cursor-pointer group border border-gray-200 hover:border-[#832729]"
-          >
-            <div className="relative aspect-square overflow-hidden rounded-t-xl bg-gray-100">
-              <img
-                src={product.images?.[0] || "/placeholder.jpg"}
-                alt={product.name}
-                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+        <div className="relative w-full">
+          {/* DOTS – visible only on small screens */}
+          <div className="flex justify-center gap-1.5 mb-4 md:hidden">
+            {Array.from({ length: Math.min(products.length, 5) }).map((_, idx) => (
+              <div
+                key={idx}
+                className={`h-1.5 rounded-full transition-all ${
+                  Math.floor(scrollPosition / 190) === idx
+                    ? "w-6 bg-[#832729]"
+                    : "w-1.5 bg-gray-300"
+                }`}
               />
-              {product.pricing?.discountedPrice && product.pricing.discountedPrice < product.pricing.basePrice && (
-                <div className="absolute top-3 right-3 bg-green-600 text-white px-2 py-1 rounded-full text-xs font-bold">
-                  {Math.round(((product.pricing.basePrice - product.pricing.discountedPrice) / product.pricing.basePrice) * 100)}% OFF
-                </div>
-              )}
-            </div>
-            <div className="p-4">
-              <h3 className="font-serif text-lg text-gray-900 mb-2 line-clamp-2 group-hover:text-[#832729] transition-colors">
-                {product.name}
-              </h3>
-              <div className="flex items-baseline gap-2 mb-2">
-                <span className="text-xl font-bold text-gray-900">{formatPrice(product)}</span>
-                {product.pricing?.discountedPrice && product.pricing.discountedPrice < product.pricing.basePrice && (
-                  <span className="text-sm text-gray-400 line-through">
-                    ₹{product.pricing.basePrice.toLocaleString("en-IN")}
-                  </span>
-                )}
-              </div>
-              <div className="flex items-center gap-2 text-xs text-gray-500">
-                {product.details?.metal && <span>{product.details.metal}</span>}
-                {product.details?.metalPurity && (
-                  <>
-                    <span>•</span>
-                    <span>{product.details.metalPurity}</span>
-                  </>
-                )}
-              </div>
-            </div>
+            ))}
           </div>
-        ))}
-      </div>
 
-      {/* Right Arrow */}
-      {canScrollRight && (
-        <button
-          onClick={() => scroll('right')}
-          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white shadow-lg rounded-full p-3 transition-all hover:scale-110"
-          aria-label="Scroll right"
-        >
-          <ChevronRight className="w-6 h-6 text-gray-700" />
-        </button>
-      )}
+          {/* ARROWS – always visible (no md:flex hidden) */}
+          {canScrollLeft && (
+            <button
+              onClick={() => scroll("left")}
+              className="absolute left-0 top-1/2 -translate-y-1/2 z-20 bg-white shadow-xl rounded-full p-3 hover:bg-gray-50 transition-all hover:scale-110 border border-gray-200 flex items-center justify-center"
+              aria-label="Scroll left"
+              style={{ marginLeft: "20px" }}
+            >
+              <ChevronLeft className="w-6 h-6 text-gray-700" />
+            </button>
+          )}
+          {canScrollRight && (
+            <button
+              onClick={() => scroll("right")}
+              className="absolute right-0 top-1/2 -translate-y-1/2 z-20 bg-white shadow-xl rounded-full p-3 hover:bg-gray-50 transition-all hover:scale-110 border border-gray-200 flex items-center justify-center"
+              aria-label="Scroll right"
+              style={{ marginRight: "20px" }}
+            >
+              <ChevronRight className="w-6 h-6 text-gray-700" />
+            </button>
+          )}
+
+          {/* scrollable strip */}
+          <div
+            ref={carouselRef}
+            className="recommended-products-carousel flex flex-nowrap gap-3 sm:gap-4 overflow-x-auto overflow-y-hidden px-4 sm:px-6 lg:px-8 pb-4 w-full"
+            style={{
+              scrollSnapType: "x mandatory",
+              WebkitOverflowScrolling: "touch",
+              scrollbarWidth: "none",
+              msOverflowStyle: "none",
+            }}
+          >
+            <style>{`
+              div[style*="scrollSnapType"]::-webkit-scrollbar {
+                display: none;
+              }
+            `}</style>
+
+            {products.map((p) => (
+              <div
+                key={p.id}
+                onClick={() => navigate(`/product/${p.sku}`)}
+                className="flex-shrink-0 w-[170px] sm:w-[200px] md:w-[240px] lg:w-[280px] bg-white rounded-xl shadow-md hover:shadow-2xl transition-all duration-300 cursor-pointer group border border-transparent hover:border-[#832729] overflow-hidden"
+                style={{ scrollSnapAlign: "start" }}
+              >
+                <div className="relative aspect-square overflow-hidden bg-gray-100">
+                  <img
+                    src={p.images?.[0] || "/placeholder.jpg"}
+                    alt={p.name}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    loading="lazy"
+                  />
+                  {hasDiscount(p) && (
+                    <div className="absolute top-2 right-2 bg-gradient-to-br from-green-500 to-green-600 text-white px-2 py-1 rounded-lg text-xs font-bold shadow-lg">
+                      {getDiscountPercent(p)}% OFF
+                    </div>
+                  )}
+                  {!p.inventory?.inStock && (
+                    <div className="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center">
+                      <span className="bg-white px-4 py-2 rounded-full text-xs font-semibold text-gray-900">
+                        Out of Stock
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="p-3">
+                  <h3 className="font-serif text-sm text-gray-900 mb-2 line-clamp-2 min-h-[40px] group-hover:text-[#832729] transition-colors leading-tight">
+                    {p.name}
+                  </h3>
+
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-lg font-bold text-gray-900">
+                      {formatPrice(p)}
+                    </span>
+                    {hasDiscount(p) && (
+                      <span className="text-xs text-gray-400 line-through">
+                        ₹{p.pricing.basePrice.toLocaleString("en-IN")}
+                      </span>
+                    )}
+                  </div>
+
+                  {(p.details?.metal || p.details?.metalPurity) && (
+                    <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                      {p.details.metal && (
+                        <span className="truncate">{p.details.metal}</span>
+                      )}
+                      {p.details.metal && p.details.metalPurity && (
+                        <span>•</span>
+                      )}
+                      {p.details.metalPurity && (
+                        <span className="truncate">{p.details.metalPurity}</span>
+                      )}
+                    </div>
+                  )}
+
+                  {p.inventory?.inStock && (
+                    <div className="mt-2 flex items-center gap-1.5">
+                      <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                      <span className="text-xs text-green-700 font-medium">
+                        In Stock
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

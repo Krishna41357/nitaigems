@@ -101,6 +101,8 @@ const ProductsListingPage = () => {
 
       if (!productsRes.ok || !categoriesRes.ok || !subcategoriesRes.ok) {
         throw new Error('Failed to fetch data');
+
+        
       }
 
       const [productsData, categoriesData, subcategoriesData] = await Promise.all([

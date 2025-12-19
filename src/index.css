@@ -400,3 +400,16 @@ html {
   outline: 1px solid red !important;
 }
 */
+/* keep the strip on one line on every screen */
+.recommended-products-carousel,
+.recommended-products-carousel > * {
+  flex-wrap: nowrap !important;
+}
+
+/* allow the infinite-scroll strip to scroll naturally */
+.carousel-container,
+.infinite-scroll {
+  -webkit-transform: none !important;
+  transform: none !important;
+  scroll-behavior: auto !important;   /* let the JS handle smoothness */
+}
