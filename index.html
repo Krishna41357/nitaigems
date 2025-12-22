@@ -47,6 +47,13 @@
         display: flex;
         flex-direction: column;
         align-items: flex-start;
+        transition: opacity 0.3s ease;
+      }
+
+      /* Hide on reels page */
+      body.reels-page-active #getbutton-wrapper {
+        opacity: 0;
+        pointer-events: none;
       }
 
       #getbutton-popup {
@@ -127,6 +134,14 @@
         z-index: 99999;
         transform: translateY(0);
         opacity: 1;
+        transition: transform 0.3s ease, opacity 0.3s ease;
+      }
+
+      /* Hide on reels page */
+      body.reels-page-active #mobile-bottom-nav {
+        transform: translateY(100%);
+        opacity: 0;
+        pointer-events: none;
       }
 
       #mobile-bottom-nav ul {
@@ -280,6 +295,38 @@
           link.classList.add("active");
         }
       });
+
+      /* ---------- Hide nav on reels page ---------- */
+      function updateReelsPageState() {
+        if (location.pathname === '/reels') {
+          document.body.classList.add('reels-page-active');
+        } else {
+          document.body.classList.remove('reels-page-active');
+        }
+      }
+
+      // Check on load
+      updateReelsPageState();
+
+      // Check on navigation (for SPA routing)
+      let lastPath = location.pathname;
+      setInterval(() => {
+        if (location.pathname !== lastPath) {
+          lastPath = location.pathname;
+          updateReelsPageState();
+          
+          // Update active nav link
+          navLinks.forEach((link) => {
+            link.classList.remove('active');
+            if (link.getAttribute("href") === location.pathname) {
+              link.classList.add("active");
+            }
+          });
+        }
+      }, 100);
+
+      // Also listen for popstate (back/forward navigation)
+      window.addEventListener('popstate', updateReelsPageState);
     </script>
   </body>
 </html>

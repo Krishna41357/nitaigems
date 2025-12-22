@@ -1,106 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Heart } from 'lucide-react';
 import { useHomePageTheme } from '../../pages/HomePage';
-
-const ProductCard = ({ product, categorySlug }) => {
-  const [isHovered, setIsHovered] = useState(false);
-  const [isInWishlist, setIsInWishlist] = useState(false);
-  
-
-  const hasDiscount = product.pricing?.discountedPrice && 
-    product.pricing.discountedPrice < product.pricing.basePrice;
-  const formatPrice = (price) => {
-    if (!price) return '₹0';
-    return `₹${price.toLocaleString('en-IN')}`;
-  };
-
-  const handleWishlistToggle = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsInWishlist(!isInWishlist);
-  };
-
-  const handleProductClick = () => {
-    const url = `/product/category/${categorySlug}/${product.sku}`;
-    window.location.href = url;
-  };
-
-  return (
-    <>
-      <style>{cardStyles}</style>
-      <div 
-        onClick={handleProductClick}
-        className="product-card"
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-      >
-        <div className="product-image-wrapper">
-          <img
-            src={product.images?.[0] || '/placeholder.jpg'}
-            alt={product.name}
-            className={`product-image primary ${isHovered ? 'hovered' : ''}`}
-            loading="lazy"
-          />
-          
-          {product.images?.[1] && (
-            <img
-              src={product.images[1]}
-              alt={product.name}
-              className={`product-image secondary ${isHovered ? 'visible' : ''}`}
-              loading="lazy"
-            />
-          )}
-
-          <button
-            onClick={handleWishlistToggle}
-            className={`wishlist-button ${isInWishlist ? 'active' : ''}`}
-            aria-label={isInWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
-          >
-            <Heart
-              className={`wishlist-icon ${isInWishlist ? 'filled' : ''}`}
-            />
-          </button>
-
-          {!product.inventory?.inStock && (
-            <div className="out-of-stock-overlay">
-              <span className="out-of-stock-badge">Out of Stock</span>
-            </div>
-          )}
-
-          {product.isBestseller && (
-            <div className="bestseller-wrapper">
-              <div className="bestseller-glow"></div>
-              <span className="bestseller-badge">Bestseller</span>
-            </div>
-          )}
-        </div>
-
-        <div className="product-info">
-          <h3 className="product-name">
-            {product.name}
-          </h3>
-
-          <div className="product-pricing">
-            {hasDiscount ? (
-              <>
-                <p className="price-current">
-                  {formatPrice(product.pricing.discountedPrice)}
-                </p>
-                <p className="price-original">
-                  {formatPrice(product.pricing.basePrice)}
-                </p>
-              </>
-            ) : (
-              <p className="price-current">
-                {formatPrice(product.pricing?.basePrice)}
-              </p>
-            )}
-          </div>
-        </div>
-      </div>
-    </>
-  );
-};
+import ProductCard from '../products/ProductCard'; // Adjust path as needed
 
 const JewelleryCategoriesSection = () => {
   const theme = useHomePageTheme();
@@ -255,7 +155,6 @@ const JewelleryCategoriesSection = () => {
                 <ProductCard
                   key={product._id || product.id}
                   product={product}
-                  categorySlug={categories.find(c => c.id === activeTab)?.slug}
                 />
               ))}
             </div>
@@ -327,19 +226,7 @@ const sectionStyles = `
   font-weight: 700;
   text-shadow: 0 2px 8px rgba(107, 93, 79, 0.15), 0 1px 4px rgba(139, 115, 85, 0.1);
   line-height: 1.2;
-  font-family:'sans-serif';
-}
-
-.section-subtitle {
-  font-size: clamp(1rem, 1.75vw, 1.25rem);
-  color: #8B7355;
-  font-weight: 300;
-  letter-spacing: 0.03em;
-  font-style: italic;
-  text-shadow: 0 1px 4px rgba(139, 115, 85, 0.1);
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 0 1rem;
+  font-family: 'sans-serif';
 }
 
 .tabs-wrapper {
@@ -417,7 +304,7 @@ const sectionStyles = `
 .tabs-divider {
   display: flex;
   align-items: center;
-  justify-center;
+  justify-content: center;
   gap: clamp(0.5rem, 1.5vw, 1rem);
   padding: 0 clamp(1rem, 3vw, 2rem);
 }
@@ -517,184 +404,4 @@ const sectionStyles = `
 }
 `;
 
-const cardStyles = `
-.product-card {
-  cursor: pointer;
-  width: 100%;
-  transition: transform 0.3s ease;
-}
-
-.product-card:active {
-  transform: scale(0.98);
-}
-
-.product-image-wrapper {
-  position: relative;
-  aspect-ratio: 3/4;
-  overflow: hidden;
-  border-radius: clamp(1rem, 2vw, 1.5rem);
-  background: #f5f5f5;
-  margin-bottom: clamp(0.75rem, 1.5vw, 1rem);
-}
-
-.product-image {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.5s ease, opacity 0.5s ease;
-}
-
-.product-image.primary.hovered {
-  transform: scale(1.05);
-}
-
-.product-image.secondary {
-  opacity: 0;
-}
-
-.product-image.secondary.visible {
-  opacity: 1;
-}
-
-.wishlist-button {
-  position: absolute;
-  top: clamp(0.5rem, 1.5vw, 0.75rem);
-  right: clamp(0.5rem, 1.5vw, 0.75rem);
-  width: clamp(2rem, 4vw, 2.25rem);
-  height: clamp(2rem, 4vw, 2.25rem);
-  backdrop-filter: blur(10px);
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  z-index: 10;
-}
-
-.wishlist-button:hover {
-  background: rgba(255, 255, 255, 0.4);
-}
-
-.wishlist-button.active {
-  background: rgba(255, 255, 255, 0.95);
-}
-
-.wishlist-icon {
-  width: clamp(1rem, 2vw, 1.25rem);
-  height: clamp(1rem, 2vw, 1.25rem);
-  color: white;
-  stroke-width: 2;
-  transition: all 0.3s ease;
-}
-
-.wishlist-icon.filled {
-  fill: #ef4444;
-  color: #ef4444;
-}
-
-.out-of-stock-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(2px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10;
-}
-
-.out-of-stock-badge {
-  background: white;
-  padding: clamp(0.375rem, 1vw, 0.5rem) clamp(0.75rem, 2vw, 1rem);
-  border-radius: 9999px;
-  font-size: clamp(0.75rem, 1.25vw, 0.875rem);
-  font-weight: 500;
-  color: #1f2937;
-}
-
-.bestseller-wrapper {
-  position: absolute;
-  top: clamp(0.5rem, 1.5vw, 0.75rem);
-  left: clamp(0.5rem, 1.5vw, 0.75rem);
-  z-index: 10;
-  position: relative;
-}
-
-.bestseller-glow {
-  position: absolute;
-  inset: 0;
-  background: #C9A557;
-  filter: blur(4px);
-}
-
-.bestseller-badge {
-  position: relative;
-  display: inline-block;
-  background: linear-gradient(to right, #C9A557, #D4A055);
-  color: white;
-  padding: clamp(0.375rem, 1vw, 0.5rem) clamp(0.75rem, 2vw, 1rem);
-  border-radius: 9999px;
-  font-size: clamp(0.625rem, 1vw, 0.75rem);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
-.product-info {
-  padding: 0 clamp(0.25rem, 0.5vw, 0.5rem);
-}
-
-.product-name {
-  font-size: clamp(0.875rem, 1.25vw, 1rem);
-  color: #6B5D4F;
-  margin-bottom: clamp(0.375rem, 0.75vw, 0.5rem);
-  line-height: 1.4;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  transition: color 0.3s ease;
-  min-height: 2.8em;
-}
-
-.product-card:hover .product-name {
-  color: #8B7355;
-}
-
-.product-pricing {
-  display: flex;
-  align-items: center;
-  gap: clamp(0.375rem, 1vw, 0.5rem);
-}
-
-.price-current {
-  font-size: clamp(1rem, 1.5vw, 1.125rem);
-  font-weight: 700;
-  color: #8B7355;
-}
-
-.price-original {
-  font-size: clamp(0.75rem, 1.25vw, 0.875rem);
-  color: #B5A898;
-  text-decoration: line-through;
-  font-weight: 500;
-}
-
-@media (max-width: 640px) {
-  .product-card:hover {
-    transform: none;
-  }
-  
-  .product-image.primary.hovered {
-    transform: scale(1.02);
-  }
-}
-`;
-
-export default JewelleryCategoriesSection;  
+export default JewelleryCategoriesSection;

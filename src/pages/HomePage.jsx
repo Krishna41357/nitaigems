@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, createContext, useContext } from 'react';
 import MainHeader from '../components/homepage/MainHeader';
 import Navigation from '../components/homepage/Navigation';
@@ -127,19 +126,13 @@ const HomePage = () => {
             onMenuClick={() => setShowMobileMenu(true)}
           />
 
-          {/* Navigation with Mega Menu */}
-          
+        
 
           {/* Hero Carousel */}
           <HeroCarousel />
 
-          <JewelleryCategoriesSection />
-          
-          {/* Ring Model / Hero with Emerald */}
-        
-        
           {/* Jewellery Categories Section */}
-          
+          <JewelleryCategoriesSection />
           
           {/* Category Cards Section */}
           <CategoryCardsSection />
@@ -150,7 +143,7 @@ const HomePage = () => {
           {/* Collections Section */}
           {/* <CollectionsSection /> */}
 
-          {/* Reels Section */}
+          {/* Reels Section - Now navigates to /reels page */}
           <ReelsSection />
 
           {/* Trust Badges / Assurance Section */}

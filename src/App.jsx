@@ -26,6 +26,7 @@ import MobileBottomNav from "./components/MobileBottomNav";
 import WhatsAppWidget from "./components/WhatsappWidget";
 import ManageMedia from "./pages/admin/ManageMedia";
 import HomePageThemeAdmin from "./pages/admin/HomePageThemeAdmin";
+import ReelsPage from "./pages/ReelsPage";
 
 const queryClient = new QueryClient();
 
@@ -48,6 +49,9 @@ export default function App() {
               <WishlistProvider>
                 <Routes>
                   <Route path="/" element={<HomePage />} />
+                  
+                  {/* REELS PAGE - Full page Instagram-style reels viewer */}
+                  <Route path="/reels" element={<ReelsPage />} />
                   
                   {/* PRODUCT LISTING ROUTES - Uses /products/ (plural) */}
                   <Route path="/products" element={<ProductsListingPage />} />

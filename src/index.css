@@ -413,3 +413,465 @@ html {
   transform: none !important;
   scroll-behavior: auto !important;   /* let the JS handle smoothness */
 }
+/* ========================================
+   REELS PAGE STYLES (Instagram-style scrolling)
+   ======================================== */
+
+.reels-page {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: #000;
+  z-index: 9999;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scroll-snap-type: y mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.reels-page::-webkit-scrollbar {
+  display: none;
+}
+
+.reels-page-loading {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: #000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+/* Back Button - Top Left */
+.reels-page-back {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 10001;
+  width: 3.5rem;
+  height: 3.5rem;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.reels-page-back:hover {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+/* Exit Button on Each Reel - Top Right */
+.reels-page-exit {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 10001;
+  width: 3.5rem;
+  height: 3.5rem;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.reels-page-exit:hover {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+.reels-page-container {
+  width: 100%;
+  height: 100%;
+}
+
+.reels-page-item {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.reels-page-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Desktop: contain video in center */
+@media (min-width: 768px) {
+  .reels-page-video {
+    max-width: 28rem;
+    max-height: 100vh;
+    object-fit: contain;
+  }
+}
+
+.reels-page-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.4) 0%,
+    transparent 20%,
+    transparent 70%,
+    rgba(0, 0, 0, 0.8) 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Reel Counter */
+.reels-page-counter {
+  position: absolute;
+  top: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  z-index: 10001;
+}
+
+/* Side Actions */
+.reels-page-actions {
+  position: absolute;
+  right: 1rem;
+  bottom: 7rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  z-index: 10000;
+}
+
+.reels-page-action-btn {
+  width: 5rem;
+  height: 5rem;
+  background-color: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.reels-page-action-btn:hover {
+  background-color: rgba(0, 0, 0, 0.6);
+  transform: scale(1.1);
+}
+
+.reels-page-action-btn:active {
+  transform: scale(0.95);
+}
+
+@media (max-width: 768px) {
+  .reels-page-actions {
+    right: 0.75rem;
+    bottom: 6rem;
+    gap: 1.25rem;
+  }
+  
+  .reels-page-action-btn {
+    width: 3.5rem;
+    height: 3.5rem;
+  }
+  
+  .reels-page-action-btn svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+/* Video Info */
+.reels-page-info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 4rem;
+  padding: 1.5rem;
+  z-index: 10000;
+}
+
+@media (max-width: 768px) {
+  .reels-page-info {
+    right: 3.5rem;
+    padding: 1rem;
+  }
+}
+
+/* Product Card Overlay (Instagram-style) */
+.reels-product-card {
+  position: absolute;
+  bottom: 1.5rem;
+  left: 1rem;
+  right: 4.5rem;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(12px);
+  border-radius: 1rem;
+  padding: 1rem;
+  z-index: 10000;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+@media (max-width: 768px) {
+  .reels-product-card {
+    right: 4rem;
+    bottom: 1rem;
+    padding: 0.875rem;
+  }
+}
+
+/* Scroll Hint */
+.reels-page-scroll-hint {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.875rem;
+  z-index: 10000;
+  pointer-events: none;
+  animation: fadeInOut 3s ease-in-out infinite;
+}
+
+.scroll-arrow {
+  font-size: 2rem;
+  animation: bounceArrow 2s ease-in-out infinite;
+}
+
+@keyframes fadeInOut {
+  0%, 100% { opacity: 0; }
+  20%, 80% { opacity: 1; }
+}
+
+@keyframes bounceArrow {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(10px);
+  }
+}
+
+/* Hide scroll hint after 5 seconds */
+.reels-page-item:first-child .reels-page-scroll-hint {
+  animation: fadeOutComplete 5s ease-in-out forwards;
+}
+
+@keyframes fadeOutComplete {
+  0%, 80% { opacity: 1; }
+  100% { opacity: 0; display: none; }
+}
+
+/* ========================================
+   REELS SECTION CAROUSEL STYLES
+   ======================================== */
+
+/* Desktop Carousel - Fixed flex layout */
+.reels-desktop-carousel {
+  display: flex;
+  gap: 1.5rem;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+
+.reels-card-desktop {
+  flex-shrink: 0;
+  width: calc(33.333% - 1rem);
+  min-width: 250px;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.reels-card-desktop:hover {
+  transform: scale(1.05);
+}
+
+@media (max-width: 1024px) {
+  .reels-card-desktop {
+    width: calc(50% - 0.75rem);
+  }
+}
+
+/* Mobile Carousel - FIXED: Ultra-smooth momentum scrolling */
+.reels-mobile-wrapper-outer {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.reels-mobile-wrapper {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+  padding: 0;
+}
+
+.reels-mobile-carousel {
+  width: 100%;
+  overflow-x: scroll;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  scroll-snap-type: x mandatory;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  padding: 0 1rem;
+  touch-action: pan-x;
+  will-change: scroll-position;
+}
+
+.reels-mobile-carousel:active {
+  cursor: grabbing;
+}
+
+.reels-mobile-carousel::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.reels-mobile-track {
+  display: flex;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  min-width: min-content;
+  will-change: transform;
+}
+
+.reels-card-mobile {
+  flex-shrink: 0;
+  width: 200px;
+  height: 350px;
+  cursor: pointer;
+  scroll-snap-align: center;
+  scroll-snap-stop: normal;
+  transition: transform 0.15s ease-out;
+  will-change: transform;
+}
+
+.reels-card-mobile:active {
+  transform: scale(0.98);
+  transition: transform 0.1s ease-out;
+}
+
+/* Prevent video from interfering with drag */
+.reels-card-mobile video {
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Ensure smooth scrolling behavior */
+@media (max-width: 768px) {
+  .reels-mobile-carousel {
+    scroll-padding: 0 1rem;
+  }
+  
+  .reels-card-mobile {
+    width: clamp(180px, 60vw, 220px);
+    height: clamp(320px, 70vh, 400px);
+  }
+}
+
+/* Extra small screens */
+@media (max-width: 480px) {
+  .reels-card-mobile {
+    width: clamp(160px, 70vw, 200px);
+  }
+}
+
+/* Ensure reels section doesn't cause horizontal overflow */
+.reels-section {
+  max-width: 100vw;
+  overflow-x: hidden;
+  overflow-y: visible;
+}
+
+.reels-section .container {
+  max-width: 100%;
+}
+
+/* ========================================
+   ACCESSIBILITY & PERFORMANCE
+   ======================================== */
+
+.reels-page-back:focus,
+.reels-page-exit:focus,
+.reels-page-action-btn:focus {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+/* Improve scroll performance */
+.reels-page,
+.reels-page-item {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  .reels-page {
+    scroll-behavior: auto;
+  }
+  
+  .reels-desktop-carousel,
+  .reels-mobile-carousel {
+    scroll-behavior: auto;
+    transition: none;
+  }
+  
+  .reels-page-scroll-hint,
+  .scroll-arrow {
+    animation: none;
+  }
+  
+  .reels-card-desktop:hover,
+  .reels-page-action-btn:hover {
+    transform: none;
+  }
+}
