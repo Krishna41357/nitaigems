@@ -626,7 +626,7 @@ html {
 /* Product Card Overlay (Instagram-style) */
 .reels-product-card {
   position: absolute;
-  bottom: 1.5rem;
+  bottom: 3rem;
   left: 1rem;
   right: 4.5rem;
   background: rgba(0, 0, 0, 0.75);
@@ -640,8 +640,8 @@ html {
 
 @media (max-width: 768px) {
   .reels-product-card {
-    right: 4rem;
-    bottom: 2rem;
+    right: 6rem;
+    bottom: 4rem;
     padding: 0.875rem;
   }
 }
