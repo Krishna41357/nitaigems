@@ -249,11 +249,7 @@ const SubcategoriesShowcase = () => {
             <div className="ornament-line right"></div>
           </div>
           <h1 className="section-title">Explore Precious Stones</h1>
-          <div className="title-divider">
-            <span className="divider-icon">✦</span>
-            <div className="divider-line"></div>
-            <span className="divider-icon">✦</span>
-          </div>
+         
           <p className="section-subtitle">
             Discover our exquisite collection of precious gemstone beads
           </p>
@@ -344,15 +340,15 @@ const sectionStyles = `
 }
 
 .ornament-line.left { 
-  background: linear-gradient(to right, transparent, #C9A557); 
+  background: linear-gradient(to right, transparent, #142e5eff); 
 }
 
 .ornament-line.right { 
-  background: linear-gradient(to left, transparent, #C9A557); 
+  background: linear-gradient(to left, transparent,  #142e5eff); 
 }
 
 .ornament-icon { 
-  color: #C9A557; 
+  color: #142e5eff; 
 }
 
 .ornament-icon.large { 
@@ -376,7 +372,7 @@ const sectionStyles = `
   font-size: clamp(1.5rem, 5vw, 4rem);
   font-weight: 600; 
   letter-spacing: 0.05em; 
-  color: #6B5D4F; 
+  color: #10254b; 
   margin-bottom: clamp(0.3rem, 0.75vw, 0.75rem);
   text-shadow: 0 2px 10px rgba(107, 93, 79, 0.2), 0 1px 4px rgba(139, 115, 85, 0.15); 
   line-height: 1.2; 
@@ -437,7 +433,7 @@ const sectionStyles = `
 
 .section-subtitle { 
   font-size: clamp(0.875rem, 1.5vw, 1.25rem);
-  color: #8B7355; 
+  color: #1a3974ff; 
   font-weight: 300; 
   letter-spacing: 0.03em; 
   text-shadow: 0 1px 4px rgba(139, 115, 85, 0.1); 
@@ -620,12 +616,12 @@ const cardStyles = `
 /* ----------  title  ---------- */
 .card-title { 
   color: #fff; 
-  font-size: clamp(0.6rem, 1.3vw, 0.7rem); 
+  font-size: clamp(0.8rem, 1.3vw, 0.7rem); 
   font-weight: 600; 
   letter-spacing: 0.01em; 
   text-transform: uppercase; 
   text-shadow: 0 1px 2px rgba(0,0,0,.6); 
-  line-height: 1.2; 
+  line-height: 2; 
   word-break: break-word; 
 }
 

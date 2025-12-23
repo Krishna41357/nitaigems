@@ -96,7 +96,7 @@ const HeroCarousel = () => {
 
   if (loading) {
     return (
-      <div className="relative w-full h-[calc(100vh-120px)] md:h-[380px] lg:h-[450px] bg-gradient-to-br from-amber-50 to-amber-100 overflow-hidden">
+      <div className="relative w-full h-[calc(100vh-120px)] md:h-[380px] lg:h-[450px] bg-white overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer" />
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="w-12 h-12 border-3 border-amber-600 border-t-transparent rounded-full animate-spin" />
@@ -198,14 +198,14 @@ const HeroCarousel = () => {
             <>
               <button
                 onClick={prevSlide}
-                className="absolute left-4 md:left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-amber-700 p-2.5 md:p-2.5 rounded-full shadow-xl transition-all hover:scale-110 backdrop-blur-sm z-10"
+                className="absolute left-4 md:left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-[#10254b] p-2.5 md:p-2.5 rounded-full shadow-xl transition-all hover:scale-110 backdrop-blur-sm z-10"
                 aria-label="Previous banner"
               >
                 <ChevronLeft className="w-6 h-6 md:w-5 md:h-5" />
               </button>
               <button
                 onClick={nextSlide}
-                className="absolute right-4 md:right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-amber-700 p-2.5 md:p-2.5 rounded-full shadow-xl transition-all hover:scale-110 backdrop-blur-sm z-10"
+                className="absolute right-4 md:right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-[#10254b] p-2.5 md:p-2.5 rounded-full shadow-xl transition-all hover:scale-110 backdrop-blur-sm z-10"
                 aria-label="Next banner"
               >
                 <ChevronRight className="w-6 h-6 md:w-5 md:h-5" />
@@ -225,8 +225,8 @@ const HeroCarousel = () => {
                 aria-label={`Go to banner ${index + 1}`}
                 className={`w-2.5 h-2.5 md:w-2 md:h-2 rounded-full transition-all duration-300 ease-out
                   ${index === currentIndex 
-                    ? 'bg-amber-600 scale-110' 
-                    : 'bg-amber-300 hover:bg-amber-400 opacity-60 hover:opacity-100'
+                    ? 'bg-[#10254b] scale-110' 
+                    : 'bg-[#10254b] hover:bg-amber-400 opacity-60 hover:opacity-100'
                   }`}
               />
             ))}

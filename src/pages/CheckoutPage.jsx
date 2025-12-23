@@ -459,10 +459,10 @@ const CheckoutPage = () => {
        
         <div className="min-h-[calc(100vh-120px)] bg-[#fbf6ef] flex flex-col items-center justify-center px-4">
           <div className="text-center">
-            <h2 style={{ fontFamily: headerFont }} className="text-2xl md:text-3xl font-bold text-[#3b1b12] mb-4">
+            <h2 style={{ fontFamily: headerFont }} className="text-2xl md:text-3xl font-bold text-black#3b1b12] mb-4">
               Your Cart is Empty
             </h2>
-            <p className="text-[#6b5342] mb-6 text-sm">Add some items to your cart before checking out.</p>
+            <p className="text-black#6b5342] mb-6 text-sm">Add some items to your cart before checking out.</p>
             <button
               onClick={() => navigate('/products')}
               className="bg-transparent border-2 border-[#b8860b] text-[#b8860b] px-6 py-2 rounded-full text-sm font-medium hover:bg-[#b8860b] hover:text-white transition-all"
@@ -575,10 +575,10 @@ const CheckoutPage = () => {
             <MapPin className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h3 style={{ fontFamily: headerFont }} className="text-xl font-bold text-[#3b1b12]">
+            <h3 style={{ fontFamily: headerFont }} className="text-xl font-bold text-black">
               Add New Address
             </h3>
-            <p className="text-xs text-[#6b5342] mt-0.5">Complete your delivery details</p>
+            <p className="text-xs text-black mt-0.5">Complete your delivery details</p>
           </div>
         </div>
         <button

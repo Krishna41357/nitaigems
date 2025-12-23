@@ -4,59 +4,60 @@ import { Star, CheckCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 const reviews = [
   {
     id: 1,
-    customerName: 'Sarah Johnson',
+    customerName: 'Ananya Sharma',
     customerAvatar: null,
     rating: 5,
-    reviewText: 'Absolutely in love with my new diamond necklace! The craftsmanship is exquisite and the sparkle is incredible.',
-    date: '2024-01-15',
+    reviewText: 'The gemstone bead necklace I bought is absolutely gorgeous. The colors are rich and the finishing feels very premium.',
+    date: '2024-01-16',
     isVerified: true
   },
   {
     id: 2,
-    customerName: 'Michael Chen',
+    customerName: 'Priya Mehta',
     customerAvatar: null,
     rating: 5,
-    reviewText: 'Exceptional quality and service. The staff helped me find the perfect engagement ring. My fiancée is over the moon!',
-    date: '2024-01-10',
+    reviewText: 'Loved the traditional bead necklace. It looks elegant and is perfect for both daily wear and festive occasions.',
+    date: '2024-01-13',
     isVerified: true
   },
   {
     id: 3,
-    customerName: 'Emma Williams',
+    customerName: 'Neha Kapoor',
     customerAvatar: null,
-    rating: 4,
-    reviewText: 'Beautiful collection of jewelry. The gold hallmark certification gives me confidence in my purchase.',
-    date: '2024-01-08',
+    rating: 5,
+    reviewText: 'The gemstone necklace set is even more beautiful in real life. The quality of beads and polish is excellent.',
+    date: '2024-01-10',
     isVerified: true
   },
   {
     id: 4,
-    customerName: 'David Brown',
+    customerName: 'Kavita Joshi',
     customerAvatar: null,
-    rating: 5,
-    reviewText: 'Bought a ruby pendant for my wife. The stone certification and lifetime maintenance service are excellent.',
-    date: '2024-01-05',
+    rating: 4,
+    reviewText: 'Very elegant designs and genuine gemstones. The necklace feels comfortable and well-balanced when worn.',
+    date: '2024-01-08',
     isVerified: true
   },
   {
     id: 5,
-    customerName: 'Lisa Anderson',
+    customerName: 'Ritu Malhotra',
     customerAvatar: null,
     rating: 5,
-    reviewText: 'The diamond earrings I purchased are stunning! The transparency in pricing and quality is commendable.',
-    date: '2024-01-03',
+    reviewText: 'I really appreciate the transparency in pricing. The bead necklace looks classy and is beautifully crafted.',
+    date: '2024-01-05',
     isVerified: true
   },
   {
     id: 6,
-    customerName: 'James Taylor',
+    customerName: 'Sonal Desai',
     customerAvatar: null,
     rating: 5,
-    reviewText: 'Outstanding experience from start to finish. The ethical sourcing and craftsmanship make this jewelry truly special.',
-    date: '2023-12-28',
+    reviewText: 'Amazing collection of gemstone and bead jewellery. Perfect finishing and great attention to detail.',
+    date: '2023-12-31',
     isVerified: true
   }
 ];
+
 
 const ReviewsCarousel = () => {
   const [currentIndex, setCurrentIndex] = React.useState(0);
@@ -167,8 +168,7 @@ const ReviewsCarousel = () => {
       className={`review-card rounded-3xl p-6 md:p-8 flex flex-col justify-between backdrop-blur-md ${className}`}
       style={{
         background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.85) 100%)',
-        boxShadow: '0 20px 60px rgba(0, 0, 0, 0.15), 0 8px 20px rgba(0, 0, 0, 0.1), inset 0 1px 2px rgba(255, 255, 255, 0.8)',
-        border: '1px solid rgba(255, 255, 255, 0.5)',
+        border: '2px solid black',
         minHeight: '360px'
       }}
     >
@@ -188,7 +188,7 @@ const ReviewsCarousel = () => {
             <div 
               className="w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center text-white font-bold text-base md:text-lg ring-4 ring-white/60"
               style={{
-                background: 'linear-gradient(135deg, #d4af37 0%, #f4e5c3 100%)',
+                background: 'linear-gradient(135deg, #10254b 0%, #18356cff 100%)',
                 boxShadow: '0 8px 16px rgba(0, 0, 0, 0.1)'
               }}
             >
@@ -242,57 +242,39 @@ const ReviewsCarousel = () => {
 
   return (
     <section className="min-h-screen lg:h-screen relative overflow-hidden">
-      {/* High-quality background image */}
-      <img 
-        src="https://res.cloudinary.com/dxoxbnptl/image/upload/v1765110920/bg7_ulxrnt.jpg" 
-        alt="Background"
-        className="absolute inset-0 w-full h-full object-cover"
-        style={{
-          imageRendering: 'high-quality',
-          WebkitBackfaceVisibility: 'hidden',
-          backfaceVisibility: 'hidden',
-          transform: 'translateZ(0)',
-          willChange: 'transform'
-        }}
-      />
       {/* Dark gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-black/20 to-transparent" />
+      <div className="absolute inset-0" />
       
       <div className="container mx-auto px-4 min-h-screen lg:h-screen relative z-10">
         <div className="flex flex-col lg:flex-row gap-8 lg:gap-16 items-center min-h-screen lg:h-screen py-8 lg:py-0">
           {/* Left Section - Header */}
           <div className="w-full lg:w-1/2 text-center lg:text-left">
             <h2
-              className="text-4xl md:text-5xl lg:text-7xl font-serif font-bold text-white mb-4 lg:mb-6 leading-tight"
-              style={{
-                textShadow: `
-                  -2px -2px 0 #000,
-                   2px -2px 0 #000,
-                  -2px  2px 0 #000,
-                   2px  2px 0 #000,
-                   0px  0px 8px rgba(0,0,0,0.6)
-                `
-              }}
-            >
-              What Our<br/>Customers Say
-            </h2>
-
+  className="text-4xl md:text-5xl lg:text-7xl font-serif font-bold mb-4 lg:mb-6 leading-tight"
+  style={{
+    color: '#10254b',
+    textShadow: `
+      -1.5px -1.5px 0 #ffffff,
+       1.5px -1.5px 0 #ffffff,
+      -1.5px  1.5px 0 #ffffff,
+       1.5px  1.5px 0 #ffffff,
+       0px  0px 6px #ffffff
+    `
+  }}
+>
+  What Our<br />Customers Say
+</h2>
             <p
-              className="text-white text-lg md:text-xl lg:text-2xl font-light"
-              style={{
-                textShadow: `
-                  -1px -1px 0 #000,
-                   1px -1px 0 #000,
-                  -1px  1px 0 #000,
-                   1px  1px 0 #000,
-                   0px  0px 6px rgba(0,0,0,0.5)
-                `
-              }}
-            >
-              Trusted by thousands of happy customers
-            </p>
-          </div>
+  className="text-lg md:text-xl lg:text-2xl font-light"
+  style={{
+    color: '#073797ff',
+   
+  }}
+>
+  Trusted by thousands of happy customers
+</p>
 
+          </div>
           {/* Right Section - Carousel */}
           <div className="w-full lg:w-1/2 flex items-center justify-center">
             {isMobile ? (
@@ -328,7 +310,7 @@ const ReviewsCarousel = () => {
                         onClick={() => goToSlide(index)}
                         className={`transition-all duration-300 rounded-full ${
                           index === currentIndex 
-                            ? 'w-8 h-2 bg-white' 
+                            ? 'w-8 h-2 bg-[#10254b] hover:w-10 hover:bg-[#10254b]' 
                             : 'w-2 h-2 bg-white/50 hover:bg-white/70'
                         }`}
                         aria-label={`Go to review ${index + 1}`}
@@ -341,7 +323,7 @@ const ReviewsCarousel = () => {
               // DESKTOP: Vertical infinite scroll
               <div className="overflow-hidden flex items-center h-screen">
                 <div 
-                  className="flex flex-col gap-8"
+                  className="flex flex-col bg-white gap-8"
                   style={{
                     transform: `translateY(${translateY}px)`,
                     willChange: 'transform'

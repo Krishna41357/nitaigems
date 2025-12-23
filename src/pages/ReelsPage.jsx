@@ -338,7 +338,7 @@ const ReelsPage = () => {
                 <div className="reels-product-card">
                   {product ? (
                     <>
-                      <div className="flex items-center gap-3 mb-3">
+                      <div className="flex items-center gap-3 mb-3"onClick={() => navigate(`/product/${product.sku}`)}>
                         <div className="w-16 h-16 rounded-lg overflow-hidden bg-white flex-shrink-0">
                           {product.images && product.images.length > 0 ? (
                             <img 

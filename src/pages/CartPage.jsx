@@ -304,14 +304,14 @@ const CartPage = () => {
         <div className="min-h-screen bg-[#fbf6ef] flex items-center justify-center px-4">
           <div className="bg-white rounded-xl shadow-lg p-8 max-w-md w-full">
             <div className="text-center">
-              <ShoppingCart size={48} className="text-[#b8860b] mx-auto mb-4" />
-              <h2 style={{ fontFamily: headerFont }} className="text-2xl font-bold text-[#3b1b12] mb-2">
+              <ShoppingCart size={48} className="text-[#10254b] mx-auto mb-4" />
+              <h2 style={{ fontFamily: headerFont }} className="text-2xl font-bold text-[#10254b] mb-2">
                 Please Log In
               </h2>
-              <p className="text-[#6b5342] mb-6">You need to be logged in to view your cart.</p>
+              <p className="text-[#10254b] mb-6">You need to be logged in to view your cart.</p>
               <button
                 onClick={() => setShowLoginModal(true)}
-                className="w-full bg-gradient-to-r from-[#b8860b] to-[#d4a055] text-white px-6 py-3 rounded-full font-medium hover:from-[#a06f09] hover:to-[#b8860b] transition-all"
+                className="w-full bg-gradient-to-r from-[#10254b] to-[#d4a055] text-white px-6 py-3 rounded-full font-medium hover:from-[#a06f09] hover:to-[#b8860b] transition-all"
               >
                 Go to Login
               </button>
@@ -328,17 +328,17 @@ const CartPage = () => {
       <>
         <MainHeader />
    
-        <div className="min-h-[calc(100vh-120px)] bg-[#fbf6ef] flex flex-col items-center justify-center px-4">
-          <ShoppingCart size={64} className="empty-cart-icon text-[#b8860b] mb-4" />
-          <h2 style={{ fontFamily: headerFont }} className="text-2xl md:text-3xl font-bold text-[#3b1b12] mb-2 text-center">
+        <div className="min-h-[calc(100vh-120px)] bg-[#ffffff] flex flex-col items-center justify-center px-4">
+          <ShoppingCart size={64} className="empty-cart-icon text-[#10254b] mb-4" />
+          <h2 style={{ fontFamily: headerFont }} className="text-2xl md:text-3xl font-bold text-[#10254b] mb-2 text-center">
             Your Cart is Empty
           </h2>
-          <p className="text-[#6b5342] mb-8 text-center max-w-md text-sm md:text-base">
+          <p className="text-[#10254b] mb-8 text-center max-w-md text-sm md:text-base">
             Discover our exquisite collection of heirloom jewellery and add your favorite pieces to your cart.
           </p>
           <button
             onClick={() => navigate('/products')}
-            className="bg-gradient-to-r from-[#b8860b] to-[#d4a055] text-white px-6 py-2.5 rounded-full font-medium hover:from-[#a06f09] hover:to-[#b8860b] transition-all flex items-center gap-2 text-sm md:text-base"
+            className="bg-gradient-to-r from-[#10254b] to-[#d4a055] text-white px-6 py-2.5 rounded-full font-medium hover:from-[#a06f09] hover:to-[#b8860b] transition-all flex items-center gap-2 text-sm md:text-base"
           >
             Continue Shopping
             <ArrowRight size={16} />
@@ -351,7 +351,7 @@ const CartPage = () => {
   return (
     <>
       <MainHeader />
-      <div className="bg-[#fbf6ef] min-h-screen w-screen overflow-x-hidden">
+      <div className="bg-[#ffffff] min-h-screen w-screen overflow-x-hidden">
         <div className="max-w-[1400px] mx-auto px-3 sm:px-4 md:px-6 py-4 md:py-6">
           
           {/* Breadcrumbs */}
@@ -363,13 +363,13 @@ const CartPage = () => {
                 {crumb.path ? (
                   <button
                     onClick={() => navigate(crumb.path)}
-                    className="breadcrumb-item flex bg-transparent items-center gap-1 text-[#6b5342] hover:text-[#b8860b] transition-colors whitespace-nowrap"
+                    className="breadcrumb-item flex bg-transparent items-center gap-1 text-[#10254b] hover:text-[#10254b] transition-colors whitespace-nowrap"
                   >
                     {idx === 0 ? <Home size={14} /> : idx === 1 ? <Package size={14} /> : null}
                     {crumb.label}
                   </button>
                 ) : (
-                  <span className="text-[#3b1b12] font-semibold ml-2 whitespace-nowrap">{crumb.label}</span>
+                  <span className="text-[#10254b] font-semibold ml-2 whitespace-nowrap">{crumb.label}</span>
                 )}
               </div>
             ))}
@@ -400,12 +400,12 @@ const CartPage = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
             {/* Cart Items */}
             <div className="lg:col-span-2">
-              <div className="bg-white rounded-lg md:rounded-xl shadow-sm border border-[#efe6d9] overflow-hidden">
+              <div className="bg-white rounded-lg md:rounded-xl shadow-sm border border-[#10254b] overflow-hidden">
                 {/* Header */}
-                <div style={{ fontFamily: headerFont }} className="bg-gradient-to-r from-[#fbf6ef] to-[#fffaf3] p-4 md:p-5 border-b border-[#efe6d9]">
+                <div style={{ fontFamily: headerFont }} className=" p-4 md:p-5 border-b border-[#10254b]">
                   <div className="flex items-center justify-between">
-                    <h1 className="text-lg md:text-xl font-bold text-[#3b1b12]">Shopping Cart</h1>
-                    <span className="text-[#b8860b] font-semibold text-sm md:text-base">{itemCount} items</span>
+                    <h1 className="text-lg md:text-xl font-bold text-black">Shopping Cart</h1>
+                    <span className="text-black font-semibold text-sm md:text-base">{itemCount} items</span>
                   </div>
                 </div>
 
@@ -445,15 +445,15 @@ const CartPage = () => {
 
                           {/* Product Details */}
                           <div className="flex-1 min-w-0">
-                            <h3 style={{ fontFamily: headerFont }} className="text-sm md:text-base font-bold text-[#3b1b12] mb-1 truncate">
+                            <h3 style={{ fontFamily: headerFont }} className="text-sm md:text-base font-bold text-black mb-1 truncate">
                               {item.product_name}
                             </h3>
-                            <p className="text-[#6b5342] text-xs mb-2 truncate">SKU: {item.sku}</p>
+                            <p className="text-black text-xs mb-2 truncate">SKU: {item.sku}</p>
 
                             {/* Availability Status */}
                             {!available && (
                               <div className="mb-2">
-                                <span className="inline-flex items-center gap-1 text-xs font-medium text-red-600 bg-red-100 px-2 py-0.5 rounded">
+                                <span className="inline-flex items-center gap-1 text-xs font-medium text-red-600 px-2 py-0.5 rounded">
                                   <AlertTriangle size={12} />
                                   {status?.inStock ? 
                                     `Only ${status.stock} available` : 
@@ -466,21 +466,21 @@ const CartPage = () => {
                             {/* Quantity and Price */}
                             <div className="flex items-center justify-between gap-2">
                               {/* Quantity Selector */}
-                              <div className="flex items-center gap-1 bg-[#fbf6ef] rounded-lg p-0.5">
+                              <div className="flex items-center gap-1 rounded-lg p-0.5">
                                 <button
                                   onClick={() => handleQuantityChange(item.product_id, item.quantity - 1, item.sku)}
                                   disabled={item.quantity <= 1 || !available}
-                                  className="qty-btn p-1.5 bg-white border-black hover:bg-white rounded text-[#3b1b12] disabled:opacity-30"
+                                  className="qty-btn p-1.5 bg-white border-black hover:bg-white rounded text-black disabled:opacity-30"
                                 >
                                   <Minus size={14} />
                                 </button>
-                                <span className="px-2 py-0.5 font-semibold text-[#3b1b12] min-w-[32px] text-center text-sm">
+                                <span className="px-2 py-0.5 font-semibold text-black min-w-[32px] text-center text-sm">
                                   {item.quantity}
                                 </span>
                                 <button
                                   onClick={() => handleQuantityChange(item.product_id, item.quantity + 1, item.sku)}
                                   disabled={!available || (status && item.quantity >= status.stock)}
-                                  className="qty-btn p-1.5 bg-white border-black hover:bg-white rounded text-[#3b1b12] disabled:opacity-30"
+                                  className="qty-btn p-1.5 bg-white border-black hover:bg-white rounded text-black disabled:opacity-30"
                                 >
                                   <Plus size={14} />
                                 </button>
@@ -488,7 +488,7 @@ const CartPage = () => {
 
                               {/* Price */}
                               <div className="text-right flex-shrink-0">
-                                <p className="text-xs text-[#6b5342] mb-0.5">₹{item.price?.toFixed(2)} each</p>
+                                <p className="text-xs text-black mb-0.5">₹{item.price?.toFixed(2)} each</p>
                                 <p style={{ fontFamily: headerFont }} className={`text-base md:text-lg font-bold ${available ? 'text-[#3b1b12]' : 'text-gray-400'}`}>
                                   ₹{((item.price || 0) * (item.quantity || 0)).toFixed(2)}
                                 </p>
@@ -497,7 +497,7 @@ const CartPage = () => {
                               {/* Remove Button */}
                               <button
                                 onClick={() => handleRemoveItem(item.product_id)}
-                                className="remove-btn p-1.5 text-[#b8860b] hover:bg-red-50 rounded-lg transition-all flex-shrink-0"
+                                className="remove-btn p-1.5 text-[#10254b] bg-transparent hover:bg-red-50 rounded-lg transition-all flex-shrink-0"
                                 title="Remove item"
                               >
                                 <Trash2 size={18} />
@@ -515,29 +515,29 @@ const CartPage = () => {
             {/* Order Summary */}
             <div className="lg:col-span-1">
               <div className="order-summary rounded-lg md:rounded-xl p-4 md:p-5 sticky top-24 md:top-32">
-                <h2 style={{ fontFamily: headerFont }} className="text-lg md:text-xl font-bold text-[#3b1b12] mb-4 md:mb-5">
+                <h2 style={{ fontFamily: headerFont }} className="text-lg md:text-xl font-bold text-[#10254b] mb-4 md:mb-5">
                   Order Summary
                 </h2>
 
                 {/* Summary Items */}
                 <div className="space-y-3 mb-5">
                   <div className="flex justify-between items-center">
-                    <span className="text-[#6b5342] text-sm">Subtotal ({availableItemCount} items)</span>
-                    <span style={{ fontFamily: headerFont }} className="font-semibold text-[#3b1b12] text-sm">
+                    <span className="text-black text-sm">Subtotal ({availableItemCount} items)</span>
+                    <span style={{ fontFamily: headerFont }} className="font-semibold text-black text-sm">
                       ₹{subtotal.toFixed(2)}
                     </span>
                   </div>
-                  <div className="flex justify-between items-center pb-3 border-b border-[#d4a055]">
-                    <span className="text-[#6b5342] text-sm">Tax (3%)</span>
-                    <span style={{ fontFamily: headerFont }} className="font-semibold text-[#3b1b12] text-sm">
+                  <div className="flex justify-between items-center pb-3 border-b border-black">
+                    <span className="text-black text-sm">Tax (3%)</span>
+                    <span style={{ fontFamily: headerFont }} className="font-semibold text-black text-sm">
                       ₹{tax.toFixed(2)}
                     </span>
                   </div>
                   <div className="flex justify-between items-center pt-3 price-highlight">
-                    <span style={{ fontFamily: headerFont }} className="font-bold text-[#3b1b12]">
+                    <span style={{ fontFamily: headerFont }} className="font-bold text-black">
                       Total
                     </span>
-                    <span style={{ fontFamily: headerFont }} className="text-xl md:text-2xl font-bold text-[#b8860b]">
+                    <span style={{ fontFamily: headerFont }} className="text-xl md:text-2xl font-bold text-black">
                       ₹{total.toFixed(2)}
                     </span>
                   </div>
@@ -557,14 +557,14 @@ const CartPage = () => {
                   <button
                     onClick={handleCheckout}
                     disabled={availableItemCount === 0}
-                    className="checkout-btn w-full text-white py-2.5 md:py-3 rounded-lg font-semibold transition-all flex items-center justify-center gap-2 text-sm md:text-base disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="checkout-btn w-full text-white py-2.5 md:py-3 rounded-lg font-semibold  flex items-center justify-center gap-2 text-sm md:text-base disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Proceed to Checkout
                     <ArrowRight size={16} />
                   </button>
                   <button
                     onClick={() => navigate('/products')}
-                    className="w-full bg-white border-2 border-[#b8860b] text-[#b8860b] py-2.5 md:py-3 rounded-lg font-semibold hover:bg-[#fbf6ef] transition-all text-sm md:text-base"
+                    className="w-full bg-white border-2 border-black text-[#10254b] py-2.5 md:py-3 rounded-lg font-semibold hover:bg-[#fbf6ef] transition-all text-sm md:text-base"
                   >
                     Continue Shopping
                   </button>
@@ -577,8 +577,8 @@ const CartPage = () => {
                 </div>
 
                 {/* Info */}
-                <div className="mt-4 md:mt-5 p-3 md:p-4 bg-white/60 rounded-lg border border-[#efe6d9]">
-                  <p className="text-xs text-[#6b5342] leading-relaxed">
+                <div className="mt-4 md:mt-5 p-3 md:p-4 bg-white rounded-lg border border-black">
+                  <p className="text-xs text-black leading-relaxed">
                     ✓ Free shipping on orders above ₹5000
                     <br />
                     ✓ 15-day return policy

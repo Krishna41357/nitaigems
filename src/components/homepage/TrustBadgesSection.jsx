@@ -4,31 +4,32 @@ import { useHomePageTheme } from '../../pages/HomePage';
 const TrustBadgesSection = () => {
   const theme = useHomePageTheme();
   const badges = [
-    { 
-      image: './logo/logo.png',
-      title: 'Nitai Gems\nTrust',
-      description: 'Your trusted jeweller since generations',
-      type: 'logo'
-    },
-    { 
-      image: 'https://indiadesignsystem.bombaydc.com/design/BIS-Hallmark',
-      title: 'BIS Hallmark\nCertified',
-      description: 'Guaranteed purity & authenticity',
-      type: 'bis'
-    },
-    { 
-      image: 'https://cdn-icons-png.flaticon.com/512/7794/7794400.png',
-      title: 'Complete\nTransparency',
-      description: 'Clear pricing, honest dealings',
-      type: 'diamond'
-    },
-    { 
-      image: 'https://cdn-icons-png.flaticon.com/512/9426/9426997.png',
-      title: 'Lifetime\nMaintenance',
-      description: 'Forever care & support',
-      type: 'shield'
-    }
-  ];
+  { 
+    image: 'https://res.cloudinary.com/dxoxbnptl/image/upload/v1766477941/IMG_1805.1_fktwx7.png',
+    title: 'Nitai Gems\nTrust',
+    description: 'A legacy of trust, craftsmanship, and excellence',
+    type: 'logo'
+  },
+  { 
+    image: '/certificate.svg',
+    title: 'BIS Hallmark\nCertified',
+    description: 'Official BIS hallmark ensuring gold purity and authenticity',
+    type: 'bis'
+  },
+  { 
+    image: '/shipping.svg',
+    title: 'Secure\nShipping',
+    description: 'Safe, insured, and timely delivery across India',
+    type: 'diamond'
+  },
+  { 
+    image: '/cod.svg',
+    title: 'Cash on\nDelivery',
+    description: 'Pay conveniently at your doorstep with COD option',
+    type: 'shield'
+  }
+];
+
   
 
   const gridRef = useRef(null);
@@ -76,69 +77,48 @@ const TrustBadgesSection = () => {
 
         {/* Badges Grid */}
         <div ref={gridRef} className={`trust-grid ${inView ? 'in-view' : ''}`}>
-          {badges.map(({ image, title, description, type }, idx) => (
-            <div
-              key={idx}
-              className="trust-card"
-              style={{ '--delay': `${idx * 0.15}s` }}
-            >
-              <div className="card-shine" />
-              <div className="icon-container">
-                <div className="icon-glow" />
-                <img 
-                  src={image} 
-                  alt={title} 
-                  className={`badge-image ${type === 'logo' ? 'logo-image' : ''}`}
-                  onError={(e) => {
-                    e.target.style.display = 'none';
-                    e.target.nextSibling.style.display = 'block';
-                  }}
-                />
-                <svg 
-                  className="badge-icon fallback-icon" 
-                  viewBox="0 0 120 120" 
-                  fill="none" 
-                  xmlns="http://www.w3.org/2000/svg"
-                  style={{ display: 'none' }}
-                >
-                  {type === 'logo' && (
-                    <>
-                      <circle cx="60" cy="60" r="35" stroke="currentColor" strokeWidth="2.5" fill="none" opacity="0.3"/>
-                      <path d="M45 50 L60 35 L75 50 L60 80 Z" stroke="currentColor" strokeWidth="2.5" fill="none"/>
-                      <circle cx="60" cy="55" r="8" stroke="currentColor" strokeWidth="2" fill="none"/>
-                    </>
-                  )}
-                  {type === 'bis' && (
-                    <>
-                      <polygon points="60,25 75,45 90,50 75,75 60,95 45,75 30,50 45,45" stroke="currentColor" strokeWidth="2.5" fill="none" opacity="0.3"/>
-                      <circle cx="60" cy="60" r="20" stroke="currentColor" strokeWidth="2.5" fill="none"/>
-                      <path d="M60 45 L60 60 L70 70" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
-                      <circle cx="60" cy="60" r="3" fill="currentColor"/>
-                    </>
-                  )}
-                  {type === 'diamond' && (
-                    <>
-                      <path d="M40 45 L60 25 L80 45 L60 95 Z" stroke="currentColor" strokeWidth="2.5" fill="none" opacity="0.2"/>
-                      <path d="M40 45 L80 45" stroke="currentColor" strokeWidth="2.5"/>
-                      <path d="M50 45 L60 95" stroke="currentColor" strokeWidth="2" opacity="0.6"/>
-                      <path d="M70 45 L60 95" stroke="currentColor" strokeWidth="2" opacity="0.6"/>
-                      <circle cx="60" cy="35" r="2" fill="currentColor"/>
-                    </>
-                  )}
-                  {type === 'shield' && (
-                    <>
-                      <path d="M60 20 C60 20 80 25 80 45 C80 70 60 95 60 95 C60 95 40 70 40 45 C40 25 60 20 60 20 Z" stroke="currentColor" strokeWidth="2.5" fill="none" opacity="0.2"/>
-                      <path d="M50 55 L57 62 L72 47" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
-                      <circle cx="60" cy="30" r="3" fill="currentColor"/>
-                    </>
-                  )}
-                </svg>
-              </div>
-              <h3 className="badge-title">{title}</h3>
-              <p className="badge-description">{description}</p>
-            </div>
-          ))}
+  {badges.map(({ image, title, description, type }, idx) => {
+    const svgMap = {
+      bis: '/certificate.svg',
+      diamond: '/shipping.svg',
+      shield: '/cod.svg',
+    };
+
+    return (
+      <div
+        key={idx}
+        className="trust-card"
+        style={{ '--delay': `${idx * 0.15}s` }}
+      >
+        <div className="card-shine" />
+
+        <div className="icon-container">
+          <div className="icon-glow" />
+
+          {/* LOGO → keep as image */}
+          {type === 'logo' ? (
+            <img
+              src={image}
+              alt={title}
+              className="badge-image logo-image"
+            />
+          ) : (
+            /* OTHER 3 → SVGs from public folder */
+            <img
+              src={svgMap[type]}
+              alt={title}
+              className="badge-image"
+            />
+          )}
         </div>
+
+        <h3 className="badge-title">{title}</h3>
+        <p className="badge-description">{description}</p>
+      </div>
+    );
+  })}
+</div>
+
       </div>
     </section>
   );
@@ -165,9 +145,7 @@ const styles = `
 .trust-gradient {
   position: absolute;
   inset: 0;
-  background: 
-    radial-gradient(ellipse at top left, rgba(218, 165, 32, 0.08) 0%, transparent 50%),
-    radial-gradient(ellipse at bottom right, rgba(212, 175, 55, 0.06) 0%, transparent 50%);
+  
 }
 
 .trust-gradient::after {
@@ -177,14 +155,14 @@ const styles = `
   left: 0;
   right: 0;
   height: 150px;
-  background: linear-gradient(to bottom, transparent 0%, rgba(139, 69, 19, 0.05) 100%);
+  
 }
 
 .floating-particle {
   position: absolute;
   width: 4px;
   height: 4px;
-  background: radial-gradient(circle, rgba(218, 165, 32, 0.4), transparent);
+  background: radial-gradient(circle, #10254b , transparent);
   border-radius: 50%;
   animation: float 6s ease-in-out infinite;
 }
@@ -225,7 +203,7 @@ const styles = `
   top: 50%;
   transform: translateY(-50%);
   font-size: 1.5rem;
-  color: #d4a017;
+  color: #10254b;
   opacity: 0.4;
 }
 
@@ -237,7 +215,7 @@ const styles = `
   font-size: 1.5rem;
   font-weight: 500;
   font-style: italic;
-  color: #4a3a2a;
+  color: #10254b;
   line-height: 1.8;
   max-width: 900px;
   margin: 0 auto;
@@ -267,10 +245,7 @@ const styles = `
   background: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(10px);
   border-radius: 20px;
-  border: 1px solid rgba(212, 175, 55, 0.2);
-  box-shadow: 
-    0 8px 32px rgba(139, 69, 19, 0.12),
-    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  border: 1px solid black;
   opacity: 0;
   transform: translateY(30px) scale(0.95);
   transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -291,9 +266,9 @@ const styles = `
 .trust-card:hover {
   transform: translateY(-12px) scale(1.03);
   box-shadow: 
-    0 20px 50px rgba(139, 69, 19, 0.18),
+    0 20px 50px rgba(21, 19, 139, 0.18),
     inset 0 1px 0 rgba(255, 255, 255, 1);
-  border-color: rgba(212, 175, 55, 0.35);
+;
 }
 
 .card-shine {
@@ -321,7 +296,7 @@ const styles = `
   position: absolute;
   inset: -8px;
   border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, rgba(218, 165, 32, 0.3), rgba(212, 175, 55, 0.05));
+ 
   filter: blur(16px);
   opacity: 0;
   transition: opacity 0.4s ease;
@@ -334,8 +309,7 @@ const styles = `
 .badge-icon {
   width: 100%;
   height: 100%;
-  color: #b8860b;
-  filter: drop-shadow(0 4px 12px rgba(184, 134, 11, 0.2));
+  color: #10254b;
   transition: all 0.4s ease;
 }
 
@@ -349,7 +323,7 @@ const styles = `
 
 .logo-image {
   object-fit: contain;
-  padding: 8px;
+
 }
 
 .trust-card:hover .badge-icon,
@@ -367,7 +341,7 @@ const styles = `
   font-family: 'Cormorant Garamond', serif;
   font-size: 1.2rem;
   font-weight: 700;
-  color: #2d1f0f;
+  color: #10254b;
   margin: 0 0 0.6rem 0;
   white-space: pre-line;
   letter-spacing: 0.5px;
@@ -378,7 +352,7 @@ const styles = `
   font-family: 'Montserrat', sans-serif;
   font-size: 0.8rem;
   font-weight: 400;
-  color: #5b4a37;
+  color: #1a3974ff;
   letter-spacing: 0.3px;
   margin: 0;
   line-height: 1.4;

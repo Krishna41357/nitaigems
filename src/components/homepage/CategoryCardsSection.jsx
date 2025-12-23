@@ -173,10 +173,10 @@ const styles = `
   font-family: serif;
   font-size: clamp(2rem, 5vw, 4rem);
   font-weight: 700;
-  color: #6B5D4F;
+  color:#10254b;
   text-shadow: 
-    1px 1px 0 #E8DCC4,
-    2px 2px 0 rgba(255, 255, 255, 0.3),
+    1px 1px 0 #214d9fff,
+    2px 2px 0 rgba(16, 1, 66, 0.3),
     -1px -1px 0 rgba(0, 0, 0, 0.1);
   letter-spacing: 0.02em;
   margin-bottom: clamp(0.5rem, 1vw, 0.75rem);
@@ -185,7 +185,7 @@ const styles = `
 /* Mobile title size */
 @media (max-width: 639px) {
   .main-title {
-    font-size: 1.75rem;
+    font-size: 2rem;
     margin-bottom: 1.4rem;
   }
 }
@@ -209,19 +209,19 @@ const styles = `
 .divider-line {
   height: 1px;
   width: clamp(2rem, 8vw, 6rem);
-  background: #C9A557;
+  background: #10254b;
 }
 
 .divider-line.left {
-  background: linear-gradient(to right, transparent, #C9A557);
+  background: linear-gradient(to right, transparent, #10254b);
 }
 
 .divider-line.right {
-  background: linear-gradient(to left, transparent, #C9A557);
+  background: linear-gradient(to left, transparent, #10254b);
 }
 
 .divider-icon {
-  color: #C9A557;
+  color: #10254b;
   font-size: clamp(0.875rem, 1.25vw, 1rem);
 }
 
@@ -229,6 +229,7 @@ const styles = `
 @media (max-width: 639px) {
   .divider-icon {
     font-size: 0.75rem;
+    color: #10254b;
   }
   
   .divider-line {
@@ -238,7 +239,7 @@ const styles = `
 
 .subtitle {
   font-size: clamp(0.875rem, 1.5vw, 1rem);
-  color: #8B7355;
+  color:  #132d5cff;
   font-weight: 500;
   font-style: italic;
   margin-top: clamp(0.3rem, 0.5vw, 0.5rem);
@@ -282,6 +283,7 @@ const styles = `
     grid-template-columns: repeat(4, 1fr);
   }
 }
+  
 
 .category-card {
   position: relative;
@@ -359,7 +361,7 @@ const styles = `
 .category-placeholder {
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, #E8DEC9 0%, #D4C5B0 100%);
+  background: linear-gradient(135deg,#10254b,#214d9f);
 }
 
 .category-overlay {
@@ -423,7 +425,7 @@ const styles = `
   bottom: -4px;
   left: 0;
   height: 2px;
-  background: #C9A557;
+  background: #10254b;
   width: 0;
   transition: width 0.3s ease;
 }
@@ -452,7 +454,7 @@ const styles = `
 .spinner {
   width: clamp(2rem, 5vw, 2.5rem);
   height: clamp(2rem, 5vw, 2.5rem);
-  border: 2px solid #C9A557;
+  border: 2px solid #10254b;
   border-top-color: transparent;
   border-radius: 50%;
   animation: spin 1s linear infinite;

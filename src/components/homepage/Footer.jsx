@@ -59,7 +59,7 @@ const Footer = () => {
           <div className="footer-brand">
             <div className="brand-logo-container">
               <img 
-                src="./logo/logo.png" 
+                src='https://res.cloudinary.com/dxoxbnptl/image/upload/v1766477941/IMG_1805.1_fktwx7.png' 
                 alt="Nitai Gems" 
                 className="brand-logo"
                 onError={(e) => {

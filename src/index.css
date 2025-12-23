@@ -34,8 +34,6 @@ body {
   overflow-x: hidden;
   width: 100%;
   min-width: 320px;
-  /* REMOVED: display: flex, place-items: center, min-height: 100vh */
-  /* These were causing the layout issues */
 }
 
 #root {
@@ -392,14 +390,6 @@ html {
   scroll-behavior: smooth;
 }
 
-/* ========================================
-   DEBUG MODE (uncomment to see overflow)
-   ======================================== */
-/*
-* {
-  outline: 1px solid red !important;
-}
-*/
 /* keep the strip on one line on every screen */
 .recommended-products-carousel,
 .recommended-products-carousel > * {
@@ -411,8 +401,9 @@ html {
 .infinite-scroll {
   -webkit-transform: none !important;
   transform: none !important;
-  scroll-behavior: auto !important;   /* let the JS handle smoothness */
+  scroll-behavior: auto !important;
 }
+
 /* ========================================
    REELS PAGE STYLES (Instagram-style scrolling)
    ======================================== */
@@ -873,5 +864,174 @@ html {
   .reels-card-desktop:hover,
   .reels-page-action-btn:hover {
     transform: none;
+  }
+}
+
+/* ========================================
+   CRITICAL MOBILE SCROLL FIX
+   ======================================== */
+
+/* STEP 1: Reset touch-action globally */
+* {
+  touch-action: auto !important;
+}
+
+/* STEP 2: Fix horizontal carousels specifically */
+.reels-mobile-carousel,
+.carousel-container,
+.infinite-scroll,
+[class*="carousel"] {
+  /* Allow horizontal scroll in carousel */
+  touch-action: pan-x pan-y !important;
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+  /* Enable momentum scrolling */
+  -webkit-overflow-scrolling: touch !important;
+  /* Remove any pointer-events blocking */
+  pointer-events: auto !important;
+}
+
+/* Reels section should not block vertical scroll */
+.reels-section {
+  touch-action: pan-y !important;
+  overflow-y: visible !important;
+  overflow-x: hidden !important;
+}
+
+/* STEP 3: Ensure page body can scroll vertically */
+body {
+  touch-action: pan-y pinch-zoom !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+html {
+  touch-action: pan-y pinch-zoom !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+#root {
+  touch-action: pan-y pinch-zoom !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+/* STEP 4: Fix sections to not block scroll */
+section {
+  touch-action: auto !important;
+  pointer-events: auto !important;
+  overflow-y: visible !important;
+}
+
+.reels-section,
+.subcategories-section,
+[class*="-section"] {
+  touch-action: auto !important;
+  overflow-y: visible !important;
+  overflow-x: hidden !important;
+}
+
+/* STEP 5: Videos and overlays should not capture touch */
+video,
+.card-overlay,
+.absolute:not(button):not(.cta-container):not([role="button"]) {
+  pointer-events: none !important;
+  touch-action: none !important;
+}
+
+/* STEP 6: Only interactive elements capture touch */
+button,
+a,
+input,
+select,
+textarea,
+[role="button"],
+.cta-container,
+.pointer-events-auto {
+  pointer-events: auto !important;
+  touch-action: auto !important;
+}
+
+/* STEP 7: Specific carousel card fixes */
+.reels-card-mobile,
+.subcategory-card,
+.product-card {
+  pointer-events: auto !important;
+  touch-action: auto !important;
+}
+
+/* Allow clicks on cards but let vertical swipes pass through */
+.reels-card-mobile > div:first-child,
+.subcategory-card > div:first-child {
+  pointer-events: none !important;
+  touch-action: none !important;
+}
+
+/* Videos should never capture touch */
+.reels-card-mobile video,
+.subcategory-card video {
+  pointer-events: none !important;
+  touch-action: none !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+}
+
+/* But allow interaction with buttons and CTA containers */
+.reels-card-mobile button,
+.reels-card-mobile .cta-container,
+.subcategory-card button {
+  pointer-events: auto !important;
+  touch-action: auto !important;
+}
+
+/* STEP 8: Remove any transform or will-change that might interfere */
+@media (max-width: 768px) {
+  .carousel-container,
+  .reels-mobile-carousel,
+  .infinite-scroll {
+    transform: none !important;
+    will-change: scroll-position !important;
+  }
+  
+  /* Ensure containers don't prevent scroll */
+  .container,
+  [class*="container"]:not(.reels-mobile-carousel):not(.carousel-container) {
+    touch-action: auto !important;
+    overflow-y: visible !important;
+  }
+  
+  /* Fix HomePage wrapper */
+  .homepage-wrapper {
+    touch-action: pan-y pinch-zoom !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+  }
+}
+
+/* STEP 9: Subcategories carousel specific fix */
+.carousel-container.infinite-scroll {
+  touch-action: pan-x !important;
+  overflow-x: scroll !important;
+  overflow-y: visible !important;
+  scroll-behavior: smooth !important;
+}
+
+/* STEP 10: Prevent any JS from blocking scroll */
+@media (max-width: 768px) {
+  /* Override any inline styles that might block scroll */
+  [style*="touch-action"] {
+    touch-action: auto !important;
+  }
+  
+  [style*="overflow-y: hidden"] {
+    overflow-y: visible !important;
+  }
+  
+  /* Ensure page can always scroll */
+  body[style],
+  html[style] {
+    overflow-y: auto !important;
+    touch-action: pan-y pinch-zoom !important;
   }
 }

@@ -108,12 +108,8 @@ const JewelleryCategoriesSection = () => {
       <style>{sectionStyles}</style>
       <section className="jewellery-section" style={{ backgroundColor: theme.categoriesBg }}>
         <div className="section-header">
-          <div className="header-divider">
-            <div className="divider-line left"></div>
-            <span className="divider-icon">◆</span>
-            <div className="divider-line right"></div>
-          </div>
-          <h2 className="section-title">Timeless Treasures</h2>
+          
+          <h2 className="section-title text-[ #182c51]">Timeless Treasures</h2>
         </div>
 
         <div className="tabs-wrapper">
@@ -206,25 +202,24 @@ const sectionStyles = `
 }
 
 .divider-line.left {
-  background: linear-gradient(to right, transparent, #C9A557);
+  background: linear-gradient(to right, transparent,  #182c51);
 }
 
 .divider-line.right {
-  background: linear-gradient(to left, transparent, #C9A557);
+  background: linear-gradient(to left, transparent,  #182c51);
 }
 
 .divider-icon {
-  color: #C9A557;
+  color:  #182c51;
   font-size: clamp(1rem, 1.5vw, 1.25rem);
 }
 
 .section-title {
   font-size: clamp(2.5rem, 6vw, 5rem);
   letter-spacing: 0.05em;
-  color: #6B5D4F;
+  color: #182c51;
   margin-bottom: clamp(0.75rem, 1.5vw, 1rem);
   font-weight: 700;
-  text-shadow: 0 2px 8px rgba(107, 93, 79, 0.15), 0 1px 4px rgba(139, 115, 85, 0.1);
   line-height: 1.2;
   font-family: 'sans-serif';
 }
@@ -251,32 +246,32 @@ const sectionStyles = `
   background: transparent;
   border: none;
   cursor: pointer;
-  color: #A0937D;
+  color: #182c51;
   position: relative;
   white-space: nowrap;
 }
 
 .tab-button.active {
-  color: #8B7355;
+  color:  #182c51;
   font-weight: 600;
 }
 
 .tab-button.active::after {
-  content: '';
+  content: '.';
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
   height: 2px;
-  background: #C9A557;
+  background: #0a0258ff;
 }
 
 .tab-button:hover {
-  color: #8B7355;
+  color:  #182c51;
 }
 
 .tab-separator {
-  color: #C9A557;
+  color:  #182c51;
   font-size: clamp(0.75rem, 1vw, 0.875rem);
 }
 
@@ -315,15 +310,15 @@ const sectionStyles = `
 }
 
 .tabs-divider-line.left {
-  background: linear-gradient(to right, transparent, #C9A557);
+  background: linear-gradient(to right, transparent,  #182c51);
 }
 
 .tabs-divider-line.right {
-  background: linear-gradient(to left, transparent, #C9A557);
+  background: linear-gradient(to left, transparent,  #182c51);
 }
 
 .tabs-divider-icon {
-  color: #C9A557;
+  color:  #182c51 ;
   font-size: clamp(1rem, 1.5vw, 1.25rem);
 }
 
@@ -342,7 +337,7 @@ const sectionStyles = `
 .spinner {
   width: clamp(2rem, 4vw, 2.5rem);
   height: clamp(2rem, 4vw, 2.5rem);
-  border: 2px solid #C9A557;
+  border: 2px solid  #182c51;
   border-top-color: transparent;
   border-radius: 50%;
   animation: spin 1s linear infinite;
@@ -358,7 +353,7 @@ const sectionStyles = `
 }
 
 .empty-text {
-  color: #B5A898;
+  color: #182c51;
   font-size: clamp(0.875rem, 1.25vw, 1rem);
 }
 
@@ -387,11 +382,11 @@ const sectionStyles = `
 }
 
 .view-all-button {
-  color: #8B7355;
+  color:  #182c51;
   font-size: clamp(0.875rem, 1.25vw, 1rem);
   letter-spacing: 0.03em;
   border: none;
-  border-bottom: 1px solid #8B7355;
+  border-bottom: 1px solid  #182c51;
   background: transparent;
   cursor: pointer;
   padding: 0.25rem 0;
@@ -399,9 +394,14 @@ const sectionStyles = `
 }
 
 .view-all-button:hover {
-  color: #C9A557;
-  border-bottom-color: #C9A557;
+  color: #182c51;
+  border-bottom-color:  #182c51;
 }
+
+h2.section-title{
+  color:#10254b;
+}
+  
 `;
 
 export default JewelleryCategoriesSection;
