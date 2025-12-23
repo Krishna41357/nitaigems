@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Play, ChevronLeft, ChevronRight, ShoppingCart, Volume2, VolumeX } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import {useNavigate} from 'react-router-dom';
 
 const ReelsSection = () => {
   const [reels, setReels] = useState([]);
@@ -12,21 +12,8 @@ const ReelsSection = () => {
   const [isMuted, setIsMuted] = useState(true);
   const stackRef = useRef(null);
   const videoRef = useRef(null);
-  const navigate = useNavigate();
-  
   const carouselRef = useRef(null);
-  const isDraggingRef = useRef(false);
-  const startXRef = useRef(0);
-  const startYRef = useRef(0);
-  const scrollLeftRef = useRef(0);
-  const velocityRef = useRef(0);
-  const lastXRef = useRef(0);
-  const lastTimeRef = useRef(0);
-  const animationFrameRef = useRef(null);
-  const autoScrollIntervalRef = useRef(null);
-  const isUserInteractingRef = useRef(false);
-  const isHorizontalDragRef = useRef(false);
-
+  const navigate = useNavigate();
   useEffect(() => {
     fetchReels();
     
@@ -38,8 +25,6 @@ const ReelsSection = () => {
     
     return () => {
       window.removeEventListener('resize', checkMobile);
-      if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
-      if (autoScrollIntervalRef.current) clearInterval(autoScrollIntervalRef.current);
     };
   }, []);
 
@@ -68,34 +53,6 @@ const ReelsSection = () => {
       videoRef.current.play().catch(() => {});
     }
   }, [reels, stackMode, isMobile, isMuted]);
-
-  useEffect(() => {
-    if (!isMobile || !carouselRef.current || reels.length === 0) return;
-
-    const startAutoScroll = () => {
-      if (autoScrollIntervalRef.current) clearInterval(autoScrollIntervalRef.current);
-
-      autoScrollIntervalRef.current = setInterval(() => {
-        if (!carouselRef.current || isUserInteractingRef.current) return;
-
-        const carousel = carouselRef.current;
-        const currentScroll = carousel.scrollLeft;
-        const maxScroll = carousel.scrollWidth - carousel.clientWidth;
-        const newScroll = currentScroll + 0.5;
-
-        if (newScroll >= maxScroll) {
-          carousel.scrollLeft = 0;
-        } else {
-          carousel.scrollLeft = newScroll;
-        }
-      }, 16);
-    };
-
-    startAutoScroll();
-    return () => {
-      if (autoScrollIntervalRef.current) clearInterval(autoScrollIntervalRef.current);
-    };
-  }, [isMobile, reels]);
 
   const fetchReels = async () => {
     try {
@@ -239,12 +196,13 @@ const ReelsSection = () => {
       alert('Error adding to cart. Please try again.');
     } finally {
       setAddingToCart(prev => ({ ...prev, [reelId]: false }));
+      navigate('/cart');
     }
   };
 
   const openReelsPage = (index) => {
-    navigate('/reels', { state: { startIndex: index } });
     console.log('Navigate to reels page with index:', index);
+    navigate(`/reels?highlight=${index}`);
   };
 
   const goToNextReel = () => {
@@ -269,118 +227,6 @@ const ReelsSection = () => {
     if (videoRef.current) {
       videoRef.current.muted = !isMuted;
     }
-  };
-
-  const handleMouseDown = (e) => {
-    if (!carouselRef.current) return;
-    
-    const startX = e.pageX || e.touches?.[0]?.pageX;
-    const startY = e.pageY || e.touches?.[0]?.pageY;
-    
-    isUserInteractingRef.current = true;
-    startXRef.current = startX;
-    startYRef.current = startY;
-    lastXRef.current = startX;
-    lastTimeRef.current = Date.now();
-    scrollLeftRef.current = carouselRef.current.scrollLeft;
-    velocityRef.current = 0;
-    isHorizontalDragRef.current = false;
-    isDraggingRef.current = false;
-  };
-
-  const handleMouseMove = (e) => {
-    if (!isUserInteractingRef.current || !carouselRef.current) return;
-    
-    const x = e.pageX || e.touches?.[0]?.pageX;
-    const y = e.pageY || e.touches?.[0]?.pageY;
-    
-    const deltaX = Math.abs(x - startXRef.current);
-    const deltaY = Math.abs(y - startYRef.current);
-    
-    if (!isDraggingRef.current && !isHorizontalDragRef.current) {
-      if (deltaX > 10 || deltaY > 10) {
-        if (deltaX > deltaY * 1.2) {
-          isHorizontalDragRef.current = true;
-          isDraggingRef.current = true;
-          carouselRef.current.style.scrollBehavior = 'auto';
-          if (animationFrameRef.current) {
-            cancelAnimationFrame(animationFrameRef.current);
-          }
-          e.preventDefault();
-        } else {
-          isUserInteractingRef.current = false;
-          isDraggingRef.current = false;
-          isHorizontalDragRef.current = false;
-          return;
-        }
-      }
-    }
-    
-    if (isHorizontalDragRef.current && isDraggingRef.current) {
-      e.preventDefault();
-      
-      const currentTime = Date.now();
-      const deltaXMove = lastXRef.current - x;
-      const deltaTime = currentTime - lastTimeRef.current;
-      
-      if (deltaTime > 0) {
-        velocityRef.current = deltaXMove / deltaTime;
-      }
-      
-      const walk = (startXRef.current - x) * 1.2;
-      carouselRef.current.scrollLeft = scrollLeftRef.current + walk;
-      
-      lastXRef.current = x;
-      lastTimeRef.current = currentTime;
-    }
-  };
-
-  const handleMouseUp = () => {
-    if (!carouselRef.current || !isDraggingRef.current) {
-      isUserInteractingRef.current = false;
-      isHorizontalDragRef.current = false;
-      isDraggingRef.current = false;
-      return;
-    }
-    
-    isDraggingRef.current = false;
-    
-    const momentum = velocityRef.current * 300;
-    const targetScroll = carouselRef.current.scrollLeft + momentum;
-    const startScroll = carouselRef.current.scrollLeft;
-    const startTime = Date.now();
-    const duration = 500;
-    
-    const animate = () => {
-      const currentTime = Date.now();
-      const elapsed = currentTime - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      const easeOut = 1 - Math.pow(1 - progress, 3);
-      
-      if (carouselRef.current) {
-        carouselRef.current.scrollLeft = startScroll + (targetScroll - startScroll) * easeOut;
-      }
-      
-      if (progress < 1) {
-        animationFrameRef.current = requestAnimationFrame(animate);
-      } else {
-        if (carouselRef.current) {
-          carouselRef.current.style.scrollBehavior = 'smooth';
-          const cardWidth = carouselRef.current.querySelector('.reels-card-mobile')?.offsetWidth || 220;
-          const gap = 16;
-          const scrollPos = carouselRef.current.scrollLeft;
-          const nearestIndex = Math.round(scrollPos / (cardWidth + gap));
-          carouselRef.current.scrollLeft = nearestIndex * (cardWidth + gap);
-          
-          setTimeout(() => {
-            isUserInteractingRef.current = false;
-            isHorizontalDragRef.current = false;
-          }, 3000);
-        }
-      }
-    };
-    
-    animate();
   };
 
   const getStackPosition = (index) => {
@@ -413,7 +259,7 @@ const ReelsSection = () => {
 
   if (loading) {
     return (
-      <section className="py-16 ">
+      <section className="py-16 bg-gradient-to-br from-amber-50 via-white to-orange-50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <div className="h-12 w-96 max-w-full bg-gray-200 rounded mx-auto mb-4 animate-pulse" />
@@ -433,55 +279,70 @@ const ReelsSection = () => {
           perspective: 1000px;
         }
         
-        .reels-mobile-wrapper-outer {
-          overflow: visible;
-          width: 100%;
-        }
-        
+        /* Mobile carousel - EXACTLY like RecommendedProductsCarousel */
         .reels-mobile-carousel {
+          display: flex;
+          flex-wrap: nowrap;
+          gap: 16px;
           overflow-x: auto;
+          overflow-y: visible;
+          padding: 0 20px 16px 20px;
+          scroll-snap-type: x mandatory;
+          -webkit-overflow-scrolling: touch;
+          scroll-behavior: smooth;
           scrollbar-width: none;
           -ms-overflow-style: none;
-          cursor: grab;
-          scroll-behavior: smooth;
-          -webkit-overflow-scrolling: touch;
-          overscroll-behavior-x: contain;
-          overscroll-behavior-y: none;
+          /* CRITICAL: Allow both horizontal and vertical touch */
+          touch-action: pan-x pan-y;
         }
         
         .reels-mobile-carousel::-webkit-scrollbar {
           display: none;
         }
         
-        .reels-mobile-carousel.dragging {
-          cursor: grabbing;
-          scroll-behavior: auto;
-        }
-        
-        .reels-mobile-track {
-          display: flex;
-          gap: 16px;
-          padding: 0 20px;
-        }
-        
         .reels-card-mobile {
-          flex: 0 0 220px;
+          flex-shrink: 0;
+          width: 220px;
           height: 390px;
           cursor: pointer;
+          scroll-snap-align: start;
+          /* Allow touch to pass through for vertical scroll */
+          touch-action: auto;
+        }
+        
+        /* Prevent videos from blocking scroll */
+        .reels-card-mobile video {
+          pointer-events: none;
+          user-select: none;
+          -webkit-user-select: none;
+          touch-action: none;
+        }
+        
+        /* Card overlay and background should not capture touch */
+        .reels-card-mobile > div:first-child {
+          pointer-events: none;
+          touch-action: none;
+        }
+        
+        /* Only interactive elements capture touch */
+        .reels-card-mobile .cta-container,
+        .reels-card-mobile button {
+          pointer-events: auto;
+          touch-action: auto;
         }
       `}</style>
       
-      <section className="reels-section py-16  to-orange-50 relative overflow-hidden">
+      <section className="reels-section py-16 relative overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute inset-0 " />
         </div>
 
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center mb-12">
-            <h2 className="text-4xl md:text-5xl font-serif text-gray-900 mb-3">
+            <h2 className="text-4xl text-[#10254b] md:text-5xl font-serif text-gray-900 mb-3">
               Styling 101 With Diamonds
             </h2>
-            <p className="text-xl text-gray-600 font-light">
+            <p className="text-xl text-gray-600 text-[#1a3974ff] font-light">
               Trendsetting diamond jewellery suited for every occasion
             </p>
           </div>
@@ -520,18 +381,15 @@ const ReelsSection = () => {
                   return (
                     <div
                       key={`${reel?.id ?? 'placeholder'}-${index}`}
-                      className="absolute inset-0 transition-all duration-700 ease-out"
+                      onClick={(e) => handleReelClick(e, actualReelIndex, !!product)}
+                      className="absolute inset-0 cursor-pointer transition-all duration-700 ease-out"
                       style={{
                         transform: `translateX(${position.x}px) translateY(${position.y ?? 0}px) scale(${position.scale}) rotate(${position.rotate}deg)`,
                         zIndex: position.zIndex,
                         transformOrigin: 'center center',
                       }}
                     >
-                      <div 
-                        onClick={(e) => handleReelClick(e, actualReelIndex, !!product)}
-                        style={{ width: '300px', height: '100%', margin: '0 auto' }} 
-                        className="relative rounded-3xl overflow-hidden shadow-2xl hover:shadow-3xl transition-shadow cursor-pointer"
-                      >
+                      <div style={{ width: '300px', height: '100%', margin: '0 auto' }} className="relative rounded-3xl overflow-hidden shadow-2xl hover:shadow-3xl transition-shadow">
                         {reel ? (
                           <video
                             ref={index === 2 ? videoRef : undefined}
@@ -566,7 +424,7 @@ const ReelsSection = () => {
                               aria-label={isMuted ? 'Unmute' : 'Mute'}
                             >
                               {isMuted ? (
-                                <VolumeX size={18} className="text-white" />
+                                <VolumeX size={24} className="text-white" />
                               ) : (
                                 <Volume2 size={18} className="text-white" />
                               )}
@@ -575,7 +433,7 @@ const ReelsSection = () => {
                         )}
 
                         {index === 2 && product && (
-                          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 w-[calc(100%-24px)] max-w-[276px] cta-container pointer-events-auto z-20">
+                          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 w-[calc(100%-24px)] max-w-[276px] cta-container pointer-events-auto" >
                             <div className="bg-white/95 backdrop-blur-md rounded-2xl p-2.5 shadow-xl">
                               <div className="flex items-center gap-2 mb-2">
                                 <div className="w-12 h-12 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0">
@@ -661,132 +519,130 @@ const ReelsSection = () => {
           )}
 
           {isMobile && (
-            <div className="reels-mobile-wrapper-outer">
+            <div className="w-full">
               <div 
-                ref={carouselRef}
-                className={`reels-mobile-carousel ${isDraggingRef.current ? 'dragging' : ''}`}
-                onMouseDown={handleMouseDown}
-                onMouseMove={handleMouseMove}
-                onMouseUp={handleMouseUp}
-                onMouseLeave={handleMouseUp}
-                onTouchStart={handleMouseDown}
-                onTouchMove={handleMouseMove}
-                onTouchEnd={handleMouseUp}
+                ref={carouselRef} 
+                className="reels-mobile-carousel"
+                style={{
+                  scrollSnapType: "x mandatory",
+                  WebkitOverflowScrolling: "touch",
+                  scrollbarWidth: "none",
+                  msOverflowStyle: "none",
+                }}
               >
-                <div className="reels-mobile-track">
-                  {[...reels, ...reels, ...reels].map((reel, index) => {
-                    const product = reel.ctaType === 'product' && reel.ctaSlug ? productData[reel.ctaSlug] : null;
-                    const isAddingToCart = addingToCart[reel.id];
-                    
-                    return (
-                      <div
-                        key={`${reel.id}-${index}`}
-                        onClick={(e) => handleReelClick(e, index % reels.length, !!product)}
-                        className="reels-card-mobile"
-                      >
-                        <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-lg">
-                          <video
-                            src={reel.videoUrl}
-                            className="w-full h-full object-cover pointer-events-none"
-                            preload="metadata"
-                            muted={isMuted}
-                            playsInline
-                            loop
-                          />
-                          
-                          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/80 pointer-events-none" />
-                          
-                          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                            <div className="w-12 h-12 bg-white/30 backdrop-blur-sm rounded-full flex items-center justify-center">
-                              <Play size={24} className="text-white ml-1" fill="white" />
-                            </div>
+                {[...reels, ...reels, ...reels].map((reel, index) => {
+                  const product = reel.ctaType === 'product' && reel.ctaSlug ? productData[reel.ctaSlug] : null;
+                  const isAddingToCart = addingToCart[reel.id];
+                  
+                  return (
+                    <div
+                      key={`${reel.id}-${index}`}
+                      onClick={(e) => handleReelClick(e, index % reels.length, !!product)}
+                      className="reels-card-mobile"
+                      style={{ scrollSnapAlign: "start" }}
+                    >
+                      <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-lg">
+                        <video
+                          src={reel.videoUrl}
+                          className="w-full h-full object-cover"
+                          preload="metadata"
+                          muted={isMuted}
+                          playsInline
+                          loop
+                        />
+                        
+                        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/80 pointer-events-none" />
+                        
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                          <div className="w-12 h-12 bg-white/30 backdrop-blur-sm rounded-full flex items-center justify-center">
+                            <Play size={24} className="text-white ml-1" fill="white" />
                           </div>
-                          
-                          <div className="absolute top-3 right-3 z-10">
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setIsMuted(prev => !prev);
-                              }}
-                              className="w-8 h-8 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-black/70 transition-all pointer-events-auto"
-                              aria-label={isMuted ? 'Unmute' : 'Mute'}
-                            >
-                              {isMuted ? (
-                                <VolumeX size={16} className="text-white" />
-                              ) : (
-                                <Volume2 size={16} className="text-white" />
-                              )}
-                            </button>
-                          </div>
+                        </div>
+                        
+                        <div className="absolute top-3 right-3 z-10">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setIsMuted(prev => !prev);
+                            }}
+                            className="w-8 h-8 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-black/70 transition-all pointer-events-auto"
+                            aria-label={isMuted ? 'Unmute' : 'Mute'}
+                          >
+                            {isMuted ? (
+                              <VolumeX size={16} className="text-white" />
+                            ) : (
+                              <Volume2 size={16} className="text-white" />
+                            )}
+                          </button>
+                        </div>
 
-                          {product ? (
-                            <div className="absolute bottom-0 left-0 right-0 cta-container pointer-events-auto">
-                              <div className="bg-white/30 backdrop-blur-md rounded-xl p-2.5 shadow-lg border border-white/40">
-                                <div className="flex items-center gap-2.5 mb-2">
-                                  <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
-                                    {product.images && product.images.length > 0 ? (
-                                      <img 
-                                        src={product.images[0]} 
-                                        alt={product.name}
-                                        className="w-full h-full object-cover"
-                                      />
-                                    ) : (
-                                      <div className="w-full h-full bg-gray-200" />
-                                    )}
-                                  </div>
-                                  
-                                  <div className="flex-1 min-w-0">
-                                    <h3 className="text-gray-900 font-semibold text-xs line-clamp-1">
-                                      {product.name}
-                                    </h3>
-                                    <p className="text-gray-900 text-sm font-bold">
-                                      ₹{(product.pricing?.discountedPrice || product.pricing?.basePrice || product.price || 0).toLocaleString('en-IN')}
-                                    </p>
-                                    {product.pricing?.basePrice && product.pricing?.basePrice > (product.pricing?.discountedPrice || 0) && (
-                                      <p className="text-gray-500 text-[10px] line-through">
-                                        ₹{product.pricing.basePrice.toLocaleString('en-IN')}
-                                      </p>
-                                    )}
-                                  </div>
+                        {product ? (
+                          <div className="absolute bottom-0 left-0 right-0 cta-container pointer-events-auto">
+                            <div className="bg-white/30 backdrop-blur-md rounded-xl p-2.5 shadow-lg border border-white/40">
+                              <div className="flex items-center gap-2.5 mb-2">
+                                <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                                  {product.images && product.images.length > 0 ? (
+                                    <img 
+                                      src={product.images[0]} 
+                                      alt={product.name}
+                                      className="w-full h-full object-cover"
+                                    />
+                                  ) : (
+                                    <div className="w-full h-full bg-gray-200" />
+                                  )}
                                 </div>
                                 
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleAddToCart(product, reel.id);
-                                  }}
-                                  disabled={isAddingToCart}
-                                  className="w-full bg-gray-900 text-white font-semibold py-1.5 rounded-lg hover:bg-gray-800 transition-colors flex items-center justify-center gap-1.5 text-xs disabled:opacity-50 disabled:cursor-not-allowed"
-                                >
-                                  {isAddingToCart ? (
-                                    <>
-                                      <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                                      Adding...
-                                    </>
-                                  ) : (
-                                    <>
-                                      <ShoppingCart size={14} />
-                                      {reel.ctaText}
-                                    </>
+                                <div className="flex-1 min-w-0">
+                                  <h3 className="text-gray-900 font-semibold text-xs line-clamp-1">
+                                    {product.name}
+                                  </h3>
+                                  <p className="text-gray-900 text-sm font-bold">
+                                    ₹{(product.pricing?.discountedPrice || product.pricing?.basePrice || product.price || 0).toLocaleString('en-IN')}
+                                  </p>
+                                  {product.pricing?.basePrice && product.pricing?.basePrice > (product.pricing?.discountedPrice || 0) && (
+                                    <p className="text-gray-500 text-[10px] line-through">
+                                      ₹{product.pricing.basePrice.toLocaleString('en-IN')}
+                                    </p>
                                   )}
-                                </button>
+                                </div>
                               </div>
+                              
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleAddToCart(product, reel.id);
+                                }}
+                                disabled={isAddingToCart}
+                                className="w-full bg-gray-900 text-white font-semibold py-1.5 rounded-lg hover:bg-gray-800 transition-colors flex items-center justify-center gap-1.5 text-xs disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                {isAddingToCart ? (
+                                  <>
+                                    <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                    Adding...
+                                  </>
+                                ) : (
+                                  <>
+                                    <ShoppingCart size={14} />
+                                    {reel.ctaText}
+                                  </>
+                                )}
+                              </button>
                             </div>
-                          ) : (
-                            <div className="absolute bottom-0 left-0 right-0 p-4 pointer-events-none">
-                              <h3 className="text-white font-semibold text-sm mb-1 line-clamp-1">
-                                {reel.title}
-                              </h3>
-                              <p className="text-white/90 text-xs line-clamp-2">
-                                {reel.description}
-                              </p>
-                            </div>
-                          )}
-                        </div>
+                          </div>
+                        ) : (
+                          <div className="absolute bottom-0 left-0 right-0 p-4 pointer-events-none">
+                            <h3 className="text-white font-semibold text-sm mb-1 line-clamp-1">
+                              {reel.title}
+                            </h3>
+                            <p className="text-white/90 text-xs line-clamp-2">
+                              {reel.description}
+                            </p>
+                          </div>
+                        )}
                       </div>
-                    );
-                  })}
-                </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
