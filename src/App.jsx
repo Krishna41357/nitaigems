@@ -27,6 +27,8 @@ import WhatsAppWidget from "./components/WhatsappWidget";
 import ManageMedia from "./pages/admin/ManageMedia";
 import HomePageThemeAdmin from "./pages/admin/HomePageThemeAdmin";
 import ReelsPage from "./pages/ReelsPage";
+import CategoriesAdmin from "./pages/admin/CategoriesAdmin";
+import CategoriesPage from "./pages/CategoriesPage";
 
 const queryClient = new QueryClient();
 
@@ -66,6 +68,8 @@ export default function App() {
                   <Route path="/product/collection/:collectionSlug/:sku" element={<ProductDetailPage />} />
                   <Route path="/product/subcategory/:subCategorySlug/:sku" element={<ProductDetailPage />} />
                   <Route path="/product/:sku" element={<ProductDetailPage />} />
+
+                  <Route path="/categories" element={<CategoriesPage />} />
                   
                   {/* Cart and Checkout */}
                   <Route path="/cart" element={<CartPage />} />
@@ -84,6 +88,7 @@ export default function App() {
                     <Route path="collections" element={<CollectionsTab />} />
                     <Route path="media" element={<ManageMedia/>}/>
                     <Route path="background" element={<HomePageThemeAdmin/>} />
+                    <Route path="categories" element={<CategoriesAdmin/>} />
                   </Route>
 
                   <Route path="*" element={<NotFound />} />

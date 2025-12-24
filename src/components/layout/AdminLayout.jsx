@@ -16,6 +16,7 @@ export function AdminLayout() {
     { name: 'Coupons', href: '/admin/coupons', icon: Tag },
     {name:'Collections', href:'/admin/collections', icon:Tag},
     {name:'Homepage Theme', href:'/admin/background', icon:Tag},
+    {name:'Categories', href:'/admin/categories', icon:Tag},
   ];
 
   const isActive = (path) => {

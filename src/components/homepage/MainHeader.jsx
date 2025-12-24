@@ -531,7 +531,7 @@ const MainHeader = () => {
       {/* Mobile Sidebar */}
       {showMobileSidebar && (
         <>
-          <div className="fixed inset-0 z-50 md:hidden" onClick={() => setShowMobileSidebar(false)} />
+          <div className="fixed inset-0 h-screen z-50 md:hidden" onClick={() => setShowMobileSidebar(false)} />
           <div className="fixed left-0 top-14 bottom-0 w-[100vw] max-w-xs bg-white z-50 overflow-y-auto md:hidden animate-slideIn shadow-xl">
             <div className="py-2">
               {categories.map((category) => (
@@ -572,7 +572,7 @@ const MainHeader = () => {
                 </div>
               ))}
             </div>
-            <div className="mt-10 border-b border-gray-200 px-3 w-44 sm:px-4 py-3">
+            <div className="mt-10 border-b border-gray-200  w-44 sm:px-4 py-3">
               {isAuthenticated ? (
                 <>
                  
@@ -606,9 +606,9 @@ const MainHeader = () => {
                       setShowMobileSidebar(false);
                       setShowLoginModal(true);
                     }}
-                    className="w-44 text-center py-2.5 bg-transparent hover:bg-[#0d1d3a] text-[#10254b] rounded-lg text-sm font-medium transition-colors"
+                    className="w-24 text-start py-2 bg-transparent flex gap-2 hover:bg-[#0d1d3a] text-[#10254b] rounded-lg text-sm font-medium transition-colors"
                   >
-                    <User size={16} className="text-[#10254b]" />
+                    <User size={16} className="text-[#10254b] mt-[3px]" /> Login
                     
                   </button>
                 </>

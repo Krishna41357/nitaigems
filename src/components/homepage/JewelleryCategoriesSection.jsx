@@ -249,11 +249,15 @@ const sectionStyles = `
   color: #182c51;
   position: relative;
   white-space: nowrap;
+  font-family: 'sans-serif';
+
 }
 
 .tab-button.active {
   color:  #182c51;
   font-weight: 600;
+   font-family: 'sans-serif';
+   border: none;
 }
 
 .tab-button.active::after {
@@ -264,10 +268,12 @@ const sectionStyles = `
   right: 0;
   height: 2px;
   background: #0a0258ff;
+   font-family: 'sans-serif';
 }
 
 .tab-button:hover {
   color:  #182c51;
+  border:none;
 }
 
 .tab-separator {
@@ -289,6 +295,7 @@ const sectionStyles = `
     flex: 1;
     text-align: center;
     max-width: 33.333%;
+    border:none;
   }
   
   .tab-separator {

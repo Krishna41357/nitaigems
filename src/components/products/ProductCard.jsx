@@ -106,6 +106,7 @@ const ProductCard = ({ product }) => {
         </h3>
 
         {/* Price Section */}
+        {/* Price Section */}
         <div className="flex items-center justify-center gap-3">
           {hasDiscount ? (
             <>
@@ -122,9 +123,38 @@ const ProductCard = ({ product }) => {
             </p>
           )}
         </div>
+
+        {/* WhatsApp Inquiry Button */}
+        <a
+          href={`https://wa.me/916350288120?text=Hi! I'm interested in this product:%0A%0A*${encodeURIComponent(product.name)}*%0ASKU: ${product.sku}%0APrice: ${formatPrice(hasDiscount ? product.pricing.discountedPrice : product.pricing?.basePrice)}%0A%0AProduct Link: ${encodeURIComponent(window.location.origin + getProductUrl())}%0A%0ACould you please provide more details?`}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={(e) => e.stopPropagation()}
+          className="mt-4 relative inline-flex items-center justify-center gap-2 w-full overflow-hidden group  hover:border-[#25d366] transition-all duration-300 rounded-lg"
+        >
+          {/* Hover overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-[#25d366]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          
+          {/* Button content */}
+          <div className="relative flex items-center justify-center gap-3 w-full py-3 px-4 max-md:py-2.5 max-md:px-3 max-md:gap-2">
+            <div className="w-6 h-6 max-md:w-5 max-md:h-5 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+              <img
+                src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
+                alt="WhatsApp"
+                className="w-full h-full"
+              />
+            </div>
+            <span className="text-base max-md:text-sm font-medium text-gray-700 group-hover:text-[#25d366] tracking-wide transition-colors duration-300">
+              Ask About This
+            </span>
+            
+            
+          </div>
+        </a>
       </div>
     </Link>
   );
 };
+     
 
 export default ProductCard;

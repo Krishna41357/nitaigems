@@ -131,7 +131,7 @@ const styles = `
 @media (max-width: 639px) {
   .category-section {
     min-height: 100vh;
-    height: 100vh;
+    height: auto;
     padding: 2rem 1rem;
   }
 }

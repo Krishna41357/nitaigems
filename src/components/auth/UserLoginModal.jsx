@@ -494,7 +494,7 @@ const testPushNotification = async () => {
       <div className="w-full max-w-md bg-white rounded-xl shadow-2xl p-6 m-4 my-4 md:my-0">
         
         <div className="mb-6 text-center">
-          <div className="w-16 h-16 bg-gradient-to-br from-[#b8860b] to-[#9a7109] rounded-full flex items-center justify-center mx-auto mb-3">
+          <div className="w-16 h-16 bg-[#10254b] rounded-full flex items-center justify-center mx-auto mb-3">
             <Phone className="text-white" size={28} />
           </div>
           <h3 className="text-xl font-bold text-gray-800">Sign in to your account</h3>
@@ -518,7 +518,7 @@ const testPushNotification = async () => {
                 <select
                   value={countryCode}
                   onChange={(e) => setCountryCode(e.target.value)}
-                  className="w-24 px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#b8860b] bg-white"
+                  className="w-24 px-3 text-black py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#b8860b] bg-white"
                 >
                   <option value="+91">🇮🇳 +91</option>
                   <option value="+1">🇺🇸 +1</option>
@@ -553,7 +553,7 @@ const testPushNotification = async () => {
                 type="button"
                 onClick={handleSendOTP}
                 disabled={loading || phone.length !== 10}
-                className="flex-1 bg-gradient-to-r from-[#b8860b] to-[#9a7109] text-white py-3 rounded-lg hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center font-medium"
+                className="flex-1 bg-[#10234b] text-white py-3 rounded-lg hover:shadow-lg disabled:cursor-not-allowed flex items-center justify-center font-medium"
               >
                 {loading ? (
                   <>
@@ -638,7 +638,7 @@ const testPushNotification = async () => {
                 type="button"
                 onClick={handleVerifyOTP}
                 disabled={loading || otp.length !== 6}
-                className="flex-1 bg-gradient-to-r from-[#b8860b] to-[#9a7109] text-white py-3 rounded-lg hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center font-medium"
+                className="flex-1 bg-[#10254b] text-white py-3 rounded-lg hover:shadow-lg  disabled:cursor-not-allowed flex items-center justify-center font-medium"
               >
                 {loading ? (
                   <>
