@@ -4,6 +4,7 @@ import { Trash2, Plus, Minus, ShoppingCart, ArrowRight, Home, Package, AlertTria
 import { useAuth } from '../contexts/AuthContext';
 import MainHeader from '../components/homepage/MainHeader';
 import UserLoginModal from '../components/auth/UserLoginModal';
+import Loading from "../components/Loading";
 
 import '../components/cart/cart.css';
 
@@ -284,13 +285,7 @@ const CartPage = () => {
   if (loading) {
     return (
       <>
-        <MainHeader />
-    
-        <div className="min-h-screen bg-[#fbf6ef] flex items-center justify-center">
-          <div className="animate-spin">
-            <ShoppingCart size={48} className="text-[#b8860b]" />
-          </div>
-        </div>
+      <Loading/>
       </>
     );
   }

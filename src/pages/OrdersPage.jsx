@@ -5,6 +5,7 @@ import { Package, MapPin, Phone, Mail, Truck, Calendar, CreditCard, Clock, Check
 import { useAuth } from '../contexts/AuthContext';
 import MainHeader from '../components/homepage/MainHeader';
 import Footer from '../components/homepage/Footer';
+import Loading from "../components/Loading";
 
 const OrdersPage = () => {
   const { isAuthenticated, user } = useAuth();
@@ -144,13 +145,8 @@ const OrdersPage = () => {
   if (loading) {
     return (
       <>
-        <MainHeader />
-        <div className="min-h-[calc(100vh-120px)] bg-[#fbf6ef] flex flex-col items-center justify-center px-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#b8860b] mb-4"></div>
-          <p className="text-[#3b1b12]">Loading your orders...</p>
-        </div>
-        <Footer />
-      </>
+        <Loading/>      
+        </>
     );
   }
 

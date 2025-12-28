@@ -416,19 +416,33 @@ const ReelsSection = () => {
                               <span className="text-white text-sm font-medium">Live</span>
                             </div>
                             <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                toggleMute();
-                              }}
-                              className="w-9 h-9 bg-black/40 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-black/60 transition-all pointer-events-auto"
-                              aria-label={isMuted ? 'Unmute' : 'Mute'}
-                            >
-                              {isMuted ? (
-                                <VolumeX size={24} className="text-white" />
-                              ) : (
-                                <Volume2 size={18} className="text-white" />
-                              )}
-                            </button>
+  onClick={(e) => {
+    e.stopPropagation();
+    toggleMute();
+  }}
+  className="relative w-10 h-10 rounded-full 
+             bg-black/70 hover:bg-black/90 
+             flex items-center justify-center
+             transition-all
+             z-50"
+>
+  <span className="absolute inset-0 flex items-center justify-center">
+    {isMuted ? (
+      <VolumeX
+        size={22}
+        strokeWidth={2.5}
+        className="text-white"
+      />
+    ) : (
+      <Volume2
+        size={22}
+        strokeWidth={2.5}
+        className="text-white"
+      />
+    )}
+  </span>
+</button>
+
                           </div>
                         )}
 

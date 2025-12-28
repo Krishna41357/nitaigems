@@ -5,7 +5,7 @@ const TrustBadgesSection = () => {
   const theme = useHomePageTheme();
   const badges = [
   { 
-    image: 'https://res.cloudinary.com/dxoxbnptl/image/upload/v1766477941/IMG_1805.1_fktwx7.png',
+    image: '/logo/nitaigems.png',
     title: 'Nitai Gems\nTrust',
     description: 'A legacy of trust, craftsmanship, and excellence',
     type: 'logo'
@@ -93,7 +93,7 @@ const TrustBadgesSection = () => {
         <div className="card-shine" />
 
         <div className="icon-container">
-          <div className="icon-glow" />
+          <div className="" />
 
           {/* LOGO → keep as image */}
           {type === 'logo' ? (
@@ -292,25 +292,15 @@ const styles = `
   margin: 0 auto 1.25rem;
 }
 
-.icon-glow {
-  position: absolute;
-  inset: -8px;
-  border-radius: 50%;
- 
-  filter: blur(16px);
-  opacity: 0;
-  transition: opacity 0.4s ease;
-}
 
-.trust-card:hover .icon-glow {
-  opacity: 1;
-}
+
 
 .badge-icon {
   width: 100%;
   height: 100%;
   color: #10254b;
   transition: all 0.4s ease;
+  
 }
 
 .badge-image {
@@ -318,7 +308,8 @@ const styles = `
   height: 100%;
   object-fit: contain;
   transition: all 0.4s ease;
-  filter: drop-shadow(0 4px 12px rgba(184, 134, 11, 0.15));
+  filter: drop-shadow(0 4px 12px rgba(40, 11, 184, 0.15));
+  scale:1.2;
 }
 
 .logo-image {
@@ -333,7 +324,7 @@ const styles = `
 
 .trust-card:hover .logo-image {
   transform: scale(1.15);
-  filter: drop-shadow(0 6px 16px rgba(184, 134, 11, 0.3));
+  filter: drop-shadow(0 6px 16px rgba(23, 11, 184, 0.3));
 }
 
 /* Text */

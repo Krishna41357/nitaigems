@@ -5,8 +5,7 @@ import { useNavigate , useLocation } from 'react-router-dom';
 import { Home, Package, ShoppingCart, Plus, MapPin, Phone, Mail, Shield, Truck, Lock, CreditCard, Trash2, AlertCircle, X, Tag, Check } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import MainHeader from '../components/homepage/MainHeader';
-
-
+import Loading from "../components/Loading";
 
 
 
@@ -441,13 +440,7 @@ const CheckoutPage = () => {
   if (loading) {
     return (
       <>
-        <MainHeader />
-
-        <div className="min-h-[calc(100vh-120px)] bg-[#fbf6ef] flex flex-col items-center justify-center px-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#b8860b] mb-4"></div>
-          <p className="text-[#3b1b12]">Loading checkout...</p>
-        </div>
-      
+        <Loading/>
       </>
     );
   }

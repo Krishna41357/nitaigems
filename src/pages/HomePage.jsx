@@ -11,6 +11,7 @@ import Footer from '../components/homepage/Footer';
 import RingModel from '../components/homepage/RingModel';
 import JewelleryCategoriesSection from '../components/homepage/JewelleryCategoriesSection';
 import SubcategoriesShowcase from '../components/homepage/SubcategoriesShowcase';
+import Loading from "../components/Loading";
 
 // Create Theme Context
 const ThemeContext = createContext(null);
@@ -82,9 +83,7 @@ const HomePage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="w-12 h-12 border-3 border-amber-600 border-t-transparent rounded-full animate-spin" />
-      </div>
+      <Loading/>
     );
   }
 

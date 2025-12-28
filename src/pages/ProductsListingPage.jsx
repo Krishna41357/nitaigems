@@ -3,6 +3,7 @@ import { useState, useEffect, useMemo } from "react";
 import { ChevronDown, ChevronLeft, ChevronRight, X, SearchX } from "lucide-react";
 import ProductCard from "../components/products/ProductCard";
 import MainHeader from "../components/homepage/MainHeader";
+import Loading from "../components/Loading";
 
 const ProductsListingPage = () => {
   const { categorySlug, subCategorySlug, collectionSlug } = useParams();
@@ -35,12 +36,11 @@ const ProductsListingPage = () => {
     discounts: [],
     availability: [],
     tags: [],
-    subcategories: [] // Added subcategories filter
+    subcategories: []
   });
 
-
-  // Always show products (no more subcategory card view)
   const showProducts = true;
+
   // Fetch all data on mount
   useEffect(() => {
     fetchAllData();
@@ -81,12 +81,16 @@ const ProductsListingPage = () => {
 
   useEffect(() => {
     parseFiltersFromURL();
-    setCurrentPage(1);
   }, [categorySlug, subCategorySlug, collectionSlug, searchParams]);
 
   useEffect(() => {
     if (showProducts) updateURL();
   }, [activeFilters, sortBy, currentPage]);
+
+  // IMPORTANT: Scroll to top when page changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [currentPage]);
 
   const fetchAllData = async () => {
     setLoading(true);
@@ -179,16 +183,21 @@ const ProductsListingPage = () => {
       }
     }
   };
+
   const parseFiltersFromURL = () => {
     const filters = { ...activeFilters };
+    let pageFromURL = 1;
+    
     searchParams.forEach((value, key) => {
       if (key === 'sort') setSortBy(value);
-      else if (key === 'page') setCurrentPage(parseInt(value));
+      else if (key === 'page') pageFromURL = parseInt(value) || 1;
       else if (key !== 'q' && key in filters) {
         filters[key] = value.split(',');
       }
     });
+    
     setActiveFilters(filters);
+    setCurrentPage(pageFromURL);
   };
 
   const updateURL = () => {
@@ -206,7 +215,6 @@ const ProductsListingPage = () => {
     setSearchParams(params, { replace: true });
   };
 
-  // Get subcategories for current category
   const filteredSubcategories = useMemo(() => {
     if (!categorySlug) return [];
     return subcategories.filter(sub => 
@@ -214,7 +222,7 @@ const ProductsListingPage = () => {
       sub.category?.toLowerCase() === categorySlug.toLowerCase()
     );
   }, [subcategories, categorySlug]);
-  // Product filtering
+
   const getFilteredProductsByRoute = useMemo(() => {
     const searchQuery = searchParams.get('q');
     let filtered = [...allProducts];
@@ -250,7 +258,6 @@ const ProductsListingPage = () => {
       });
     }
     else if (categorySlug) {
-      // Filter by category - show all products in this category
       filtered = filtered.filter(product => {
         const productCat = (product.category || '').toLowerCase();
         const productCatSlug = (product.categorySlug || '').toLowerCase();
@@ -258,7 +265,6 @@ const ProductsListingPage = () => {
                productCatSlug === categorySlug.toLowerCase();
       });
     }
-    // If no route params at all (/products), show all products (no filtering)
     
     return filtered;
   }, [allProducts, categorySlug, subCategorySlug, collectionSlug, searchParams]);
@@ -289,7 +295,6 @@ const ProductsListingPage = () => {
     colors: extractUniqueValues('details.color'),
     certifications: extractUniqueValues('details.certification'),
     tags: extractUniqueValues('tags'),
-    // Add subcategories as filter option when in category view
     subcategories: categorySlug && !subCategorySlug ? filteredSubcategories.map(sub => sub.name) : []
   }), [getFilteredProductsByRoute, filteredSubcategories, categorySlug, subCategorySlug]);
 
@@ -350,7 +355,6 @@ const ProductsListingPage = () => {
         if (!hasTag) return false;
       }
 
-      // Subcategory filter
       if (activeFilters.subcategories.length > 0) {
         const productSubCat = product.subCategory || product.subcategory || '';
         const matchesSubcategory = activeFilters.subcategories.some(subName => {
@@ -403,6 +407,7 @@ const ProductsListingPage = () => {
   }, [sortedProducts, currentPage]);
 
   const totalPages = Math.ceil(sortedProducts.length / itemsPerPage);
+
   const handleFilterChange = (filterType, value) => {
     setActiveFilters(prev => {
       const current = prev[filterType];
@@ -415,10 +420,8 @@ const ProductsListingPage = () => {
   };
 
   const handleSubcategoryFilterClick = (subcategoryName) => {
-    // Find the subcategory slug
     const subcat = filteredSubcategories.find(s => s.name === subcategoryName);
     if (subcat && subcat.slug) {
-      // Navigate to the subcategory page
       navigate(`/products/category/${categorySlug}/${subcat.slug}`);
     }
   };
@@ -472,13 +475,13 @@ const ProductsListingPage = () => {
       breadcrumbs.push({ label: searchQuery, path: null });
     }
     
-    // If no route params, just show "All Products"
     if (!categorySlug && !subCategorySlug && !collectionSlug && !searchQuery) {
       breadcrumbs.push({ label: 'All Products', path: null });
     }
     
     return breadcrumbs;
   };
+
   const FilterSection = ({ title, filterKey, options, isSubcategoryFilter = false }) => {
     const [expanded, setExpanded] = useState(false);
     
@@ -597,19 +600,10 @@ const ProductsListingPage = () => {
       </div>
     );
   };
+
   if (loading) {
     return (
-      <div className="min-h-screen w-screen bg-white py-12">
-        <MainHeader />
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-center min-h-[60vh]">
-            <div className="text-center">
-              <div className="w-16 h-16 border-4 border-[#10254b] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-              <p className="text-gray-600">Loading...</p>
-            </div>
-          </div>
-        </div>
-      </div>
+      <Loading/>
     );
   }
 
@@ -638,7 +632,6 @@ const ProductsListingPage = () => {
           
          {/* Banner Section - Show for both Category and Subcategory based on route */}
           {(() => {
-            // Show subcategory banner if we're in a subcategory route
             if (subCategorySlug && currentSubcategory) {
               return (
                 <div className="max-w-7xl mx-auto mb-8">
@@ -671,7 +664,6 @@ const ProductsListingPage = () => {
               );
             }
             
-            // Show category banner if we're in a category route (but not subcategory)
             if (categorySlug && !subCategorySlug && currentCategory) {
               return (
                 <div className="max-w-7xl mx-auto mb-8">
@@ -683,97 +675,101 @@ const ProductsListingPage = () => {
                         'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=1200'
                       }
                       alt={currentCategory?.name || categorySlug}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    e.target.src = 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=1200';
-                  }}
-                />
-              </div>
-              <div className="text-center">
-                <h1 className="text-3xl md:text-4xl lg:text-5xl text-[#10254b] tracking-tight capitalize mb-3" style={{fontFamily: "serif"}}>
-                  {currentCategory?.name || categorySlug?.replace(/-/g, ' ')}
-                </h1>
-                {currentCategory?.description && (
-                  <p className="text-gray-600 text-sm md:text-base max-w-3xl mx-auto" style={{fontFamily:"sans-serif"}}>
-                    {currentCategory.description}
-                  </p>
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.src = 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=1200';
+                      }}
+                    />
+                  </div>
+                  <div className="text-center">
+                    <h1 className="text-3xl md:text-4xl lg:text-5xl text-[#10254b] tracking-tight capitalize mb-3" style={{fontFamily: "serif"}}>
+                      {currentCategory?.name || categorySlug?.replace(/-/g, ' ')}
+                    </h1>
+                    {currentCategory?.description && (
+                      <p className="text-gray-600 text-sm md:text-base max-w-3xl mx-auto" style={{fontFamily:"sans-serif"}}>
+                        {currentCategory.description}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              );
+            }
+            return null;
+          })()}
+
+          {/* Breadcrumbs */}
+          <div className="max-w-7xl mx-auto mb-6">
+            <nav className="flex items-center gap-2 text-sm sm:text-base md:text-lg lg:text-xl font-medium mb-4 font-serif">
+              {getBreadcrumbs().map((crumb, index) => (
+                <div key={index} className="flex items-center gap-2">
+                  {index > 0 && <ChevronRight className="w-4 h-4 text-gray-400" />}
+                  {crumb.path ? (
+                    <a href={crumb.path} className="text-gray-700 hover:text-[#10254b] capitalize transition-colors">
+                      {crumb.label}
+                    </a>
+                  ) : (
+                    <span className="text-[#10254b] font-semibold capitalize">{crumb.label}</span>
+                  )}
+                </div>
+              ))}
+            </nav>
+
+            {/* Filter and Sort Bar */}
+            <div className="flex items-center justify-between gap-3">
+              <button onClick={() => setShowFilters(true)}
+                className="flex items-center gap-2 px-3 md:px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm">
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path d="M4 6h16M7 12h10M10 18h4" strokeWidth="2" strokeLinecap="round"/>
+                </svg>
+                <span className="font-medium">FILTER</span>
+                {getActiveFilterCount() > 0 && (
+                  <span className="bg-[#10254b] text-white text-xs font-semibold px-1.5 py-0.5 rounded min-w-[18px] text-center">
+                    {getActiveFilterCount()}
+                  </span>
                 )}
-              </div>
-            </div>
-          );
-        }
-        return null;
-      })()}
-      {/* Breadcrumbs */}
-      <div className="max-w-7xl mx-auto mb-6">
-        <nav className="flex items-center gap-2 text-sm sm:text-base md:text-lg lg:text-xl font-medium mb-4 font-serif">
-          {getBreadcrumbs().map((crumb, index) => (
-            <div key={index} className="flex items-center gap-2">
-              {index > 0 && <ChevronRight className="w-4 h-4 text-gray-400" />}
-              {crumb.path ? (
-                <a href={crumb.path} className="text-gray-700 hover:text-[#10254b] capitalize transition-colors">
-                  {crumb.label}
-                </a>
-              ) : (
-                <span className="text-[#10254b] font-semibold capitalize">{crumb.label}</span>
-              )}
-            </div>
-          ))}
-        </nav>
-        {/* Filter and Sort Bar */}
-        <div className="flex items-center justify-between gap-3">
-          <button onClick={() => setShowFilters(true)}
-            className="flex items-center gap-2 px-3 md:px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm">
-            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path d="M4 6h16M7 12h10M10 18h4" strokeWidth="2" strokeLinecap="round"/>
-            </svg>
-            <span className="font-medium">FILTER</span>
-            {getActiveFilterCount() > 0 && (
-              <span className="bg-[#10254b] text-white text-xs font-semibold px-1.5 py-0.5 rounded min-w-[18px] text-center">
-                {getActiveFilterCount()}
-              </span>
-            )}
-          </button>
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-600 hidden sm:inline">Sort by</span>
-            <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg bg-white text-sm text-gray-900 focus:outline-none focus:border-[#10254b] cursor-pointer font-medium">
-              <option value="relevance">Recommended</option>
-              <option value="price_asc">Price: Low to High</option>
-              <option value="price_desc">Price: High to Low</option>
-              <option value="newest">Newest First</option>
-              <option value="discount">Highest Discount</option>
-              <option value="name">Name: A to Z</option>
-            </select>
-          </div>
-        </div>
-        {getActiveFilterCount() > 0 && (
-          <div className="mt-3 pt-3 border-t border-gray-200">
-            <div className="flex items-center gap-2">
-              <button onClick={clearAllFilters}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-black text-white rounded-full text-xs font-medium hover:bg-gray-800 transition-colors">
-                <X className="w-3 h-3" />
-                Clear All
               </button>
-              <div className="flex flex-wrap items-center gap-2">
-                {Object.entries(activeFilters).map(([key, values]) =>
-                  values.map(value => (
-                    <span key={`${key}-${value}`}
-                      className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-gray-100 text-gray-700 rounded-full text-xs">
-                      {value}
-                      <button onClick={() => handleFilterChange(key, value)}
-                        className="hover:bg-gray-200 rounded-full p-0.5">
-                        <X className="w-3 h-3" />
-                      </button>
-                    </span>
-                  ))
-                )}
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-600 hidden sm:inline">Sort by</span>
+                <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}
+                  className="px-3 py-2 border border-gray-300 rounded-lg bg-white text-sm text-gray-900 focus:outline-none focus:border-[#10254b] cursor-pointer font-medium">
+                  <option value="relevance">Recommended</option>
+                  <option value="price_asc">Price: Low to High</option>
+                  <option value="price_desc">Price: High to Low</option>
+                  <option value="newest">Newest First</option>
+                  <option value="discount">Highest Discount</option>
+                  <option value="name">Name: A to Z</option>
+                </select>
               </div>
             </div>
+
+            {getActiveFilterCount() > 0 && (
+              <div className="mt-3 pt-3 border-t border-gray-200">
+                <div className="flex items-center gap-2">
+                  <button onClick={clearAllFilters}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-black text-white rounded-full text-xs font-medium hover:bg-gray-800 transition-colors">
+                    <X className="w-3 h-3" />
+                    Clear All
+                  </button>
+                  <div className="flex flex-wrap items-center gap-2">
+                    {Object.entries(activeFilters).map(([key, values]) =>
+                      values.map(value => (
+                        <span key={`${key}-${value}`}
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-gray-100 text-gray-700 rounded-full text-xs">
+                          {value}
+                          <button onClick={() => handleFilterChange(key, value)}
+                            className="hover:bg-gray-200 rounded-full p-0.5">
+                            <X className="w-3 h-3" />
+                          </button>
+                        </span>
+                      ))
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
-        )}
-      </div>
-        {/* SHOW PRODUCTS */}
+
+          {/* Products Grid */}
           <div className="max-w-7xl mx-auto">
             {paginatedProducts.length === 0 ? (
               <div className="text-center py-20">
@@ -795,16 +791,20 @@ const ProductsListingPage = () => {
 
                 {totalPages > 1 && (
                   <div className="flex justify-center items-center gap-2 mt-16 mb-8">
-                    <button onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                    <button 
+                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                       disabled={currentPage === 1}
-                      className="p-3 rounded-xl border-2 border-gray-300 disabled:opacity-40 hover:border-[#10254b] transition-all">
+                      className="p-3 rounded-xl border-2 border-gray-300 disabled:opacity-40 disabled:cursor-not-allowed hover:border-[#10254b] transition-all">
                       <ChevronLeft className="w-5 h-5" />
                     </button>
+                    
                     {[...Array(totalPages)].map((_, i) => {
                       const page = i + 1;
                       if (page === 1 || page === totalPages || (page >= currentPage - 1 && page <= currentPage + 1)) {
                         return (
-                          <button key={page} onClick={() => setCurrentPage(page)}
+                          <button 
+                            key={page} 
+                            onClick={() => setCurrentPage(page)}
                             className={`min-w-[44px] h-11 rounded-xl font-semibold transition-all ${
                               currentPage === page
                                 ? 'bg-[#10254b] text-white shadow-lg scale-110'
@@ -818,9 +818,11 @@ const ProductsListingPage = () => {
                       }
                       return null;
                     })}
-                    <button onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                    
+                    <button 
+                      onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                       disabled={currentPage === totalPages}
-                      className="p-3 rounded-xl border-2 border-gray-300 disabled:opacity-40 hover:border-[#10254b] transition-all">
+                      className="p-3 rounded-xl border-2 border-gray-300 disabled:opacity-40 disabled:cursor-not-allowed hover:border-[#10254b] transition-all">
                       <ChevronRight className="w-5 h-5" />
                     </button>
                   </div>
@@ -828,7 +830,8 @@ const ProductsListingPage = () => {
               </>
             )}
           </div>
-          {/* STICKY Filters Sidebar */}
+
+          {/* Filters Sidebar */}
           {showFilters && (
             <div 
               className="fixed inset-0" 
@@ -870,7 +873,6 @@ const ProductsListingPage = () => {
                 <div className="flex-1 overflow-y-auto mx-4 my-3 border border-gray-300 rounded-2xl custom-scrollbar">
                   <PriceRangeFilter />
                   
-                  {/* Subcategories Filter - Only show when in category view */}
                   {categorySlug && !subCategorySlug && filterOptions.subcategories.length > 0 && (
                     <FilterSection 
                       title="Subcategories" 
@@ -883,16 +885,14 @@ const ProductsListingPage = () => {
                   <FilterSection title="Jewellery Type" filterKey="metals" options={filterOptions.metals} />
                   <FilterSection title="Product" filterKey="metalPurities" options={filterOptions.metalPurities} />
                   <FilterSection title="Brand" filterKey="stones" options={filterOptions.stones} />
-                  <FilterSection title="Gender" filterKey="clarities" options={filterOptions.clarities} />
                   <FilterSection title="Occasion" filterKey="tags" options={filterOptions.tags} />
-                
                 </div>
                 
                 <div 
                   className="flex-shrink-0 bg-white border-t border-gray-200 px-5 py-3.5 flex gap-3" 
                   style={{ 
                     paddingBottom: 'calc(14px + env(safe-area-inset-bottom, 0px))',
-                    marginBottom: '60px' // Space for mobile nav
+                    marginBottom: '60px'
                   }}
                 >
                   <button onClick={clearAllFilters}

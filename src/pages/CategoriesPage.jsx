@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MainHeader from '../components/homepage/MainHeader.jsx';
-
+import Loading from "../components/Loading";
 
 const API_BASE = import.meta.env.VITE_APP_BASE_URL;
 
@@ -37,9 +37,7 @@ export default function CategoriesPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-white">
-        <div className="text-[#10254b] text-lg font-semibold">Loading...</div>
-      </div>
+      <Loading/>
     );
   }
 
@@ -98,13 +96,7 @@ export default function CategoriesPage() {
                     </div>
 
                     {/* Description Below Banner */}
-                    {category.description && (
-                      <div className="max-w-7xl mx-auto px-4 md:px-6 py-4 md:py-8">
-                        <p className="text-gray-600 text-sm md:text-base lg:text-lg leading-relaxed max-w-4xl mx-auto text-center">
-                          {category.description}
-                        </p>
-                      </div>
-                    )}
+                    
                   </>
                 )}
 
