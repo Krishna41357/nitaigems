@@ -300,7 +300,7 @@ const MainHeader = () => {
               </button>
 
               <button onClick={() => handleNavigation('/')} className="p-0 m-0 border-none w-20 bg-transparent" aria-label="Home">
-                <img src={logoUrl} alt="Logo" className="h-10 w-20 object-cover" />
+                <img src={logoUrl} alt="Logo" className="h-10 w-24 object-cover" />
               </button>
 
               <div className="flex items-center gap-1.5">
@@ -546,15 +546,7 @@ const MainHeader = () => {
 
                   {expandedMobileCategory === category.slug && (
                     <div className="bg-[#f0f4f8] py-2 mt-2">
-                      <button
-                        onClick={() => {
-                          handleNavigation(`/category/${category.slug}`);
-                          setShowMobileSidebar(false);
-                        }}
-                        className="w-full text-left px-6 sm:px-8 py-2 text-[#10254b] font-medium bg-transparent text-sm"
-                      >
-                        View All {category.name}
-                      </button>
+                      
                       {subcategories[category.slug]?.map((subcategory) => (
                         <button
                           key={subcategory.id}
@@ -566,7 +558,17 @@ const MainHeader = () => {
                         >
                           {subcategory.name}
                         </button>
+                        
                       ))}
+                      <button
+                        onClick={() => {
+                          handleNavigation(`/category/${category.slug}`);
+                          setShowMobileSidebar(false);
+                        }}
+                        className="w-full text-left px-6 sm:px-8 py-2 text-[#10254b] font-medium bg-transparent text-sm"
+                      >
+                        View All {category.name}
+                      </button>
                     </div>
                   )}
                 </div>
