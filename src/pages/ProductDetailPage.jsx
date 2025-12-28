@@ -800,18 +800,17 @@ const DetailSection = ({ title, children, icon, isShipping, isCertification, pro
 /* RECOMMENDED PRODUCTS CAROUSEL COMPONENT */
 const RecommendedProductsCarousel = ({ products, loading, navigate }) => {
   const [scrollPosition, setScrollPosition] = useState(0);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollLeft, setCanScrollLeft]  = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
   const carouselRef = useRef(null);
 
+  /* ---------- helpers ---------- */
   const formatPrice = (p) => {
     const price = p.pricing?.discountedPrice || p.pricing?.basePrice || 0;
     return price ? `₹${price.toLocaleString("en-IN")}` : "₹0";
   };
-  
   const hasDiscount = (p) =>
     p.pricing?.discountedPrice && p.pricing.discountedPrice < p.pricing.basePrice;
-  
   const getDiscountPercent = (p) =>
     hasDiscount(p)
       ? Math.round(
@@ -821,6 +820,7 @@ const RecommendedProductsCarousel = ({ products, loading, navigate }) => {
         )
       : 0;
 
+  /* ---------- scroll logic ---------- */
   const updateButtons = () => {
     if (!carouselRef.current) return;
     const el = carouselRef.current;
@@ -854,18 +854,18 @@ const RecommendedProductsCarousel = ({ products, loading, navigate }) => {
     };
   }, [products]);
 
+  /* ---------- render ---------- */
   if (loading) {
     return (
       <div className="w-full py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#10254b]" />
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#832729]" />
           </div>
         </div>
       </div>
     );
   }
-  
   if (!products?.length) return null;
 
   return (
@@ -889,14 +889,14 @@ const RecommendedProductsCarousel = ({ products, loading, navigate }) => {
                 key={idx}
                 className={`h-1.5 rounded-full transition-all ${
                   Math.floor(scrollPosition / 190) === idx
-                    ? "w-6 bg-[#10254b]"
+                    ? "w-6 bg-[#832729]"
                     : "w-1.5 bg-gray-300"
                 }`}
               />
             ))}
           </div>
 
-          {/* ARROWS */}
+          {/* ARROWS – always visible (no md:flex hidden) */}
           {canScrollLeft && (
             <button
               onClick={() => scroll("left")}
@@ -921,7 +921,7 @@ const RecommendedProductsCarousel = ({ products, loading, navigate }) => {
           {/* scrollable strip */}
           <div
             ref={carouselRef}
-            className="flex flex-nowrap gap-3 sm:gap-4 overflow-x-auto overflow-y-hidden px-4 sm:px-6 lg:px-8 pb-4 w-full"
+            className="recommended-products-carousel flex flex-nowrap gap-3 sm:gap-4 overflow-x-auto overflow-y-hidden px-4 sm:px-6 lg:px-8 pb-4 w-full"
             style={{
               scrollSnapType: "x mandatory",
               WebkitOverflowScrolling: "touch",
@@ -939,7 +939,7 @@ const RecommendedProductsCarousel = ({ products, loading, navigate }) => {
               <div
                 key={p.id}
                 onClick={() => navigate(`/product/${p.sku}`)}
-                className="flex-shrink-0 w-[170px] sm:w-[200px] md:w-[240px] lg:w-[280px] bg-white rounded-xl shadow-md hover:shadow-2xl transition-all duration-300 cursor-pointer group border border-transparent hover:border-[#10254b] overflow-hidden"
+                className="flex-shrink-0 w-[170px] sm:w-[200px] md:w-[240px] lg:w-[280px] bg-white rounded-xl shadow-md hover:shadow-2xl transition-all duration-300 cursor-pointer group border border-transparent hover:border-[#832729] overflow-hidden"
                 style={{ scrollSnapAlign: "start" }}
               >
                 <div className="relative aspect-square overflow-hidden bg-gray-100">
@@ -964,7 +964,7 @@ const RecommendedProductsCarousel = ({ products, loading, navigate }) => {
                 </div>
 
                 <div className="p-3">
-                  <h3 className="font-serif text-sm text-gray-900 mb-2 line-clamp-2 min-h-[40px] group-hover:text-[#10254b] transition-colors leading-tight">
+                  <h3 className="font-serif text-sm text-gray-900 mb-2 line-clamp-2 min-h-[40px] group-hover:text-[#832729] transition-colors leading-tight">
                     {p.name}
                   </h3>
 
@@ -1012,3 +1012,4 @@ const RecommendedProductsCarousel = ({ products, loading, navigate }) => {
 };
 
 export default ProductDetailPage;
+
