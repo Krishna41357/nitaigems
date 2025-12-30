@@ -19,6 +19,7 @@ const CartPage = () => {
   const [unavailableItems, setUnavailableItems] = useState([]); // Items that are out of stock
   const headerFont = "'Cinzel', 'Playfair Display', serif";
   const API_BASE = import.meta.env.VITE_APP_BASE_URL;
+  
 
   // Build breadcrumbs from navigation state or fallback
   const buildBreadcrumbs = () => {
@@ -332,7 +333,7 @@ const CartPage = () => {
             Discover our exquisite collection of heirloom jewellery and add your favorite pieces to your cart.
           </p>
           <button
-            onClick={() => navigate('/products')}
+            onClick={() => navigate('/categories')}
             className="bg-gradient-to-r from-[#10254b] to-[#d4a055] text-white px-6 py-2.5 rounded-full font-medium hover:from-[#a06f09] hover:to-[#b8860b] transition-all flex items-center gap-2 text-sm md:text-base"
           >
             Continue Shopping

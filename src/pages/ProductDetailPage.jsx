@@ -359,7 +359,7 @@ useEffect(() => {
   return (
     <>
       <MainHeader />
-      <UserLoginModal open={showLoginModal} onClose={() => setShowLoginModal(false)} />
+      <UserLoginModal open={showLoginModal} onClose={() => setShowLoginModal(false)}  className="fixed" />
       
       {/* Image Zoom Modal */}
       {/* Image Zoom Modal */}

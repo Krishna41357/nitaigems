@@ -6,6 +6,7 @@ import { useAuth } from '../contexts/AuthContext';
 import MainHeader from '../components/homepage/MainHeader';
 import Footer from '../components/homepage/Footer';
 import Loading from "../components/Loading";
+import UserLoginModal from '../components/auth/UserLoginModal';
 
 const OrdersPage = () => {
   const { isAuthenticated, user } = useAuth();
@@ -14,6 +15,7 @@ const OrdersPage = () => {
   const [error, setError] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [expandedOrder, setExpandedOrder] = useState(null);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   const headerFont = "'Cinzel', 'Playfair Display', serif";
   const API_BASE = import.meta.env.VITE_APP_BASE_URL || 'http://localhost:8787';
@@ -26,12 +28,15 @@ const OrdersPage = () => {
   };
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      window.location.href = '/login';
-      return;
-    }
-    fetchOrders();
-  }, [isAuthenticated]);
+  if (!isAuthenticated) {
+    setShowLoginModal(true);
+    setLoading(false);
+    return;
+  }
+
+  fetchOrders();
+}, [isAuthenticated]);
+
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -149,29 +154,85 @@ const OrdersPage = () => {
         </>
     );
   }
+  if (!isAuthenticated) {
+  return (
+    <>
+      <MainHeader />
+
+      {showLoginModal && (
+        <UserLoginModal
+          open={showLoginModal}
+          onClose={() => setShowLoginModal(false)}
+        />
+      )}
+
+      <div className="min-h-screen bg-white flex items-center justify-center px-4">
+        <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-8 max-w-md w-full text-center">
+          
+          {/* Icon */}
+          <Package
+            size={48}
+            className="mx-auto mb-4"
+            color="#10254b"
+          />
+
+          {/* Title */}
+          <h2 className="text-2xl font-semibold text-black mb-2">
+            Login Required
+          </h2>
+
+          {/* Subtitle */}
+          <p className="text-gray-600 mb-6">
+            Please log in to view your orders and track your purchases.
+          </p>
+
+          {/* CTA */}
+          <button
+            onClick={() => setShowLoginModal(true)}
+            className="
+              w-full
+              bg-[#10254b]
+              text-white
+              px-6
+              py-3
+              rounded-lg
+              font-medium
+              hover:opacity-90
+              transition
+            "
+          >
+            Login to Continue
+          </button>
+        </div>
+      </div>
+    </>
+  );
+}
+
+
 
   return (
     <>
       <MainHeader />
-      <div className="bg-[#fbf6ef] min-h-screen w-screen overflow-x-hidden flex flex-col">
+      <div className="bg-white min-h-screen w-screen overflow-x-hidden flex flex-col">
         <div className="w-screen max-w-7xl mx-auto px-3 md:px-6 py-4 h-full flex flex-col">
           
           {/* Breadcrumb */}
           <div style={{ fontFamily: headerFont }} className="flex items-center gap-1.5 mb-4 md:mb-6 text-xs md:text-sm overflow-x-auto pb-2">
             {buildBreadcrumbs().map((crumb, idx) => (
               <div key={idx} className="flex items-center gap-1.5 flex-shrink-0">
-                {idx > 0 && <span className="text-[#b8860b]">{'>'}</span>}
+                {idx > 0 && <span className="text-[#12054b]">{'>'}</span>}
                 {crumb.path ? (
                   <button
                     onClick={() => window.location.href = crumb.path}
-                    className="flex bg-transparent items-center gap-1 text-[#6b5342] hover:text-[#b8860b] transition-colors whitespace-nowrap"
+                    className="flex bg-transparent items-center gap-1 text-black hover:text-[#12054b] transition-colors whitespace-nowrap"
                   >
-                    {idx === 0 && <Home size={14} />}
+                    {idx === 0 && <Home size={14} className="text-[#12054b]" />}
                     {crumb.label}
                   </button>
                 ) : (
-                  <span className="text-[#3b1b12] font-semibold whitespace-nowrap flex items-center gap-1">
-                    <Package size={14} />
+                  <span className="text-black font-semibold whitespace-nowrap flex items-center gap-1">
+                    <Package size={14} className="text-[#12054b]" />
                     {crumb.label}
                   </span>
                 )}
@@ -183,14 +244,14 @@ const OrdersPage = () => {
           <div className="mb-4 md:mb-6">
             <div className="flex items-center justify-between flex-wrap gap-3">
               <div>
-                <h1 style={{ fontFamily: headerFont }} className="text-xl md:text-2xl font-bold text-[#3b1b12] mb-1">
+                <h1 style={{ fontFamily: headerFont }} className="text-xl md:text-2xl font-bold text-black mb-1">
                   My Orders
                 </h1>
-                <p className="text-[#6b5342] text-xs md:text-sm">Track and manage your orders</p>
+                <p className="text-black text-xs md:text-sm">Track and manage your orders</p>
               </div>
               <button
-                onClick={() => window.location.href = '/products'}
-                className="flex items-center gap-2 bg-transparent border-2 border-[#b8860b] text-[#b8860b] px-4 py-2 rounded-full text-xs md:text-sm font-medium hover:bg-[#b8860b] hover:text-white transition-all"
+                onClick={() => window.location.href = '/categories'}
+                className="flex items-center gap-2 bg-white border-2 border-[#12054b] text-[#12054b] px-4 py-2 rounded-full text-xs md:text-sm font-medium hover:bg-[#12054b] hover:text-white transition-all"
               >
                 <ShoppingBag size={14} />
                 Continue Shopping
@@ -213,24 +274,24 @@ const OrdersPage = () => {
           {/* Filters */}
           <div className="flex gap-2 mb-4 md:mb-6 overflow-x-auto pb-2">
             {[
-              { key: 'all', label: 'All Orders', icon: <Package size={12} /> },
-              { key: 'active', label: 'Active', icon: <Clock size={12} /> },
-              { key: 'delivered', label: 'Delivered', icon: <CheckCircle size={12} /> },
-              { key: 'cancelled', label: 'Cancelled', icon: <XCircle size={12} /> }
+              { key: 'all', label: 'All Orders', icon: <Package size={12} className="text-[#12054b]" /> },
+              { key: 'active', label: 'Active', icon: <Clock size={12} className="text-[#12054b]" /> },
+              { key: 'delivered', label: 'Delivered', icon: <CheckCircle size={12} className="text-[#12054b]" /> },
+              { key: 'cancelled', label: 'Cancelled', icon: <XCircle size={12} className="text-[#12054b]" /> }
             ].map(filter => (
               <button
                 key={filter.key}
                 onClick={() => setSelectedFilter(filter.key)}
                 className={`flex items-center gap-1.5 px-3 md:px-4 py-1.5 md:py-2 rounded-full text-xs font-medium transition-all whitespace-nowrap ${
                   selectedFilter === filter.key
-                    ? 'bg-[#b8860b] text-white'
-                    : 'bg-white text-[#6b5342] border border-[#efe6d9] hover:border-[#b8860b]'
+                    ? 'bg-[#12054b] text-white'
+                    : 'bg-white text-[#12054b] border border-gray-300 hover:border-[#12054b]'
                 }`}
               >
                 {filter.icon}
                 {filter.label}
                 <span className={`text-xs px-1.5 py-0.5 rounded-full ${
-                  selectedFilter === filter.key ? 'bg-white/20' : 'bg-[#fbf6ef]'
+                  selectedFilter === filter.key ? 'bg-white/20' : 'bg-gray-100'
                 }`}>
                   {orderCounts[filter.key]}
                 </span>
@@ -240,19 +301,19 @@ const OrdersPage = () => {
 
           {/* Orders List */}
           {filteredOrders.length === 0 ? (
-            <div className="bg-white rounded-xl shadow-sm border border-[#efe6d9] p-8 md:p-12 text-center">
-              <Package className="w-12 h-12 md:w-16 md:h-16 text-gray-300 mx-auto mb-3 md:mb-4" />
-              <h3 style={{ fontFamily: headerFont }} className="text-lg md:text-xl font-bold text-[#3b1b12] mb-2">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-300 p-8 md:p-12 text-center">
+              <Package className="w-12 h-12 md:w-16 md:h-16 text-[#12054b] mx-auto mb-3 md:mb-4" />
+              <h3 style={{ fontFamily: headerFont }} className="text-lg md:text-xl font-bold text-black mb-2">
                 No Orders Found
               </h3>
-              <p className="text-[#6b5342] text-sm mb-4 md:mb-6">
+              <p className="text-black text-sm mb-4 md:mb-6">
                 {selectedFilter === 'all' 
                   ? "You haven't placed any orders yet."
                   : `No ${selectedFilter} orders to display.`}
               </p>
               <button
-                onClick={() => window.location.href = '/products'}
-                className="bg-transparent border-2 border-[#b8860b] text-[#b8860b] px-6 py-2 rounded-full text-sm font-medium hover:bg-[#b8860b] hover:text-white transition-all"
+                onClick={() => window.location.href = '/categories'}
+                className="bg-white border-2 border-[#12054b] text-[#12054b] px-6 py-2 rounded-full text-sm font-medium hover:bg-[#12054b] hover:text-white transition-all"
               >
                 Start Shopping
               </button>
@@ -262,14 +323,14 @@ const OrdersPage = () => {
               {filteredOrders.map(order => (
                 <div
                   key={order.id}
-                  className="bg-white rounded-xl shadow-sm border border-[#efe6d9] overflow-hidden"
+                  className="bg-white rounded-xl shadow-sm border border-gray-300 overflow-hidden"
                 >
                   {/* Order Header */}
-                  <div className="p-3 md:p-4 border-b border-[#efe6d9]">
+                  <div className="p-3 md:p-4 border-b border-gray-300">
                     <div className="flex items-start justify-between gap-3 md:gap-4 flex-wrap">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-2 flex-wrap">
-                          <h3 style={{ fontFamily: headerFont }} className="text-sm md:text-base font-bold text-[#3b1b12]">
+                          <h3 style={{ fontFamily: headerFont }} className="text-sm md:text-base font-bold text-black">
                             {order.order_number}
                           </h3>
                           <span className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border ${getStatusColor(order.status)}`}>
@@ -277,21 +338,21 @@ const OrdersPage = () => {
                             {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                           </span>
                         </div>
-                        <div className="flex items-center gap-3 md:gap-4 text-xs text-[#6b5342] flex-wrap">
+                        <div className="flex items-center gap-3 md:gap-4 text-xs text-black flex-wrap">
                           <span className="flex items-center gap-1">
-                            <Calendar size={12} />
+                            <Calendar size={12} className="text-[#12054b]" />
                             {formatDate(order.created_at)}
                           </span>
                           {order.status !== 'cancelled' && (
                             <span className="flex items-center gap-1">
-                              <Truck size={12} />
+                              <Truck size={12} className="text-[#12054b]" />
                               {order.status === 'delivered' ? 'Delivered' : 'Est.'}: {calculateEstimatedDelivery(order)}
                             </span>
                           )}
                         </div>
                       </div>
                       <div className="text-right">
-                        <div style={{ fontFamily: headerFont }} className="text-base md:text-lg font-bold text-[#b8860b] mb-0.5">
+                        <div style={{ fontFamily: headerFont }} className="text-base md:text-lg font-bold text-[#12054b] mb-0.5">
                           {formatPrice(order.final_amount)}
                         </div>
                         <div className={`text-xs font-medium ${getPaymentStatusColor(order.payment_status)}`}>
@@ -302,28 +363,28 @@ const OrdersPage = () => {
                   </div>
 
                   {/* Order Items Preview */}
-                  <div className="p-3 md:p-4 bg-[#fbf6ef]">
+                  <div className="p-3 md:p-4 bg-gray-50">
                     <div className="space-y-2">
                       {order.items?.slice(0, 2).map((item, idx) => (
                         <div key={idx} className="flex gap-2 md:gap-3 items-center">
-                          <div className="w-10 h-10 md:w-12 md:h-12 bg-white rounded-lg flex items-center justify-center overflow-hidden border border-[#efe6d9] flex-shrink-0">
+                          <div className="w-10 h-10 md:w-12 md:h-12 bg-white rounded-lg flex items-center justify-center overflow-hidden border border-gray-300 flex-shrink-0">
                             {item.product_image ? (
                               <img src={item.product_image} alt={item.product_name} className="w-full h-full object-cover" />
                             ) : (
-                              <Box className="w-4 h-4 md:w-5 md:h-5 text-gray-400" />
+                              <Box className="w-4 h-4 md:w-5 md:h-5 text-[#12054b]" />
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <h4 className="text-xs md:text-sm font-medium text-[#3b1b12] truncate">{item.product_name}</h4>
-                            <p className="text-xs text-[#6b5342]">Qty: {item.quantity} × {formatPrice(item.price)}</p>
+                            <h4 className="text-xs md:text-sm font-medium text-black truncate">{item.product_name}</h4>
+                            <p className="text-xs text-black">Qty: {item.quantity} × {formatPrice(item.price)}</p>
                           </div>
-                          <div className="text-xs md:text-sm font-semibold text-[#3b1b12]">
+                          <div className="text-xs md:text-sm font-semibold text-black">
                             {formatPrice(item.subtotal)}
                           </div>
                         </div>
                       ))}
                       {order.items && order.items.length > 2 && (
-                        <p className="text-xs text-[#6b5342] text-center pt-1">
+                        <p className="text-xs text-black text-center pt-1">
                           +{order.items.length - 2} more item(s)
                         </p>
                       )}
@@ -333,7 +394,7 @@ const OrdersPage = () => {
                   {/* Expandable Details Button */}
                   <button
                     onClick={() => setExpandedOrder(expandedOrder === order.id ? null : order.id)}
-                    className="w-full p-2.5 md:p-3 bg-white border-t border-[#efe6d9] flex items-center justify-center gap-2 text-xs md:text-sm font-medium text-[#b8860b] hover:bg-[#fbf6ef] transition-colors"
+                    className="w-full p-2.5 md:p-3 bg-white border-t border-gray-300 flex items-center justify-center gap-2 text-xs md:text-sm font-medium text-[#12054b] hover:bg-gray-50 transition-colors"
                   >
                     {expandedOrder === order.id ? 'Hide' : 'View'} Order Details
                     {expandedOrder === order.id ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
@@ -341,23 +402,23 @@ const OrdersPage = () => {
 
                   {/* Expanded Details */}
                   {expandedOrder === order.id && (
-                    <div className="p-3 md:p-4 border-t border-[#efe6d9] space-y-3 md:space-y-4">
+                    <div className="p-3 md:p-4 border-t border-gray-300 space-y-3 md:space-y-4">
                       {/* All Items */}
                       <div>
-                        <h4 className="font-semibold text-[#3b1b12] mb-2 md:mb-3 text-xs md:text-sm">Order Items</h4>
+                        <h4 className="font-semibold text-black mb-2 md:mb-3 text-xs md:text-sm">Order Items</h4>
                         <div className="space-y-2">
                           {order.items?.map((item, idx) => (
-                            <div key={idx} className="flex gap-2 md:gap-3 p-2 md:p-3 bg-[#fbf6ef] rounded-lg">
-                              <div className="w-12 h-12 md:w-14 md:h-14 bg-white rounded-lg flex items-center justify-center overflow-hidden border border-[#efe6d9] flex-shrink-0">
+                            <div key={idx} className="flex gap-2 md:gap-3 p-2 md:p-3 bg-gray-50 rounded-lg">
+                              <div className="w-12 h-12 md:w-14 md:h-14 bg-white rounded-lg flex items-center justify-center overflow-hidden border border-gray-300 flex-shrink-0">
                                 {item.product_image ? (
                                   <img src={item.product_image} alt={item.product_name} className="w-full h-full object-cover" />
                                 ) : (
-                                  <Box className="w-5 h-5 md:w-6 md:h-6 text-gray-400" />
+                                  <Box className="w-5 h-5 md:w-6 md:h-6 text-[#12054b]" />
                                 )}
                               </div>
                               <div className="flex-1 min-w-0">
-                                <h5 className="text-xs md:text-sm font-medium text-[#3b1b12] mb-1">{item.product_name}</h5>
-                                <div className="text-xs text-[#6b5342] space-y-0.5">
+                                <h5 className="text-xs md:text-sm font-medium text-black mb-1">{item.product_name}</h5>
+                                <div className="text-xs text-black space-y-0.5">
                                   {item.sku && <p>SKU: {item.sku}</p>}
                                   {item.metal && <p>Metal: {item.metal} {item.metal_purity}</p>}
                                   {item.stone && <p>Stone: {item.stone}</p>}
@@ -365,7 +426,7 @@ const OrdersPage = () => {
                                 </div>
                               </div>
                               <div className="text-right flex-shrink-0">
-                                <div className="text-xs md:text-sm font-semibold text-[#3b1b12]">
+                                <div className="text-xs md:text-sm font-semibold text-black">
                                   {formatPrice(item.subtotal)}
                                 </div>
                               </div>
@@ -375,20 +436,20 @@ const OrdersPage = () => {
                       </div>
 
                       {/* Price Breakdown */}
-                      <div className="bg-white rounded-lg p-3 md:p-4 border border-[#efe6d9]">
-                        <h4 className="font-semibold text-[#3b1b12] mb-2 md:mb-3 text-xs md:text-sm">Price Details</h4>
+                      <div className="bg-white rounded-lg p-3 md:p-4 border border-gray-300">
+                        <h4 className="font-semibold text-black mb-2 md:mb-3 text-xs md:text-sm">Price Details</h4>
                         <div className="space-y-2 text-xs md:text-sm">
                           <div className="flex justify-between">
-                            <span className="text-[#6b5342]">Subtotal</span>
-                            <span className="text-[#3b1b12]">{formatPrice(order.subtotal)}</span>
+                            <span className="text-black">Subtotal</span>
+                            <span className="text-black">{formatPrice(order.subtotal)}</span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-[#6b5342]">Tax (3%)</span>
-                            <span className="text-[#3b1b12]">{formatPrice(order.tax_amount)}</span>
+                            <span className="text-black">Tax (3%)</span>
+                            <span className="text-black">{formatPrice(order.tax_amount)}</span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-[#6b5342]">Shipping</span>
-                            <span className="text-[#3b1b12]">
+                            <span className="text-black">Shipping</span>
+                            <span className="text-black">
                               {order.shipping_amount === 0 ? (
                                 <span className="text-green-600">FREE</span>
                               ) : (
@@ -405,9 +466,9 @@ const OrdersPage = () => {
                               <span>-{formatPrice(order.discount_amount)}</span>
                             </div>
                           )}
-                          <div className="flex justify-between pt-2 border-t border-[#efe6d9] font-semibold">
-                            <span className="text-[#3b1b12]">Total Amount</span>
-                            <span style={{ fontFamily: headerFont }} className="text-[#b8860b]">
+                          <div className="flex justify-between pt-2 border-t border-gray-300 font-semibold">
+                            <span className="text-black">Total Amount</span>
+                            <span style={{ fontFamily: headerFont }} className="text-[#12054b]">
                               {formatPrice(order.final_amount)}
                             </span>
                           </div>
@@ -415,28 +476,28 @@ const OrdersPage = () => {
                       </div>
 
                       {/* Shipping Address */}
-                      <div className="bg-white rounded-lg p-3 md:p-4 border border-[#efe6d9]">
-                        <h4 className="font-semibold text-[#3b1b12] mb-2 md:mb-3 text-xs md:text-sm flex items-center gap-2">
-                          <MapPin size={14} className="text-[#b8860b]" />
+                      <div className="bg-white rounded-lg p-3 md:p-4 border border-gray-300">
+                        <h4 className="font-semibold text-black mb-2 md:mb-3 text-xs md:text-sm flex items-center gap-2">
+                          <MapPin size={14} className="text-[#12054b]" />
                           Delivery Address
                         </h4>
                         <div className="text-xs md:text-sm">
-                          <p className="font-medium text-[#3b1b12] mb-1">{order.shipping_name}</p>
-                          <p className="text-[#6b5342] mb-1">
+                          <p className="font-medium text-black mb-1">{order.shipping_name}</p>
+                          <p className="text-black mb-1">
                             {order.shipping_address}
                             {order.shipping_landmark && `, ${order.shipping_landmark}`}
                           </p>
-                          <p className="text-[#6b5342] mb-2">
+                          <p className="text-black mb-2">
                             {order.shipping_city}, {order.shipping_state} - {order.shipping_pincode}
                           </p>
-                          <div className="flex items-center gap-3 md:gap-4 text-xs text-[#6b5342] flex-wrap">
+                          <div className="flex items-center gap-3 md:gap-4 text-xs text-black flex-wrap">
                             <span className="flex items-center gap-1">
-                              <Phone size={12} />
+                              <Phone size={12} className="text-[#12054b]" />
                               {order.shipping_phone}
                             </span>
                             {order.shipping_email && (
                               <span className="flex items-center gap-1">
-                                <Mail size={12} />
+                                <Mail size={12} className="text-[#12054b]" />
                                 {order.shipping_email}
                               </span>
                             )}
@@ -447,19 +508,19 @@ const OrdersPage = () => {
                       {/* Tracking Info */}
                       {order.tracking_number && (
                         <div className="bg-blue-50 rounded-lg p-3 md:p-4 border border-blue-200">
-                          <h4 className="font-semibold text-[#3b1b12] mb-2 md:mb-3 text-xs md:text-sm flex items-center gap-2">
-                            <Truck size={14} className="text-blue-600" />
+                          <h4 className="font-semibold text-black mb-2 md:mb-3 text-xs md:text-sm flex items-center gap-2">
+                            <Truck size={14} className="text-[#12054b]" />
                             Tracking Information
                           </h4>
                           <div className="text-xs md:text-sm space-y-2">
                             <div className="flex justify-between items-center">
-                              <span className="text-[#6b5342]">Tracking Number:</span>
-                              <span className="font-mono font-semibold text-[#3b1b12]">{order.tracking_number}</span>
+                              <span className="text-black">Tracking Number:</span>
+                              <span className="font-mono font-semibold text-black">{order.tracking_number}</span>
                             </div>
                             {order.courier_partner && (
                               <div className="flex justify-between items-center">
-                                <span className="text-[#6b5342]">Courier Partner:</span>
-                                <span className="font-medium text-[#3b1b12]">{order.courier_partner}</span>
+                                <span className="text-black">Courier Partner:</span>
+                                <span className="font-medium text-black">{order.courier_partner}</span>
                               </div>
                             )}
                           </div>
@@ -467,18 +528,18 @@ const OrdersPage = () => {
                       )}
 
                       {/* Payment Method */}
-                      <div className="bg-white rounded-lg p-3 md:p-4 border border-[#efe6d9]">
-                        <h4 className="font-semibold text-[#3b1b12] mb-2 md:mb-3 text-xs md:text-sm flex items-center gap-2">
-                          <CreditCard size={14} className="text-[#b8860b]" />
+                      <div className="bg-white rounded-lg p-3 md:p-4 border border-gray-300">
+                        <h4 className="font-semibold text-black mb-2 md:mb-3 text-xs md:text-sm flex items-center gap-2">
+                          <CreditCard size={14} className="text-[#12054b]" />
                           Payment Information
                         </h4>
-                        <div className="flex items-center gap-3 p-2 md:p-3 bg-[#fbf6ef] rounded-lg">
-                          <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <div className="flex items-center gap-3 p-2 md:p-3 bg-gray-50 rounded-lg">
+                          <div className="w-8 h-8 md:w-10 md:h-10 bg-[#12054b] rounded-lg flex items-center justify-center flex-shrink-0">
                             <CreditCard className="w-4 h-4 md:w-5 md:h-5 text-white" />
                           </div>
                           <div className="flex-1">
-                            <p className="font-semibold text-[#3b1b12] text-xs md:text-sm capitalize">{order.payment_method}</p>
-                            <p className="text-xs text-[#6b5342]">Secure payment gateway</p>
+                            <p className="font-semibold text-black text-xs md:text-sm capitalize">{order.payment_method}</p>
+                            <p className="text-xs text-black">Secure payment gateway</p>
                           </div>
                         </div>
                       </div>
@@ -486,8 +547,8 @@ const OrdersPage = () => {
                       {/* Order Notes */}
                       {order.notes && (
                         <div className="bg-yellow-50 rounded-lg p-3 md:p-4 border border-yellow-200">
-                          <h4 className="font-semibold text-[#3b1b12] mb-2 text-xs md:text-sm">Order Notes</h4>
-                          <p className="text-xs md:text-sm text-[#6b5342]">{order.notes}</p>
+                          <h4 className="font-semibold text-black mb-2 text-xs md:text-sm">Order Notes</h4>
+                          <p className="text-xs md:text-sm text-black">{order.notes}</p>
                         </div>
                       )}
                     </div>
@@ -498,7 +559,7 @@ const OrdersPage = () => {
           )}
         </div>
       </div>
-      <Footer />
+      
     </>
   );
 };
