@@ -54,6 +54,27 @@ const ProductDetailPage = () => {
     fetchProduct();
   }, [sku]);
 
+  /* ---- Handle back button for zoom modal ---- */
+useEffect(() => {
+  const handlePopState = (e) => {
+    if (isZoomOpen) {
+      e.preventDefault();
+      closeZoom();
+      window.history.pushState(null, '', window.location.href);
+    }
+  };
+
+  if (isZoomOpen) {
+    // Push a new state when zoom opens
+    window.history.pushState(null, '', window.location.href);
+    window.addEventListener('popstate', handlePopState);
+  }
+
+  return () => {
+    window.removeEventListener('popstate', handlePopState);
+  };
+}, [isZoomOpen]);
+
   const fetchProduct = async () => {
     setLoading(true);
     setError(null);
@@ -342,83 +363,84 @@ const ProductDetailPage = () => {
       
       {/* Image Zoom Modal */}
       {/* Image Zoom Modal */}
-      {isZoomOpen && (
-        <div 
-          className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center overflow-hidden"
-          onClick={closeZoom}
-        >
-          {/* Close Button */}
-          <div className="absolute top-4 right-4 z-10">
-            <button
-              onClick={closeZoom}
-              className="text-white bg-white/20 hover:bg-white/30 rounded-full p-2 transition-colors"
-            >
-              <X size={24} />
-            </button>
+      {/* Image Zoom Modal */}
+{isZoomOpen && (
+  <div 
+    className="fixed sticky inset-0 bg-black z-50 flex items-start md:items-center justify-center overflow-y-auto md:overflow-hidden"
+    onClick={closeZoom}
+  >
+    {/* Close Button - Sticky on mobile */}
+    <div className="sticky md:absolute top-0 md:top-4 right-0 md:right-4 z-20 w-full md:w-auto flex justify-end p-4 md:p-0 bg-gradient-to-b from-black/80 to-transparent md:bg-transparent">
+      <button
+        onClick={closeZoom}
+        className="text-white bg-white/20 hover:bg-white/30 rounded-full p-2 transition-colors"
+      >
+        <X size={24} />
+      </button>
+    </div>
+    
+    {/* Main Content */}
+    <div className="w-full min-h-screen md:h-full flex items-start md:items-center justify-center p-4 pt-0 md:p-8" onClick={(e) => e.stopPropagation()}>
+      <div className="w-full flex flex-col md:flex-row items-center justify-center gap-4 max-w-6xl py-4 md:py-0">
+        
+        {/* Thumbnails - Hidden on mobile, shown beside on desktop */}
+        {product.images?.length > 1 && (
+          <div className="hidden md:flex flex-col gap-3 max-h-[85vh] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-white/30 scrollbar-track-transparent">
+            {product.images.map((img, idx) => (
+              <button
+                key={idx}
+                onClick={() => setZoomedImageIndex(idx)}
+                className={`flex-shrink-0 w-20 h-20 lg:w-24 lg:h-24 rounded-lg overflow-hidden border-2 transition-all ${
+                  zoomedImageIndex === idx ? "border-white ring-2 ring-white/50" : "border-white/30 hover:border-white/60"
+                }`}
+              >
+                <img src={img} alt={`${product.name} ${idx + 1}`} className="w-full h-full object-cover" />
+              </button>
+            ))}
           </div>
-          
-          {/* Main Content */}
-          <div className="w-full h-full flex items-center justify-center p-4 md:p-8" onClick={(e) => e.stopPropagation()}>
-            <div className="w-full h-full flex flex-col md:flex-row items-center justify-center gap-4 max-w-6xl">
-              
-              {/* Thumbnails - Hidden on mobile, shown beside on desktop */}
-              {product.images?.length > 1 && (
-                <div className="hidden md:flex flex-col gap-3 max-h-[85vh] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-white/30 scrollbar-track-transparent">
-                  {product.images.map((img, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => setZoomedImageIndex(idx)}
-                      className={`flex-shrink-0 w-20 h-20 lg:w-24 lg:h-24 rounded-lg overflow-hidden border-2 transition-all ${
-                        zoomedImageIndex === idx ? "border-white ring-2 ring-white/50" : "border-white/30 hover:border-white/60"
-                      }`}
-                    >
-                      <img src={img} alt={`${product.name} ${idx + 1}`} className="w-full h-full object-cover" />
-                    </button>
-                  ))}
-                </div>
-              )}
-              
-              {/* Main Image */}
-              <div className="flex-1 w-full h-full max-h-[80vh] md:max-h-[85vh] flex items-center justify-center">
-                <img
-                  src={product.images?.[zoomedImageIndex] || "/placeholder.jpg"}
-                  alt={product.name}
-                  className="max-w-full max-h-full w-auto h-auto object-contain rounded-lg"
-                />
-              </div>
-              
-              {/* Navigation Arrows for Mobile */}
-              {product.images?.length > 1 && (
-                <>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setZoomedImageIndex((prev) => (prev === 0 ? product.images.length - 1 : prev - 1));
-                    }}
-                    className="md:hidden absolute left-4 top-1/2 -translate-y-1/2 text-white bg-white/20 hover:bg-white/30 rounded-full p-2 transition-colors"
-                  >
-                    <ChevronLeft size={24} />
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setZoomedImageIndex((prev) => (prev === product.images.length - 1 ? 0 : prev + 1));
-                    }}
-                    className="md:hidden absolute right-4 top-1/2 -translate-y-1/2 text-white bg-white/20 hover:bg-white/30 rounded-full p-2 transition-colors"
-                  >
-                    <ChevronRight size={24} />
-                  </button>
-                  
-                  {/* Image Counter for Mobile */}
-                  <div className="md:hidden absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/60 text-white px-4 py-2 rounded-full text-sm">
-                    {zoomedImageIndex + 1} / {product.images.length}
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
+        )}
+        
+        {/* Main Image */}
+        <div className="flex-1 w-full flex items-center justify-center min-h-[70vh] md:max-h-[85vh]">
+          <img
+            src={product.images?.[zoomedImageIndex] || "/placeholder.jpg"}
+            alt={product.name}
+            className="max-w-full max-h-full w-auto h-auto object-contain rounded-lg"
+          />
         </div>
-      )}
+        
+        {/* Navigation Arrows for Mobile - Sticky positioned */}
+        {product.images?.length > 1 && (
+          <>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setZoomedImageIndex((prev) => (prev === 0 ? product.images.length - 1 : prev - 1));
+              }}
+              className="md:hidden fixed left-4 top-1/2 -translate-y-1/2 text-white bg-white/20 hover:bg-white/30 rounded-full p-3 transition-colors z-10"
+            >
+              <ChevronLeft size={24} />
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setZoomedImageIndex((prev) => (prev === product.images.length - 1 ? 0 : prev + 1));
+              }}
+              className="md:hidden fixed right-4 top-1/2 -translate-y-1/2 text-white bg-white/20 hover:bg-white/30 rounded-full p-3 transition-colors z-10"
+            >
+              <ChevronRight size={24} />
+            </button>
+            
+            {/* Image Counter for Mobile - Sticky at bottom */}
+            <div className="md:hidden sticky bottom-4 left-1/2 -translate-x-1/2 bg-black/60 text-white px-4 py-2 rounded-full text-sm w-fit mx-auto">
+              {zoomedImageIndex + 1} / {product.images.length}
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  </div>
+)}
       <style jsx>{`
         .scrollbar-thin::-webkit-scrollbar {
           width: 6px;
@@ -439,9 +461,9 @@ const ProductDetailPage = () => {
         <div className="w-full px-4 md:px-8 lg:px-12 py-6 md:py-8">
           {/* Breadcrumbs */}
           <div className="max-w-7xl mx-auto mb-6">
-            <div className="flex items-center gap-1.5 mb-4 md:mb-6 text-xs md:text-sm">
+            <div className="flex items-center gap-1 mb-4 md:mb-6 text-xs md:text-sm">
               {getBreadcrumbs().map((crumb, idx) => (
-                <div key={idx} className="flex items-center gap-1 flex-shrink-0">
+                <div key={idx} className="flex items-center  flex-shrink-0">
                   {idx > 0 && <span className="text-gray-400">{'>'}</span>}
                   {crumb.path ? (
                     <button 
@@ -508,7 +530,7 @@ const ProductDetailPage = () => {
               {/* PRODUCT INFO - Right Side */}
               <div className="space-y-6">
                 <div>
-                  <h1 className="text-3xl font-serif text-gray-900 mb-2">{product.name}</h1>
+                  <h1 className="text-xl sm:text-3xl  font-serif text-gray-900 mb-2">{product.name}</h1>
                   <p className="text-sm text-gray-500">SKU: {product.sku}</p>
                 </div>
 
