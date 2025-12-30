@@ -83,8 +83,10 @@ const HomePage = () => {
 
   if (loading) {
     return (
+      <>
       <Loading/>
-    );
+      </> 
+      );
   }
 
   return (
