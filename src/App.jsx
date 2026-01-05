@@ -29,6 +29,7 @@ import HomePageThemeAdmin from "./pages/admin/HomePageThemeAdmin";
 import ReelsPage from "./pages/ReelsPage";
 import CategoriesAdmin from "./pages/admin/CategoriesAdmin";
 import CategoriesPage from "./pages/CategoriesPage";
+import PoliciesPage from "./components/homepage/PoliciesPage";
 
 const queryClient = new QueryClient();
 
@@ -76,6 +77,13 @@ export default function App() {
                   <Route path="/checkout" element={<CheckoutPage />} />
                   <Route path="/orders" element={<OrdersPage />} />
                   <Route path="/payment/callback" element={<PaymentCallbackPage />} />
+
+                  {/* Policy Pages - Required for PhonePe Gateway */}
+                  <Route path="/terms_and_conditions" element={<PoliciesPage defaultTab="terms" />} />
+                  <Route path="/privacy_policy" element={<PoliciesPage defaultTab="privacy" />} />
+                  <Route path="/shipping_policy" element={<PoliciesPage defaultTab="shipping" />} />
+                  <Route path="/return_policy" element={<PoliciesPage defaultTab="terms" />} />
+                  <Route path="/refund_policy" element={<PoliciesPage defaultTab="terms" />} />
 
                   {/* Admin Routes */}
                   <Route path="/admin/login" element={<AdminLogin />} />
