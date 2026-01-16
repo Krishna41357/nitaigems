@@ -111,48 +111,51 @@ export default function CategoriesPage() {
                     </div>
 
                     {/* Subcategories Grid - Full Image Cards */}
+                    {/* Subcategories Grid - Full Image Cards */}
                     <div className="max-w-7xl mx-auto px-4 md:px-6">
-                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-6">
-                        {category.subcategories.map((subcategory) => (
-                          <div 
-                            key={subcategory.id}
-                            className="group cursor-pointer relative overflow-hidden bg-white border border-gray-200 hover:border-[#10254b] transition-all duration-300 hover:shadow-xl rounded-lg"
-                            style={{ aspectRatio: '3/4' }}
-                            onClick={() => navigate(`/products/category/${category.slug}/${subcategory.slug}`)}
-                          >
-                            {/* Full Image Background */}
-                            {subcategory.image ? (
-                              <img 
-                                src={subcategory.image} 
-                                alt={subcategory.name}
-                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                              />
-                            ) : (
-                              <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-50" />
-                            )}
-                            
-                            {/* Gradient Overlay for Text Readability */}
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-                            
-                            {/* Content Overlay - Centered */}
-                            <div className="absolute inset-0 flex flex-col items-center justify-end p-3 md:p-4 lg:p-6">
-                              <h3 className="font-semibold text-white text-sm md:text-base lg:text-lg mb-2 md:mb-3 tracking-wide text-center">
-                                {subcategory.name}
-                              </h3>
-                              
-                              {/* Thin White Divider Line */}
-                              <div className="w-8 md:w-10 lg:w-12 h-px bg-white/60 mb-2 md:mb-3"></div>
-                              
-                              {/* Shop Now on Image - Centered */}
-                              <div className="flex items-center gap-1 md:gap-2 text-xs md:text-sm font-medium text-white group-hover:gap-2 md:group-hover:gap-3 transition-all">
-                                <span>Shop Now</span>
-                                <ArrowRight />
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+  <div className="subcategory-grid grid grid-cols-4 gap-1.5 md:gap-2">
+    {category.subcategories.map((subcategory) => (
+      <div 
+        key={subcategory.id}
+        className="group cursor-pointer relative overflow-hidden bg-white border border-gray-200 hover:border-[#10254b] transition-all duration-300 hover:shadow-xl rounded-lg"
+        style={{ aspectRatio: '3/4' }}
+        onClick={() => navigate(`/products/category/${category.slug}/${subcategory.slug}`)}
+      >
+        {/* Full Image Background */}
+        {subcategory.image ? (
+          <img 
+            src={subcategory.image} 
+            alt={subcategory.name}
+            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-50" />
+        )}
+        
+        {/* Gradient Overlay for Text Readability */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+        
+        {/* Content Overlay - At Bottom */}
+        <div className="subcategory-card-content absolute bottom-0 left-0 right-0 p-1.5 md:p-3">
+          <div className="flex flex-col items-center justify-end w-full">
+            <h3 className="font-semibold text-white text-[8px] md:text-sm lg:text-base tracking-wide text-center leading-tight">
+              {subcategory.name}
+            </h3>
+            
+            {/* Thin White Divider Line - Hidden on mobile */}
+            <div className="hidden md:block w-8 lg:w-10 h-px bg-white/60 mt-2 mb-1.5"></div>
+            
+            {/* Shop Now - Hidden on mobile */}
+            <div className="hidden md:flex items-center gap-0.5 text-xs lg:text-sm font-medium text-white group-hover:gap-1 transition-all">
+              <span>Shop Now</span>
+              <ArrowRight className="w-3 h-3 lg:w-4 lg:h-4" />
+            </div>
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
+</div>
                   </>
                 )}
 

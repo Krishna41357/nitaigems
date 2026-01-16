@@ -1153,3 +1153,15 @@ textarea,
     height: 150px !important;
   }
 }
+/* Exclude subcategory grid from carousel rules */
+.subcategory-grid {
+  display: grid !important;
+  flex-direction: initial !important;
+  flex-wrap: initial !important;
+  overflow-x: initial !important;
+}
+
+/* Ensure subcategory card text layout is not affected */
+.subcategory-card-content .flex-col {
+  flex-direction: column !important;
+}
