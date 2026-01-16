@@ -1035,3 +1035,121 @@ textarea,
     touch-action: pan-y pinch-zoom !important;
   }
 }
+/* ========================================
+   SUBCATEGORY CAROUSEL FIX - Add to end of index.css
+   ======================================== */
+
+/* CRITICAL: Override the global flex-wrap rule that breaks horizontal scrolling */
+.max-w-7xl .relative > div[style*="scrollSnapType"],
+.max-w-7xl .relative > div.flex {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+}
+
+/* Ensure cards don't wrap and stay in a row */
+.max-w-7xl .relative > div[style*="scrollSnapType"] > div {
+  flex-shrink: 0 !important;
+}
+
+/* Hide scrollbar for cleaner look */
+.max-w-7xl .relative > div[style*="scrollSnapType"]::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+.max-w-7xl .relative > div[style*="scrollSnapType"] {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+/* Smooth scrolling on iOS */
+.max-w-7xl .relative > div[style*="scrollSnapType"] {
+  -webkit-overflow-scrolling: touch !important;
+  scroll-behavior: smooth !important;
+}
+
+/* Prevent text selection during drag */
+.max-w-7xl .relative > div[style*="scrollSnapType"],
+.max-w-7xl .relative > div[style*="scrollSnapType"] > div {
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+}
+
+/* Arrow button styles - ensure they're above the carousel */
+.max-w-7xl .relative > button {
+  z-index: 30 !important;
+}
+
+/* Mobile: Hide arrows, show dots */
+@media (max-width: 768px) {
+  .max-w-7xl .relative > button {
+    display: none !important;
+  }
+  
+  /* Ensure carousel is still scrollable on mobile */
+  .max-w-7xl .relative > div[style*="scrollSnapType"] {
+    overflow-x: scroll !important;
+    scroll-snap-type: x mandatory !important;
+  }
+}
+
+/* Desktop: Show arrows, hide dots */
+@media (min-width: 769px) {
+  .max-w-7xl .relative > .flex.justify-center.gap-1\.5 {
+    display: none !important;
+  }
+}
+
+/* Card hover effects */
+.max-w-7xl .relative > div[style*="scrollSnapType"] > div:hover {
+  transform: scale(1.02) !important;
+  transition: transform 0.2s ease !important;
+}
+
+/* Active/selected card styling */
+.max-w-7xl .relative > div[style*="scrollSnapType"] > div.scale-105 {
+  transform: scale(1.05) !important;
+}
+
+/* Performance optimization */
+.max-w-7xl .relative > div[style*="scrollSnapType"] {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  will-change: scroll-position;
+}
+
+/* Ensure proper spacing */
+.max-w-7xl .relative > div[style*="scrollSnapType"] {
+  gap: 0.75rem !important;
+  padding-bottom: 0.5rem !important;
+}
+
+/* Mobile adjustments */
+@media (max-width: 640px) {
+  .max-w-7xl .relative > div[style*="scrollSnapType"] > div {
+    width: 110px !important;
+    height: 110px !important;
+  }
+}
+
+@media (min-width: 640px) and (max-width: 768px) {
+  .max-w-7xl .relative > div[style*="scrollSnapType"] > div {
+    width: 130px !important;
+    height: 130px !important;
+  }
+}
+
+@media (min-width: 768px) {
+  .max-w-7xl .relative > div[style*="scrollSnapType"] > div {
+    width: 150px !important;
+    height: 150px !important;
+  }
+}

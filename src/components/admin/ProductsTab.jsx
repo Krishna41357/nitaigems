@@ -133,6 +133,7 @@ export default function ProductsTab() {
   const [error, setError] = useState("");
   const [currentImageUrl, setCurrentImageUrl] = useState("");
   const [currentTag, setCurrentTag] = useState("");
+  const [newLayerNumber, setNewLayerNumber] = useState("");
 
   const [formData, setFormData] = useState(initialFormData);
   const [showBulkUpload, setShowBulkUpload] = useState(false);
@@ -180,6 +181,15 @@ export default function ProductsTab() {
       setError("Please fill in all required fields");
       return;
     }
+
+    //validate layers price
+      if (formData.necklaceLayers.length > 0) {
+    const invalidLayers = formData.necklaceLayers.filter(l => !l.price || l.price <= 0);
+    if (invalidLayers.length > 0) {
+      setError("All necklace layers must have a price greater than 0");
+      return;
+    }
+  }
     
     setError("");
     try {
@@ -255,6 +265,7 @@ export default function ProductsTab() {
     setError("");
     setCurrentImageUrl("");
     setCurrentTag("");
+    setNewLayerNumber("");
   };
 
   const addImage = () => {
@@ -545,30 +556,78 @@ export default function ProductsTab() {
                 </div>
 
                 {/* Pricing */}
+                {/* Pricing */}
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold text-white border-b border-slate-700 pb-2">Pricing</h3>
                   
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div>
-                      <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1.5 sm:mb-2">Base Price</label>
+                      <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1.5 sm:mb-2">Selling Price (Final) *</label>
                       <input
                         type="number"
-                        value={formData.pricing.basePrice}
-                        onChange={(e) => setFormData({ ...formData, pricing: { ...formData.pricing, basePrice: parseFloat(e.target.value) || 0 } })}
+                        required
+                        step="0.01"
+                        placeholder="Enter selling price"
+                        value={formData.pricing.discountedPrice || ""}
+                        onChange={(e) => {
+                          const sellingPrice = parseFloat(e.target.value) || 0;
+                          const discountPercent = formData.pricing.discountPercent || 0;
+                          const basePrice = discountPercent > 0 
+                            ? sellingPrice / (1 - discountPercent / 100)
+                            : sellingPrice;
+                          
+                          setFormData({ 
+                            ...formData, 
+                            pricing: { 
+                              ...formData.pricing, 
+                              discountedPrice: sellingPrice,
+                              basePrice: Math.round(basePrice * 100) / 100
+                            } 
+                          });
+                        }}
                         className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1.5 sm:mb-2">Discounted Price</label>
+                      <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1.5 sm:mb-2">Discount %</label>
                       <input
                         type="number"
-                        value={formData.pricing.discountedPrice || ""}
-                        onChange={(e) => setFormData({ ...formData, pricing: { ...formData.pricing, discountedPrice: parseFloat(e.target.value) || 0 } })}
+                        min="0"
+                        max="99"
+                        step="0.1"
+                        placeholder="e.g., 20 for 20% off"
+                        value={formData.pricing.discountPercent || ""}
+                        onChange={(e) => {
+                          const discountPercent = parseFloat(e.target.value) || 0;
+                          const sellingPrice = formData.pricing.discountedPrice || 0;
+                          const basePrice = discountPercent > 0 && sellingPrice > 0
+                            ? sellingPrice / (1 - discountPercent / 100)
+                            : sellingPrice;
+                          
+                          setFormData({ 
+                            ...formData, 
+                            pricing: { 
+                              ...formData.pricing, 
+                              discountPercent,
+                              basePrice: Math.round(basePrice * 100) / 100
+                            } 
+                          });
+                        }}
                         className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
                       />
                     </div>
                   </div>
+
+                  {formData.pricing.discountPercent > 0 && formData.pricing.discountedPrice > 0 && (
+                    <div className="bg-blue-600/10 border border-blue-600/30 rounded-lg p-3">
+                      <p className="text-sm text-slate-300">
+                        <span className="text-slate-400">Original Price:</span> 
+                        <span className="font-semibold text-white ml-2">₹{formData.pricing.basePrice.toFixed(2)}</span>
+                        <span className="text-green-400 ml-3">({formData.pricing.discountPercent}% off)</span>
+                      </p>
+                    </div>
+                  )}
 
                   <div className="flex items-center gap-2">
                     <input
@@ -583,71 +642,122 @@ export default function ProductsTab() {
                 </div>
 
                 {/* Necklace Layers with Pricing */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-white border-b border-slate-700 pb-2">Necklace Layer Pricing</h3>
-                  
-                  <div className="space-y-3">
-                    <p className="text-xs text-slate-400">Configure different prices for each layer option. Leave empty if not a necklace product.</p>
-                    
-                    {['1-layer', '2-layer', '3-layer', '4-layer', '5-layer'].map((layerOption) => {
-                      const existingLayer = formData.necklaceLayers.find(l => l.layer === layerOption);
-                      const isEnabled = !!existingLayer;
-                      const price = existingLayer?.price || 0;
-                      
-                      return (
-                        <div key={layerOption} className="flex items-center gap-3 bg-slate-700/30 p-3 rounded-lg">
-                          <input
-                            type="checkbox"
-                            id={layerOption}
-                            checked={isEnabled}
-                            onChange={(e) => {
-                              if (e.target.checked) {
-                                setFormData({
-                                  ...formData,
-                                  necklaceLayers: [...formData.necklaceLayers, { layer: layerOption, price: 0 }]
-                                });
-                              } else {
-                                setFormData({
-                                  ...formData,
-                                  necklaceLayers: formData.necklaceLayers.filter(l => l.layer !== layerOption)
-                                });
-                              }
-                            }}
-                            className="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500/20 bg-slate-700 border-slate-600"
-                          />
-                          <label htmlFor={layerOption} className="text-sm font-medium text-slate-300 w-24">
-                            {layerOption.replace('-', ' ').toUpperCase()}
-                          </label>
-                          <input
-                            type="number"
-                            placeholder="Price"
-                            disabled={!isEnabled}
-                            value={isEnabled ? price : ''}
-                            onChange={(e) => {
-                              const newPrice = parseFloat(e.target.value) || 0;
-                              setFormData({
-                                ...formData,
-                                necklaceLayers: formData.necklaceLayers.map(l => 
-                                  l.layer === layerOption ? { ...l, price: newPrice } : l
-                                )
-                              });
-                            }}
-                            className="flex-1 px-3 py-2 text-sm bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none disabled:opacity-50 disabled:cursor-not-allowed"
-                          />
-                          <span className="text-slate-500 text-sm">₹</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                  
-                  {formData.necklaceLayers.length > 0 && (
-                    <div className="bg-blue-600/10 border border-blue-600/30 rounded-lg p-3">
-                      <p className="text-xs text-blue-400">
-                        <strong>Active Layers:</strong> {formData.necklaceLayers.map(l => l.layer.replace('-', ' ')).join(', ')}
-                      </p>
-                    </div>
-                  )}
-                </div>
+               <div className="space-y-4">
+  <h3 className="text-lg font-semibold text-white border-b border-slate-700 pb-2">Necklace Layer Pricing</h3>
+  
+  <div className="space-y-3">
+    <p className="text-xs text-slate-400">Configure different prices for each layer option. Leave empty if not a necklace product.</p>
+    
+    {/* Add new layer input */}
+    <div className="flex gap-2">
+      <input
+        type="number"
+        min="1"
+        placeholder="Layer number (e.g., 1, 3, 5, 15)"
+        value={newLayerNumber}
+        onChange={(e) => setNewLayerNumber(e.target.value)}
+        onKeyPress={(e) => {
+          if (e.key === 'Enter' && newLayerNumber) {
+            e.preventDefault();
+            const layerNum = parseInt(newLayerNumber);
+            if (layerNum > 0 && !formData.necklaceLayers.find(l => l.layer === `${layerNum}-layer`)) {
+              setFormData({
+                ...formData,
+                necklaceLayers: [...formData.necklaceLayers, { layer: `${layerNum}-layer`, price: 0 }]
+              });
+              setNewLayerNumber("");
+            }
+          }
+        }}
+        className="flex-1 px-3 sm:px-4 py-2 text-sm sm:text-base bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
+        aria-label="Necklace layer number"
+      />
+      <button
+        type="button"
+        onClick={() => {
+          if (newLayerNumber) {
+            const layerNum = parseInt(newLayerNumber);
+            if (layerNum > 0 && !formData.necklaceLayers.find(l => l.layer === `${layerNum}-layer`)) {
+              setFormData({
+                ...formData,
+                necklaceLayers: [...formData.necklaceLayers, { layer: `${layerNum}-layer`, price: 0 }]
+              });
+              setNewLayerNumber("");
+            }
+          }
+        }}
+        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 rounded-lg text-white font-medium transition-colors"
+        aria-label="Add layer"
+      >
+        <Plus className="w-5 h-5" />
+      </button>
+    </div>
+    
+    {/* Existing layers */}
+    {formData.necklaceLayers.length > 0 && (
+      <div className="space-y-2">
+        {[...formData.necklaceLayers]
+          .sort((a, b) => parseInt(a.layer) - parseInt(b.layer))
+          .map((layer) => {
+            const layerNum = parseInt(layer.layer.replace('-layer', ''));
+            return (
+              <div key={layer.layer} className="flex items-center gap-3 bg-slate-700/30 p-3 rounded-lg">
+                <span className="text-sm font-medium text-slate-300 w-20 flex-shrink-0">
+                  {layerNum} Layer{layerNum > 1 ? 's' : ''}
+                </span>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  placeholder="Enter price"
+                  value={layer.price || ''}
+                  onChange={(e) => {
+                    const newPrice = parseFloat(e.target.value) || 0;
+                    setFormData({
+                      ...formData,
+                      necklaceLayers: formData.necklaceLayers.map(l => 
+                        l.layer === layer.layer ? { ...l, price: newPrice } : l
+                      )
+                    });
+                  }}
+                  className="flex-1 px-3 py-2 text-sm bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
+                  aria-label={`Price for ${layerNum} layer${layerNum > 1 ? 's' : ''}`}
+                />
+                <span className="text-slate-400 text-sm flex-shrink-0">₹</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFormData({
+                      ...formData,
+                      necklaceLayers: formData.necklaceLayers.filter(l => l.layer !== layer.layer)
+                    });
+                  }}
+                  className="bg-red-600 hover:bg-red-700 active:bg-red-800 p-2 rounded-lg transition-colors flex-shrink-0"
+                  aria-label={`Remove ${layerNum} layer${layerNum > 1 ? 's' : ''}`}
+                >
+                  <Trash2 className="w-4 h-4 text-white" />
+                </button>
+              </div>
+            );
+          })}
+      </div>
+    )}
+  </div>
+  
+  {formData.necklaceLayers.length > 0 && (
+    <div className="bg-blue-600/10 border border-blue-600/30 rounded-lg p-3">
+      <p className="text-xs text-blue-400">
+        <strong>Active Layers ({formData.necklaceLayers.length}):</strong> {[...formData.necklaceLayers]
+          .sort((a, b) => parseInt(a.layer) - parseInt(b.layer))
+          .map(l => {
+            const num = parseInt(l.layer.replace('-layer', ''));
+            return `${num} Layer${num > 1 ? 's' : ''}`;
+          })
+          .join(', ')}
+      </p>
+    </div>
+  )}
+</div>
 
                 {/* Product Details */}
                 <div className="space-y-4">

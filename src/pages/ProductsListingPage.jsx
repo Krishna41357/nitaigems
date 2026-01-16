@@ -1,5 +1,5 @@
 import { useParams, useSearchParams, useNavigate } from "react-router-dom";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { ChevronDown, ChevronLeft, ChevronRight, X, SearchX } from "lucide-react";
 import ProductCard from "../components/products/ProductCard";
 import MainHeader from "../components/homepage/MainHeader";
@@ -20,7 +20,6 @@ const ProductsListingPage = () => {
   const [error, setError] = useState(null);
   const [sortBy, setSortBy] = useState('relevance');
   const [currentPage, setCurrentPage] = useState(1);
-  const [showFilters, setShowFilters] = useState(false);
   const itemsPerPage = 12;
   
   const [activeFilters, setActiveFilters] = useState({
@@ -38,6 +37,12 @@ const ProductsListingPage = () => {
     tags: [],
     subcategories: []
   });
+
+  // Subcategory carousel state
+  const [scrollPosition, setScrollPosition] = useState(0);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+  const carouselRef = useRef(null);
 
   const showProducts = true;
 
@@ -183,7 +188,6 @@ const ProductsListingPage = () => {
       }
     }
   };
-
   const parseFiltersFromURL = () => {
     const filters = { ...activeFilters };
     let pageFromURL = 1;
@@ -312,6 +316,7 @@ const ProductsListingPage = () => {
     { label: '30% & Above', min: 30 },
     { label: '40% & Above', min: 40 }
   ];
+
   const filteredProducts = useMemo(() => {
     return getFilteredProductsByRoute.filter(product => {
       if (activeFilters.priceRanges.length > 0) {
@@ -370,7 +375,6 @@ const ProductsListingPage = () => {
       return true;
     });
   }, [getFilteredProductsByRoute, activeFilters, filteredSubcategories]);
-
   const sortedProducts = useMemo(() => {
     const sorted = [...filteredProducts];
     
@@ -419,10 +423,10 @@ const ProductsListingPage = () => {
     setCurrentPage(1);
   };
 
-  const handleSubcategoryFilterClick = (subcategoryName) => {
-    const subcat = filteredSubcategories.find(s => s.name === subcategoryName);
-    if (subcat && subcat.slug) {
-      navigate(`/products/category/${categorySlug}/${subcat.slug}`);
+  const handleSubcategoryClick = (subcategory) => {
+    if (subcategory.slug) {
+      navigate(`/products/category/${categorySlug}/${subcategory.slug}`);
+      setCurrentPage(1);
     }
   };
 
@@ -482,129 +486,39 @@ const ProductsListingPage = () => {
     return breadcrumbs;
   };
 
-  const FilterSection = ({ title, filterKey, options, isSubcategoryFilter = false }) => {
-    const [expanded, setExpanded] = useState(false);
-    
-    return (
-      <div className="border-b border-gray-200 last:border-b-0">
-        <button 
-          onClick={() => setExpanded(!expanded)} 
-          className="flex items-center justify-between bg-transparent w-full py-3.5 px-5 border-none outline-none focus:outline-none"
-        >
-          <span className="font-semibold text-[15px] text-black">{title}</span>
-          <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${expanded ? 'rotate-180' : ''}`} />
-        </button>
-        {expanded && (
-          <div className="pb-4 px-5">
-            {options.length === 0 ? (
-              <p className="text-xs text-gray-400 italic">No options available</p>
-            ) : (
-              <div className="flex flex-wrap gap-1.5">
-                {options.map(option => (
-                  <button 
-                    key={option} 
-                    onClick={() => {
-                      if (isSubcategoryFilter) {
-                        handleSubcategoryFilterClick(option);
-                      } else {
-                        handleFilterChange(filterKey, option);
-                      }
-                    }}
-                    className={`px-3 py-1.5 text-xs rounded-full border-none outline-none focus:outline-none transition-all ${
-                      activeFilters[filterKey].includes(option)
-                        ? 'bg-[#10254b] text-white font-medium'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                  >
-                    {option}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-    );
+  // Carousel Functions
+  const updateCarouselButtons = () => {
+    if (!carouselRef.current) return;
+    const el = carouselRef.current;
+    setCanScrollLeft(el.scrollLeft > 10);
+    setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 10);
+    setScrollPosition(el.scrollLeft);
   };
 
-  const PriceRangeFilter = () => {
-    const [expanded, setExpanded] = useState(false);
-    const [minPrice, setMinPrice] = useState('');
-    const [maxPrice, setMaxPrice] = useState('');
+  const scrollCarousel = (dir) => {
+    if (!carouselRef.current) return;
+    const cardWidth = window.innerWidth < 640 ? 120 : window.innerWidth < 768 ? 140 : 160;
+    carouselRef.current.scrollBy({
+      left: dir === "left" ? -cardWidth * 2 : cardWidth * 2,
+      behavior: "smooth",
+    });
+    setTimeout(updateCarouselButtons, 300);
+  };
 
-    const handleApplyCustomRange = () => {
-      const min = parseFloat(minPrice) || 0;
-      const max = parseFloat(maxPrice) || Infinity;
-      const customLabel = `₹${min.toLocaleString()} - ₹${max.toLocaleString()}`;
-      handleFilterChange('priceRanges', customLabel);
-      setMinPrice('');
-      setMaxPrice('');
+  // Update carousel buttons when subcategories change
+  useEffect(() => {
+    updateCarouselButtons();
+    const el = carouselRef.current;
+    if (!el) return;
+    el.addEventListener("scroll", updateCarouselButtons);
+    window.addEventListener("resize", updateCarouselButtons);
+    return () => {
+      el.removeEventListener("scroll", updateCarouselButtons);
+      window.removeEventListener("resize", updateCarouselButtons);
     };
-
-    return (
-      <div className="border-b border-gray-200">
-        <button 
-          onClick={() => setExpanded(!expanded)} 
-          className="flex items-center bg-transparent border-none outline-none focus:outline-none justify-between w-full py-3.5 px-5"
-        >
-          <span className="font-semibold text-[15px] text-black">Price</span>
-          <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${expanded ? 'rotate-180' : ''}`} />
-        </button>
-        {expanded && (
-          <div className="pb-4 px-5 space-y-3">
-            <div className="flex flex-wrap gap-1.5">
-              {priceRanges.map(range => (
-                <button 
-                  key={range.label} 
-                  onClick={() => handleFilterChange('priceRanges', range.label)}
-                  className={`px-3 py-1.5 text-xs rounded-full border-none outline-none focus:outline-none transition-all ${
-                    activeFilters.priceRanges.includes(range.label)
-                      ? 'bg-[#10254b] text-white font-medium'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  {range.label}
-                </button>
-              ))}
-            </div>
-            <div className="pt-1">
-              <p className="text-xs text-gray-600 mb-2">Custom Range</p>
-              <div className="flex items-center gap-2">
-                <input 
-                  type="number" 
-                  placeholder="Min" 
-                  value={minPrice} 
-                  onChange={(e) => setMinPrice(e.target.value)}
-                  className="flex-1 px-2.5 py-1.5 border border-gray-300 rounded text-xs outline-none focus:outline-none focus:border-[#10254b]" 
-                />
-                <span className="text-gray-500 text-xs font-medium">to</span>
-                <input 
-                  type="number" 
-                  placeholder="Max" 
-                  value={maxPrice} 
-                  onChange={(e) => setMaxPrice(e.target.value)}
-                  className="flex-1 px-2.5 py-1.5 border border-gray-300 rounded text-xs outline-none focus:outline-none focus:border-[#10254b]" 
-                />
-              </div>
-              {(minPrice || maxPrice) && (
-                <button 
-                  onClick={handleApplyCustomRange}
-                  className="mt-2 w-full py-1.5 bg-[#10254b] text-white text-xs rounded outline-none focus:outline-none hover:bg-[#0d1e3d] transition-colors"
-                >
-                  Apply
-                </button>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  };
-
+  }, [filteredSubcategories]);
   if (loading) {
-    return (
-      <Loading/>
-    );
+    return <Loading/>;
   }
 
   if (error) {
@@ -624,11 +538,12 @@ const ProductsListingPage = () => {
       </div>
     );
   }
+
   return (
     <>
       <MainHeader />
       <div className="min-h-screen w-screen bg-white">
-        <div className="w-screen px-4 md:px-8 lg:px-12 py-6 md:py-8">
+        <div className="w-screen px-4 py-6 md:py-8">
           
          {/* Banner Section - Show for both Category and Subcategory based on route */}
           {(() => {
@@ -714,20 +629,8 @@ const ProductsListingPage = () => {
               ))}
             </nav>
 
-            {/* Filter and Sort Bar */}
-            <div className="flex items-center justify-between gap-3">
-              <button onClick={() => setShowFilters(true)}
-                className="flex items-center gap-2 px-3 md:px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm">
-                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <path d="M4 6h16M7 12h10M10 18h4" strokeWidth="2" strokeLinecap="round"/>
-                </svg>
-                <span className="font-medium">FILTER</span>
-                {getActiveFilterCount() > 0 && (
-                  <span className="bg-[#10254b] text-white text-xs font-semibold px-1.5 py-0.5 rounded min-w-[18px] text-center">
-                    {getActiveFilterCount()}
-                  </span>
-                )}
-              </button>
+            {/* Sort Bar Only - No Filter Button */}
+            <div className="flex items-center justify-start gap-3">
               <div className="flex items-center gap-2">
                 <span className="text-sm text-gray-600 hidden sm:inline">Sort by</span>
                 <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}
@@ -741,207 +644,161 @@ const ProductsListingPage = () => {
                 </select>
               </div>
             </div>
-
-            {getActiveFilterCount() > 0 && (
-              <div className="mt-3 pt-3 border-t border-gray-200">
-                <div className="flex items-center gap-2">
-                  <button onClick={clearAllFilters}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-black text-white rounded-full text-xs font-medium hover:bg-gray-800 transition-colors">
-                    <X className="w-3 h-3" />
-                    Clear All
-                  </button>
-                  <div className="flex flex-wrap items-center gap-2">
-                    {Object.entries(activeFilters).map(([key, values]) =>
-                      values.map(value => (
-                        <span key={`${key}-${value}`}
-                          className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-gray-100 text-gray-700 rounded-full text-xs">
-                          {value}
-                          <button onClick={() => handleFilterChange(key, value)}
-                            className="hover:bg-gray-200 rounded-full p-0.5">
-                            <X className="w-3 h-3" />
-                          </button>
-                        </span>
-                      ))
-                    )}
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
 
-          {/* Products Grid */}
-          <div className="max-w-7xl mx-auto">
-            {paginatedProducts.length === 0 ? (
-              <div className="text-center py-20">
-                <SearchX className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-2xl font-medium text-gray-900 mb-3">No Products Found</h3>
-                <p className="text-gray-500 mb-8">Try adjusting your filters</p>
-                <button onClick={clearAllFilters}
-                  className="bg-[#10254b] text-white px-8 py-3 rounded-xl hover:bg-[#0d1e3d] transition-colors">
-                  Clear All Filters
+          {/* Subcategory Carousel - Always show when in a category */}
+          {categorySlug && filteredSubcategories.length > 0 && (
+            <div className="max-w-7xl mx-auto mb-8">
+             
+                <h2 className="text-xl align-center font-serif text-gray-900 mb-4">Explore Categories</h2>
+                
+                <div className="relative">
+                 
+
+                  {/* Left Arrow */}
+                  {canScrollLeft && (
+                    <button
+                      onClick={() => scrollCarousel("left")}
+                      className="absolute left-0 top-1/2 -translate-y-1/2 z-20 bg-white shadow-xl rounded-full p-2 hover:bg-gray-50 transition-all hover:scale-110 border border-gray-200"style={{ marginLeft: "-12px" }}
+                >
+                  <ChevronLeft className="w-5 h-5 text-gray-700" />
                 </button>
-              </div>
-            ) : (
-              <>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 lg:gap-8">
-                  {paginatedProducts.map(product => (
-                    <ProductCard key={product.id || product._id} product={product} />
-                  ))}
-                </div>
+              )}
 
-                {totalPages > 1 && (
-                  <div className="flex justify-center items-center gap-2 mt-16 mb-8">
-                    <button 
-                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                      disabled={currentPage === 1}
-                      className="p-3 rounded-xl border-2 border-gray-300 disabled:opacity-40 disabled:cursor-not-allowed hover:border-[#10254b] transition-all">
-                      <ChevronLeft className="w-5 h-5" />
-                    </button>
-                    
-                    {[...Array(totalPages)].map((_, i) => {
-                      const page = i + 1;
-                      if (page === 1 || page === totalPages || (page >= currentPage - 1 && page <= currentPage + 1)) {
-                        return (
-                          <button 
-                            key={page} 
-                            onClick={() => setCurrentPage(page)}
-                            className={`min-w-[44px] h-11 rounded-xl font-semibold transition-all ${
-                              currentPage === page
-                                ? 'bg-[#10254b] text-white shadow-lg scale-110'
-                                : 'border-2 border-gray-300 hover:border-[#10254b]'
-                            }`}>
-                            {page}
-                          </button>
-                        );
-                      } else if (page === currentPage - 2 || page === currentPage + 2) {
-                        return <span key={page} className="px-2 text-gray-400">...</span>;
-                      }
-                      return null;
-                    })}
-                    
-                    <button 
-                      onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                      disabled={currentPage === totalPages}
-                      className="p-3 rounded-xl border-2 border-gray-300 disabled:opacity-40 disabled:cursor-not-allowed hover:border-[#10254b] transition-all">
-                      <ChevronRight className="w-5 h-5" />
-                    </button>
-                  </div>
-                )}
-              </>
-            )}
-          </div>
+              {/* Right Arrow */}
+              {canScrollRight && (
+                <button
+                  onClick={() => scrollCarousel("right")}
+                  className="absolute right-0 top-1/2 -translate-y-1/2 z-20 bg-white shadow-xl rounded-full p-2 hover:bg-gray-50 transition-all hover:scale-110 border border-gray-200"
+                  style={{ marginRight: "-12px" }}
+                >
+                  <ChevronRight className="w-5 h-5 text-gray-700" />
+                </button>
+              )}
 
-          {/* Filters Sidebar */}
-          {showFilters && (
-            <div 
-              className="fixed inset-0" 
-              style={{ 
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                zIndex: 999999999
-              }}
-            >
-              <div 
-                className="absolute inset-0 bg-black/50 backdrop-blur-sm" 
-                style={{ zIndex: 999999999 }}
-                onClick={() => setShowFilters(false)} 
-              />
-              
-              <div 
-                className="sticky left-0 w-full sm:w-[420px] bg-white shadow-2xl flex flex-col animate-slideIn overflow-hidden"
-                style={{ 
-                  position: 'sticky',
-                  top: 0,
-                  height: '100vh',
-                  maxHeight: '100vh',
-                  zIndex: 1000000000
+              {/* Scrollable Container */}
+              <div
+                ref={carouselRef}
+                className="flex gap-3 py-4 overflow-x-auto pb-2"
+                style={{
+                  scrollSnapType: "x mandatory",
+                  WebkitOverflowScrolling: "touch",
+                  scrollbarWidth: "none",
+                  msOverflowStyle: "none",
                 }}
               >
-                <div className="flex-shrink-0 bg-white border-b border-gray-200 px-5 py-4 flex items-center justify-between">
-                  <h2 className="text-xl font-serif text-[#10254b]">Filter By</h2>
-                  <button 
-                    onClick={() => setShowFilters(false)} 
-                    className="p-1 hover:bg-gray-100 rounded-full transition-colors"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
-                </div>
-                
-                <div className="flex-1 overflow-y-auto mx-4 my-3 border border-gray-300 rounded-2xl custom-scrollbar">
-                  <PriceRangeFilter />
-                  
-                  {categorySlug && !subCategorySlug && filterOptions.subcategories.length > 0 && (
-                    <FilterSection 
-                      title="Subcategories" 
-                      filterKey="subcategories" 
-                      options={filterOptions.subcategories}
-                      isSubcategoryFilter={true}
-                    />
-                  )}
-                  
-                  <FilterSection title="Jewellery Type" filterKey="metals" options={filterOptions.metals} />
-                  <FilterSection title="Product" filterKey="metalPurities" options={filterOptions.metalPurities} />
-                  <FilterSection title="Brand" filterKey="stones" options={filterOptions.stones} />
-                  <FilterSection title="Occasion" filterKey="tags" options={filterOptions.tags} />
-                </div>
-                
-                <div 
-                  className="flex-shrink-0 bg-white border-t border-gray-200 px-5 py-3.5 flex gap-3" 
-                  style={{ 
-                    paddingBottom: 'calc(14px + env(safe-area-inset-bottom, 0px))',
-                    marginBottom: '60px'
-                  }}
-                >
-                  <button onClick={clearAllFilters}
-                    className="flex-1 py-2.5 border bg-transparent border-[#10254b] rounded-full text-[#10254b] hover:bg-blue-50 transition-colors">
-                    Clear Filters
-                  </button>
-                  <button onClick={() => setShowFilters(false)}
-                    className="flex-1 py-2.5 bg-[#10254b] text-white rounded-full hover:bg-[#0d1e3d] transition-colors">
-                    Show Results ({sortedProducts.length})
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
+                <style>{`
+                  div[style*="scrollSnapType"]::-webkit-scrollbar {
+                    display: none;
+                  }
+                `}</style>
 
-        </div>
+                {filteredSubcategories.map((sub) => (
+                  <div
+                    key={sub.id || sub._id}
+                    onClick={() => handleSubcategoryClick(sub)}
+                    className={`flex-shrink-0 w-[110px] h-[110px] sm:w-[130px] sm:h-[130px] md:w-[150px] md:h-[150px] rounded-xl overflow-hidden cursor-pointer group relative border-2 transition-all ${
+                      subCategorySlug === sub.slug
+                        ? 'border-[#10254b] shadow-lg scale-105'
+                        : 'border-transparent hover:border-[#10254b] hover:shadow-md'
+                    }`}
+                    style={{ scrollSnapAlign: "start" }}
+                  >
+                    <img
+                      src={sub.image || sub.bannerImage || 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=300'}
+                      alt={sub.name}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=300'; }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                    <div className="absolute bottom-0 left-0 right-0 p-2 text-center">
+                      <p className="text-white text-xs sm:text-sm font-medium line-clamp-2 leading-tight">
+                        {sub.name}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+               {/* Dots for mobile */}
+                  <div className="flex justify-center gap-1.5 mb-4 md:hidden">
+                    {Array.from({ length: Math.min(filteredSubcategories.length, 5) }).map((_, idx) => (
+                      <div
+                        key={idx}
+                        className={`h-1.5 rounded-full transition-all ${
+                          Math.floor(scrollPosition / 120) === idx ? "w-6 bg-[#10254b]" : "w-1.5 bg-gray-300"
+                        }`}
+                      />
+                    ))}
+                  </div>
+            </div>
+          </div>
+        
+      )}
+      
+
+      {/* Products Grid */}
+
+      <div className="max-w-7xl mx-auto">
+        <h2 className="text-xl align-center font-serif text-gray-900 mb-4">Products</h2>
+        {paginatedProducts.length === 0 ? (
+          <div className="text-center py-20">
+            <SearchX className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-2xl font-medium text-gray-900 mb-3">No Products Found</h3>
+            <p className="text-gray-500 mb-8">Try selecting a different category</p>
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 lg:gap-8">
+              {paginatedProducts.map(product => (
+                <ProductCard key={product.id || product._id} product={product} />
+              ))}
+            </div>
+
+            {totalPages > 1 && (
+              <div className="flex justify-center items-center gap-2 mt-16 mb-8">
+                <button 
+                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  disabled={currentPage === 1}
+                  className="p-3 rounded-xl border-2 border-gray-300 disabled:opacity-40 disabled:cursor-not-allowed hover:border-[#10254b] transition-all">
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                
+                {[...Array(totalPages)].map((_, i) => {
+                  const page = i + 1;
+                  if (page === 1 || page === totalPages || (page >= currentPage - 1 && page <= currentPage + 1)) {
+                    return (
+                      <button 
+                        key={page} 
+                        onClick={() => setCurrentPage(page)}
+                        className={`min-w-[44px] h-11 rounded-xl font-semibold transition-all ${
+                          currentPage === page
+                            ? 'bg-[#10254b] text-white shadow-lg scale-110'
+                            : 'border-2 border-gray-300 hover:border-[#10254b]'
+                        }`}>
+                        {page}
+                      </button>
+                    );
+                  } else if (page === currentPage - 2 || page === currentPage + 2) {
+                    return <span key={page} className="px-2 text-gray-400">...</span>;
+                  }
+                  return null;
+                })}
+                
+                <button 
+                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                  disabled={currentPage === totalPages}
+                  className="p-3 rounded-xl border-2 border-gray-300 disabled:opacity-40 disabled:cursor-not-allowed hover:border-[#10254b] transition-all">
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
+            )}
+          </>
+        )}
       </div>
 
-      <style jsx>{`
-        @keyframes slideIn {
-          from {
-            transform: translateX(-100%);
-            opacity: 0;
-          }
-          to {
-            transform: translateX(0);
-            opacity: 1;
-          }
-        }
-        .animate-slideIn {
-          animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: #f1f1f1;
-          border-radius: 10px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: #c0c0c0;
-          border-radius: 10px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: #a0a0a0;
-        }
-      `}</style>
-    </>
-  );
+    </div>
+  </div>
+</>
+);
 };
-
 export default ProductsListingPage;

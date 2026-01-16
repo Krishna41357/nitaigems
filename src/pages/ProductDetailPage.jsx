@@ -911,7 +911,7 @@ const RecommendedProductsCarousel = ({ products, loading, navigate }) => {
                 key={idx}
                 className={`h-1.5 rounded-full transition-all ${
                   Math.floor(scrollPosition / 190) === idx
-                    ? "w-6 bg-[#832729]"
+                    ? "w-6 bg-[#10254b]"
                     : "w-1.5 bg-gray-300"
                 }`}
               />
@@ -961,7 +961,7 @@ const RecommendedProductsCarousel = ({ products, loading, navigate }) => {
               <div
                 key={p.id}
                 onClick={() => navigate(`/product/${p.sku}`)}
-                className="flex-shrink-0 w-[170px] sm:w-[200px] md:w-[240px] lg:w-[280px] bg-white rounded-xl shadow-md hover:shadow-2xl transition-all duration-300 cursor-pointer group border border-transparent hover:border-[#832729] overflow-hidden"
+                className="flex-shrink-0 w-[170px] sm:w-[200px] md:w-[240px] lg:w-[280px] bg-white rounded-xl shadow-md hover:shadow-2xl transition-all duration-300 cursor-pointer group border border-transparent hover:border-[#10254b] overflow-hidden"
                 style={{ scrollSnapAlign: "start" }}
               >
                 <div className="relative aspect-square overflow-hidden bg-gray-100">
@@ -972,7 +972,7 @@ const RecommendedProductsCarousel = ({ products, loading, navigate }) => {
                     loading="lazy"
                   />
                   {hasDiscount(p) && (
-                    <div className="absolute top-2 right-2 bg-gradient-to-br from-green-500 to-green-600 text-white px-2 py-1 rounded-lg text-xs font-bold shadow-lg">
+                    <div className="absolute top-2 right-2 bg-[#10254b] text-white px-2 py-1 rounded-lg text-xs font-bold shadow-lg">
                       {getDiscountPercent(p)}% OFF
                     </div>
                   )}
@@ -986,7 +986,7 @@ const RecommendedProductsCarousel = ({ products, loading, navigate }) => {
                 </div>
 
                 <div className="p-3">
-                  <h3 className="font-serif text-sm text-gray-900 mb-2 line-clamp-2 min-h-[40px] group-hover:text-[#832729] transition-colors leading-tight">
+                  <h3 className="font-serif text-sm text-gray-900 mb-2 line-clamp-2 min-h-[40px] group-hover:text-[#10254b] transition-colors leading-tight">
                     {p.name}
                   </h3>
 
