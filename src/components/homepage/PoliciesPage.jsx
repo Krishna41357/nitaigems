@@ -1,407 +1,442 @@
-import React, { useState, useEffect } from 'react';
-import { FileText, Shield, Truck, ChevronDown, ArrowLeft } from 'lucide-react';
 
-export default function PoliciesPage({ defaultTab = 'terms' }) {
-  const [activeTab, setActiveTab] = useState(defaultTab);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+import React from 'react';
+import { ArrowLeft, FileText, Shield, Truck, RotateCcw, Ban } from 'lucide-react';
 
-  useEffect(() => {
-    setActiveTab(defaultTab);
-  }, [defaultTab]);
-
-  const tabs = [
-    { id: 'terms', label: 'Terms & Conditions', icon: FileText },
-    { id: 'privacy', label: 'Privacy Policy', icon: Shield },
-    { id: 'shipping', label: 'Shipping Policy', icon: Truck }
-  ];
-
-  const currentTab = tabs.find(tab => tab.id === activeTab);
-
-  const handleTabChange = (tabId) => {
-    setActiveTab(tabId);
-    setIsDropdownOpen(false);
-  };
-
+export default function CompletePoliciesPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
-      <header className="bg-white border-b-2 sticky top-0 z-50" style={{ borderColor: '#12054b' }}>
+      <header className="bg-white border-b-2 sticky top-0 z-50 shadow-sm" style={{ borderColor: '#12054b' }}>
         <div className="max-w-6xl mx-auto px-4 py-4 sm:py-6">
           <button
             onClick={() => window.location.href = '/'}
-            className="flex items-center bg-white border-[#12054b] space-x-2 mb-3 sm:mb-4 text-black hover:opacity-70 transition-opacity"
+            className="flex items-center space-x-2 mb-3 sm:mb-4 text-black hover:opacity-70 transition-opacity bg-white border-2 "
+            style={{borderColor:"#12054b"}}
           >
             <ArrowLeft size={20} style={{ color: '#12054b' }} />
-            <span className="text-sm sm:text-base font-medium" style={{ color: '#12054b' }}>Back to Home</span>
+            <span className="text-sm sm:text-base font-medium " style={{ color: '#12054b' }}>Back to Home</span>
           </button>
-          <h1 className="text-2xl sm:text-3xl font-bold font-serif" style={{ color: '#12054b' }}>
+          <h1 className="text-2xl sm:text-4xl font-bold font-serif" style={{ color: '#12054b' }}>
             NITAI GEMS
           </h1>
-          <p className="text-black mt-1 sm:mt-2 text-sm sm:text-base">Legal Policies & Terms</p>
+          <p className="text-gray-700 mt-1 sm:mt-2 text-sm sm:text-base">Legal Policies & Terms</p>
+          <p className="text-xs sm:text-sm text-gray-600 mt-1">Nand Sadan, Gopaj ji ka Rasta, Johri Bazar, Jaipur</p>
         </div>
       </header>
 
-      {/* Desktop Navigation Tabs */}
-      <div className="hidden md:block bg-white sticky top-[88px] sm:top-[100px] z-40">
-        <div className="max-w-6xl mx-auto px-4">
-          <nav className="flex space-x-1">
-            {tabs.map(({ id, label, icon: Icon }) => (
-              <button
-                key={id}
-                onClick={() => setActiveTab(id)}
-                className={`flex items-center space-x-2 px-6 py-4 bg-white mt-2 text-black font-medium`}
-                style={activeTab === id ? {
-                  backgroundColor: '#12054b',
-                  borderBottomColor: '#12054b',
-                  color: '#ffffff'
-                } : {}}
-              >
-                <Icon size={20} />
-                <span>{label}</span>
-              </button>
-            ))}
-          </nav>
-        </div>
-      </div>
-
-      {/* Mobile Dropdown */}
-      <div className="md:hidden bg-white border-b sticky top-[72px] sm:top-[88px] z-40">
+      {/* Quick Navigation */}
+      <div className="bg-gray-50 border-b sticky top-[88px] sm:top-[112px] z-40">
         <div className="max-w-6xl mx-auto px-4 py-3">
-          <button
-            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="w-full flex items-center justify-between px-4 py-3 rounded-lg border-2 transition-colors"
-            style={{ 
-              borderColor: '#12054b',
-              backgroundColor: isDropdownOpen ? '#f9fafb' : 'white'
-            }}
-          >
-            <div className="flex items-center space-x-3">
-              {currentTab && <currentTab.icon size={20} style={{ color: '#12054b' }} />}
-              <span className="font-medium text-black">{currentTab?.label}</span>
-            </div>
-            <ChevronDown 
-              size={20} 
-              style={{ color: '#12054b' }}
-              className={`transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}
-            />
-          </button>
-
-          {isDropdownOpen && (
-            <div className="absolute left-0 right-0 mt-2 mx-4 bg-white border-2 rounded-lg shadow-lg overflow-hidden z-50"
-                 style={{ borderColor: '#12054b' }}>
-              {tabs.map(({ id, label, icon: Icon }) => (
-                <button
-                  key={id}
-                  onClick={() => handleTabChange(id)}
-                  className={`w-full flex items-center bg-white text-black space-x-3 px-4 py-3 `}
-                >
-                  <Icon size={20} />
-                  <span className="font-medium">{label}</span>
-                </button>
-              ))}
-            </div>
-          )}
+          <div className="flex flex-wrap gap-2 text-xs sm:text-sm">
+            <a href="#terms" className="px-3 py-1.5 rounded-full border-2 hover:bg-white transition-colors" style={{ borderColor: '#12054b', color: '#12054b' }}>
+              Terms & Conditions
+            </a>
+            <a href="#privacy" className="px-3 py-1.5 rounded-full border-2 hover:bg-white transition-colors" style={{ borderColor: '#12054b', color: '#12054b' }}>
+              Privacy Policy
+            </a>
+            <a href="#shipping" className="px-3 py-1.5 rounded-full border-2 hover:bg-white transition-colors" style={{ borderColor: '#12054b', color: '#12054b' }}>
+              Shipping Policy
+            </a>
+            <a href="#refund" className="px-3 py-1.5 rounded-full border-2 hover:bg-white transition-colors" style={{ borderColor: '#12054b', color: '#12054b' }}>
+              Refund & Cancellation
+            </a>
+            <a href="#return" className="px-3 py-1.5 rounded-full border-2 hover:bg-white transition-colors" style={{ borderColor: '#12054b', color: '#12054b' }}>
+              Return Policy
+            </a>
+          </div>
         </div>
       </div>
 
-      {/* Content */}
-      <main className="max-w-6xl mx-auto px-4 py-6 sm:py-8">
-        {activeTab === 'terms' && <TermsContent />}
-        {activeTab === 'privacy' && <PrivacyContent />}
-        {activeTab === 'shipping' && <ShippingContent />}
+      {/* Main Content */}
+      <main className="max-w-6xl mx-auto px-4 py-6 sm:py-10">
+        
+        {/* TERMS & CONDITIONS */}
+        <section id="terms" className="mb-16 scroll-mt-32">
+          <div className="flex items-center gap-3 mb-6">
+            <FileText size={32} style={{ color: '#12054b' }} />
+            <h2 className="text-2xl sm:text-3xl font-bold" style={{ color: '#12054b' }}>Terms & Conditions</h2>
+          </div>
+          
+          <div className="bg-blue-50 border-l-4 p-4 sm:p-6 mb-6" style={{ borderColor: '#12054b' }}>
+            <p className="text-sm sm:text-base text-gray-800">
+              <strong>Last Updated:</strong> As per Information Technology Act, 2000
+            </p>
+            <p className="text-xs sm:text-sm text-gray-700 mt-2">
+              This document is an electronic record in terms of Information Technology Act, 2000 and rules thereunder as applicable and the amended provisions pertaining to electronic records in various statutes as amended by the Information Technology Act, 2000. This electronic record is generated by a computer system and does not require any physical or digital signatures.
+            </p>
+          </div>
+
+          <PolicySection title="1. Platform Information">
+            <p>This document is published in accordance with the provisions of Rule 3 (1) of the Information Technology (Intermediaries guidelines) Rules, 2011 that require publishing the rules and regulations, privacy policy and Terms of Use for access or usage of domain name <strong>nitaigems.com</strong> ('Website'), including the related mobile site and mobile application (hereinafter referred to as 'Platform').</p>
+            <p className="mt-3">The Platform is owned by <strong>NITAI GEMS</strong>, a company incorporated under the Companies Act, 1956 with its registered office at <strong>Nand Sadan, Gopaj ji ka Rasta, Johri Bazar, Jaipur</strong> (hereinafter referred to as 'Platform Owner', 'we', 'us', 'our').</p>
+          </PolicySection>
+
+          <PolicySection title="2. Agreement to Terms">
+            <p>Your use of the Platform and services and tools are governed by the following terms and conditions ("Terms of Use") as applicable to the Platform including the applicable policies which are incorporated herein by way of reference. If You transact on the Platform, You shall be subject to the policies that are applicable to the Platform for such transaction.</p>
+            <p className="mt-3">By mere use of the Platform, You shall be contracting with the Platform Owner and these terms and conditions including the policies constitute Your binding obligations, with Platform Owner.</p>
+            <div className="bg-yellow-50 border-l-4 border-yellow-600 p-4 mt-4">
+              <p className="font-semibold text-sm">IMPORTANT:</p>
+              <p className="text-sm mt-1">ACCESSING, BROWSING OR OTHERWISE USING THE PLATFORM INDICATES YOUR AGREEMENT TO ALL THE TERMS AND CONDITIONS UNDER THESE TERMS OF USE, SO PLEASE READ THE TERMS OF USE CAREFULLY BEFORE PROCEEDING.</p>
+            </div>
+          </PolicySection>
+
+          <PolicySection title="3. Modifications to Terms">
+            <p>These Terms of Use can be modified at any time without assigning any reason. It is your responsibility to periodically review these Terms of Use to stay informed of updates.</p>
+            <p className="mt-3">Any terms and conditions proposed by You which are in addition to or which conflict with these Terms of Use are expressly rejected by the Platform Owner and shall be of no force or effect.</p>
+          </PolicySection>
+
+          <PolicySection title="4. User Obligations">
+            <div className="space-y-4">
+              <div className="pl-4 border-l-2" style={{ borderColor: '#12054b' }}>
+                <h4 className="font-semibold mb-2">4.1 Account Registration</h4>
+                <p>To access and use the Services, you agree to provide true, accurate and complete information to us during and after registration, and you shall be responsible for all acts done through the use of your registered account on the Platform.</p>
+              </div>
+
+              <div className="pl-4 border-l-2" style={{ borderColor: '#12054b' }}>
+                <h4 className="font-semibold mb-2">4.2 No Warranties</h4>
+                <p>Neither we nor any third parties provide any warranty or guarantee as to the accuracy, timeliness, performance, completeness or suitability of the information and materials offered on this website or through the Services, for any specific purpose. You acknowledge that such information and materials may contain inaccuracies or errors and we expressly exclude liability for any such inaccuracies or errors to the fullest extent permitted by law.</p>
+              </div>
+
+              <div className="pl-4 border-l-2" style={{ borderColor: '#12054b' }}>
+                <h4 className="font-semibold mb-2">4.3 Use at Own Risk</h4>
+                <p>Your use of our Services and the Platform is solely and entirely at your own risk and discretion for which we shall not be liable to you in any manner. You are required to independently assess and ensure that the Services meet your requirements.</p>
+              </div>
+
+              <div className="pl-4 border-l-2" style={{ borderColor: '#12054b' }}>
+                <h4 className="font-semibold mb-2">4.4 Intellectual Property</h4>
+                <p>The contents of the Platform and the Services are proprietary to us and are licensed to us. You will not have any authority to claim any intellectual property rights, title, or interest in its contents. The contents includes and is not limited to the design, layout, look and graphics.</p>
+              </div>
+
+              <div className="pl-4 border-l-2" style={{ borderColor: '#12054b' }}>
+                <h4 className="font-semibold mb-2">4.5 Unauthorized Use</h4>
+                <p>You acknowledge that unauthorized use of the Platform and/or the Services may lead to action against you as per these Terms of Use and/or applicable laws.</p>
+              </div>
+
+              <div className="pl-4 border-l-2" style={{ borderColor: '#12054b' }}>
+                <h4 className="font-semibold mb-2">4.6 Payment Obligations</h4>
+                <p>You agree to pay us the charges associated with availing the Services.</p>
+              </div>
+
+              <div className="pl-4 border-l-2" style={{ borderColor: '#12054b' }}>
+                <h4 className="font-semibold mb-2">4.7 Lawful Use</h4>
+                <p>You agree not to use the Platform and/or Services for any purpose that is unlawful, illegal or forbidden by these Terms, or Indian or local laws that might apply to you.</p>
+              </div>
+
+              <div className="pl-4 border-l-2" style={{ borderColor: '#12054b' }}>
+                <h4 className="font-semibold mb-2">4.8 Third Party Links</h4>
+                <p>You agree and acknowledge that website and the Services may contain links to other third party websites. On accessing these links, you will be governed by the terms of use, privacy policy and such other policies of such third party websites. These links are provided for your convenience to provide further information.</p>
+              </div>
+
+              <div className="pl-4 border-l-2" style={{ borderColor: '#12054b' }}>
+                <h4 className="font-semibold mb-2">4.9 Binding Contract</h4>
+                <p>You understand that upon initiating a transaction for availing the Services you are entering into a legally binding and enforceable contract with the Platform Owner for the Services.</p>
+              </div>
+            </div>
+          </PolicySection>
+
+          <PolicySection title="5. Indemnification">
+            <p>You shall indemnify and hold harmless Platform Owner, its affiliates, group companies (as applicable) and their respective officers, directors, agents, and employees, from any claim or demand, or actions including reasonable attorney's fees, made by any third party or penalty imposed due to or arising out of Your breach of this Terms of Use, privacy Policy and other Policies, or Your violation of any law, rules or regulations or the rights (including infringement of intellectual property rights) of a third party.</p>
+          </PolicySection>
+
+          <PolicySection title="6. Force Majeure">
+            <p>Notwithstanding anything contained in these Terms of Use, the parties shall not be liable for any failure to perform an obligation under these Terms if performance is prevented or delayed by a force majeure event.</p>
+          </PolicySection>
+
+          <PolicySection title="7. Governing Law and Jurisdiction">
+            <p>These Terms and any dispute or claim relating to it, or its enforceability, shall be governed by and construed in accordance with the <strong>laws of India</strong>.</p>
+            <p className="mt-3">All disputes arising out of or in connection with these Terms shall be subject to the exclusive jurisdiction of the courts in <strong>Jaipur and Rajasthan</strong>.</p>
+          </PolicySection>
+
+          <PolicySection title="8. Contact Information">
+            <p>All concerns or communications relating to these Terms must be communicated to us using the contact information provided on this website.</p>
+          </PolicySection>
+        </section>
+
+        {/* PRIVACY POLICY */}
+        <section id="privacy" className="mb-16 scroll-mt-32">
+          <div className="flex items-center gap-3 mb-6">
+            <Shield size={32} style={{ color: '#12054b' }} />
+            <h2 className="text-2xl sm:text-3xl font-bold" style={{ color: '#12054b' }}>Privacy Policy</h2>
+          </div>
+
+          <PolicySection title="Introduction">
+            <p>This Privacy Policy describes how <strong>NITAI GEMS</strong> and its affiliates (collectively "NITAI GEMS, we, our, us") collect, use, share, protect or otherwise process your information/personal data through our website <strong>nitaigems.com</strong> (hereinafter referred to as Platform).</p>
+            <p className="mt-3">Please note that you may be able to browse certain sections of the Platform without registering with us. We do not offer any product/service under this Platform outside India and your personal data will primarily be stored and processed in India.</p>
+            <p className="mt-3">By visiting this Platform, providing your information or availing any product/service offered on the Platform, you expressly agree to be bound by the terms and conditions of this Privacy Policy, the Terms of Use and the applicable service/product terms and conditions, and agree to be governed by the laws of India including but not limited to the laws applicable to data protection and privacy.</p>
+            <div className="bg-red-50 border-l-4 border-red-600 p-4 mt-4">
+              <p className="font-semibold text-sm">IMPORTANT:</p>
+              <p className="text-sm mt-1">If you do not agree please do not use or access our Platform.</p>
+            </div>
+          </PolicySection>
+
+          <PolicySection title="1. Collection of Information">
+            <p>We collect your personal data when you use our Platform, services or otherwise interact with us during the course of our relationship and related information provided from time to time.</p>
+            <p className="mt-3"><strong>Information we may collect includes but is not limited to:</strong></p>
+            <ul className="list-disc pl-6 mt-3 space-y-2">
+              <li>Personal data/information provided during sign-up/registering or using our Platform such as name, date of birth, address, telephone/mobile number, email ID</li>
+              <li>Information shared as proof of identity or address</li>
+              <li>Sensitive personal data collected with your consent, such as:
+                <ul className="list-circle pl-6 mt-2 space-y-1">
+                  <li>Bank account or credit or debit card or other payment instrument information</li>
+                  <li>Biometric information such as your facial features or physiological information (to enable use of certain features when opted for, available on the Platform)</li>
+                </ul>
+              </li>
+              <li>Your behavior, preferences, and other information that you choose to provide on our Platform</li>
+              <li>Information related to your transactions on Platform and third-party business partner platforms</li>
+            </ul>
+            <p className="mt-3">All of the above being in accordance with applicable law(s). You always have the option to not provide information, by choosing not to use a particular service or feature on the Platform.</p>
+            <p className="mt-3">We will also collect your information related to your transactions on Platform and such third-party business partner platforms. When such a third-party business partner collects your personal data directly from you, you will be governed by their privacy policies.</p>
+            
+            <div className="bg-red-50 border-l-4 border-red-600 p-4 mt-4">
+              <p className="font-semibold text-sm" style={{ color: '#12054b' }}>Security Warning:</p>
+              <p className="text-sm mt-2">If you receive an email, a call from a person/association claiming to be NITAI GEMS seeking any personal data like debit/credit card PIN, net-banking or mobile banking password, we request you to <strong>never provide such information</strong>. If you have already revealed such information, report it immediately to an appropriate law enforcement agency.</p>
+            </div>
+          </PolicySection>
+
+          <PolicySection title="2. Usage of Information">
+            <p>We use personal data to provide the services you request. To the extent we use your personal data to market to you, we will provide you the ability to opt-out of such uses.</p>
+            <p className="mt-3"><strong>We use your personal data to:</strong></p>
+            <ul className="list-disc pl-6 mt-3 space-y-2">
+              <li>Assist sellers and business partners in handling and fulfilling orders</li>
+              <li>Enhance customer experience</li>
+              <li>Resolve disputes and troubleshoot problems</li>
+              <li>Inform you about online and offline offers, products, services, and updates</li>
+              <li>Customize your experience</li>
+              <li>Detect and protect us against error, fraud and other criminal activity</li>
+              <li>Enforce our terms and conditions</li>
+              <li>Conduct marketing research, analysis and surveys</li>
+              <li>As otherwise described to you at the time of collection of information</li>
+            </ul>
+            <p className="mt-3">You understand that your access to these products/services may be affected in the event permission is not provided to us.</p>
+          </PolicySection>
+
+          <PolicySection title="3. Sharing of Information">
+            <p>We may share your personal data internally within our group entities, our other corporate entities, and affiliates to provide you access to the services and products offered by them. These entities and affiliates may market to you as a result of such sharing unless you explicitly opt-out.</p>
+            <p className="mt-3"><strong>We may disclose personal data to:</strong></p>
+            <ul className="list-disc pl-6 mt-3 space-y-2">
+              <li>Third parties such as sellers, business partners, third party service providers including logistics partners</li>
+              <li>Prepaid payment instrument issuers, third-party reward programs and other payment options opted by you</li>
+              <li>Government agencies or other authorized law enforcement agencies if required to do so by law or in good faith belief that such disclosure is reasonably necessary to respond to subpoenas, court orders, or other legal process</li>
+              <li>Law enforcement offices, third party rights owners, or others in good faith belief that such disclosure is reasonably necessary to enforce our Terms of Use or Privacy Policy</li>
+              <li>To respond to claims that an advertisement, posting or other content violates the rights of a third party</li>
+              <li>To protect the rights, property or personal safety of our users or the general public</li>
+            </ul>
+            <p className="mt-3">These disclosures may be required for us to provide you access to our services and products offered to you, to comply with our legal obligations, to enforce our user agreement, to facilitate our marketing and advertising activities, to prevent, detect, mitigate, and investigate fraudulent or illegal activities related to our services.</p>
+          </PolicySection>
+
+          <PolicySection title="4. Security Precautions">
+            <p>To protect your personal data from unauthorized access or disclosure, loss or misuse we adopt reasonable security practices and procedures. Once your information is in our possession or whenever you access your account information, we adhere to our security guidelines to protect it against unauthorized access and offer the use of a secure server.</p>
+            <p className="mt-3">However, the transmission of information is not completely secure for reasons beyond our control. By using the Platform, the users accept the security implications of data transmission over the internet and the World Wide Web which cannot always be guaranteed as completely secure, and therefore, there would always remain certain inherent risks regarding use of the Platform.</p>
+            <p className="mt-3"><strong>Users are responsible for ensuring the protection of login and password records for their account.</strong></p>
+          </PolicySection>
+
+          <PolicySection title="5. Data Deletion and Retention">
+            <p>You have an option to delete your account by visiting your profile and settings on our Platform, this action would result in you losing all information related to your account. You may also write to us at the contact information provided below to assist you with these requests.</p>
+            <p className="mt-3">We may in event of any pending grievance, claims, pending shipments or any other services we may refuse or delay deletion of the account. Once the account is deleted, you will lose access to the account.</p>
+            <p className="mt-3">We retain your personal data information for a period no longer than is required for the purpose for which it was collected or as required under any applicable law. However, we may retain data related to you if we believe it may be necessary to prevent fraud or future abuse or for other legitimate purposes.</p>
+            <p className="mt-3">We may continue to retain your data in anonymized form for analytical and research purposes.</p>
+          </PolicySection>
+
+          <PolicySection title="6. Your Rights">
+            <p>You may access, rectify, and update your personal data directly through the functionalities provided on the Platform.</p>
+          </PolicySection>
+
+          <PolicySection title="7. Consent">
+            <p>By visiting our Platform or by providing your information, you consent to the collection, use, storage, disclosure and otherwise processing of your information on the Platform in accordance with this Privacy Policy.</p>
+            <p className="mt-3">If you disclose to us any personal data relating to other people, you represent that you have the authority to do so and permit us to use the information in accordance with this Privacy Policy.</p>
+            <p className="mt-3">You, while providing your personal data over the Platform or any partner platforms or establishments, consent to us (including our other corporate entities, affiliates, lending partners, technology partners, marketing channels, business partners and other third parties) to contact you through SMS, instant messaging apps, call and/or e-mail for the purposes specified in this Privacy Policy.</p>
+            <p className="mt-3">You have an option to withdraw your consent that you have already provided by writing to the Grievance Officer at the contact information provided below. Please mention "Withdrawal of consent for processing personal data" in your subject line of your communication. We may verify such requests before acting on our request.</p>
+            <p className="mt-3">However, please note that your withdrawal of consent will not be retrospective and will be in accordance with the Terms of Use, this Privacy Policy, and applicable laws. In the event you withdraw consent given to us under this Privacy Policy, we reserve the right to restrict or deny the provision of our services for which we consider such information to be necessary.</p>
+          </PolicySection>
+
+          <PolicySection title="8. Changes to Privacy Policy">
+            <p>Please check our Privacy Policy periodically for changes. We may update this Privacy Policy to reflect changes to our information practices. We may alert/notify you about the significant changes to the Privacy Policy, in the manner as may be required under applicable laws.</p>
+          </PolicySection>
+
+          <PolicySection title="9. Grievance Officer">
+            <p>For grievances or queries regarding this Privacy Policy, please contact our Grievance Officer at the contact information provided on our website.</p>
+            <p className="mt-3"><strong>Phone Hours:</strong> Monday - Friday (9:00 AM - 6:00 PM)</p>
+          </PolicySection>
+        </section>
+
+        {/* SHIPPING POLICY */}
+        <section id="shipping" className="mb-16 scroll-mt-32">
+          <div className="flex items-center gap-3 mb-6">
+            <Truck size={32} style={{ color: '#12054b' }} />
+            <h2 className="text-2xl sm:text-3xl font-bold" style={{ color: '#12054b' }}>Shipping Policy</h2>
+          </div>
+
+          <PolicySection title="Shipping Method">
+            <p>The orders for the user are shipped through <strong>registered domestic courier companies and/or speed post only</strong>. We partner with reliable and trusted courier services to ensure safe and timely delivery of your orders.</p>
+          </PolicySection>
+
+          <PolicySection title="Shipping Timeline">
+            <div className="bg-blue-50 border-l-4 p-4 mb-4" style={{ borderColor: '#12054b' }}>
+              <p className="font-semibold text-lg" style={{ color: '#12054b' }}>Standard Shipping: 21 Days</p>
+              <p className="text-sm mt-2">Orders are shipped within <strong>21 days</strong> from the date of the order and/or payment or as per the delivery date agreed at the time of order confirmation.</p>
+            </div>
+            <p>Delivery of the shipment is subject to courier company/post office norms. Actual delivery times may vary based on your location, courier service availability, and other factors beyond our control.</p>
+            <p className="mt-3"><strong>Platform Owner shall not be liable for any delay in delivery by the courier company/postal authority.</strong></p>
+          </PolicySection>
+
+          <PolicySection title="Delivery Address">
+            <p>Delivery of all orders will be made to the <strong>address provided by the buyer at the time of purchase</strong>. Please ensure that:</p>
+            <ul className="list-disc pl-6 mt-3 space-y-2">
+              <li>Your delivery address is complete, accurate, and includes all necessary details (building name, landmark, etc.)</li>
+              <li>A valid phone number is provided for delivery coordination</li>
+              <li>Someone is available at the address to receive the order</li>
+            </ul>
+            <p className="mt-3">Delivery of our services will be confirmed on your email ID as specified at the time of registration.</p>
+          </PolicySection>
+
+          <PolicySection title="Shipping Costs">
+            <p>If there are any shipping cost(s) levied by the seller or the Platform Owner (as the case be), the same is <strong>not refundable</strong>.</p>
+            <p className="mt-3">Shipping charges (if applicable) will be clearly displayed at the time of checkout before you complete your purchase.</p>
+          </PolicySection>
+
+          <PolicySection title="Tracking Your Order">
+            <p>Once your order is shipped, you will receive a confirmation email with tracking details (where available). You can use these details to track your shipment through the courier company's website.</p>
+          </PolicySection>
+
+          <PolicySection title="Contact for Shipping Queries">
+            <p>For any shipping-related queries or concerns, please contact us using the contact information provided on our website during business hours (Monday - Friday, 9:00 AM - 6:00 PM).</p>
+          </PolicySection>
+        </section>
+
+        {/* REFUND AND CANCELLATION POLICY */}
+        <section id="refund" className="mb-16 scroll-mt-32">
+          <div className="flex items-center gap-3 mb-6">
+            <Ban size={32} style={{ color: '#12054b' }} />
+            <h2 className="text-2xl sm:text-3xl font-bold" style={{ color: '#12054b' }}>Refund and Cancellation Policy</h2>
+          </div>
+
+          <div className="bg-yellow-50 border-l-4 border-yellow-600 p-4 mb-6">
+            <p className="text-sm">This refund and cancellation policy outlines how you can cancel or seek a refund for a product/service that you have purchased through the Platform.</p>
+          </div>
+
+          <PolicySection title="1. Cancellation Period and Process">
+            <p>Cancellations will only be considered if the request is made within <strong>7 days of placing the order</strong>.</p>
+            <div className="bg-red-50 border-l-4 border-red-600 p-4 mt-3">
+              <p className="font-semibold text-sm">Important Note:</p>
+              <p className="text-sm mt-1">Cancellation requests may not be entertained if the orders have been communicated to such sellers/merchant(s) listed on the Platform and they have initiated the process of shipping them, or the product is out for delivery. In such an event, you may choose to reject the product at the doorstep.</p>
+            </div>
+          </PolicySection>
+
+          <PolicySection title="2. Perishable Items">
+            <p><strong>NITAI GEMS does not accept cancellation requests for perishable items</strong> like flowers, eatables, etc.</p>
+            <p className="mt-3">However, the refund/replacement can be made if the user establishes that the quality of the product delivered is not good.</p>
+          </PolicySection>
+
+          <PolicySection title="3. Damaged or Defective Items">
+            <p>In case of receipt of damaged or defective items, please report to our customer service team immediately.</p>
+            <p className="mt-3">The request would be entertained once the seller/merchant listed on the Platform, has checked and determined the same at its own end.</p>
+            <div className="bg-blue-50 border-l-4 p-4 mt-3" style={{ borderColor: '#12054b' }}>
+              <p className="font-semibold text-sm">Reporting Timeline:</p>
+              <p className="text-sm mt-1">This should be reported within <strong>7 days of receipt of products</strong>.</p>
+            </div>
+          </PolicySection>
+
+          <PolicySection title="4. Product Not as Expected">
+            <p>In case you feel that the product received is not as shown on the site or as per your expectations, you must bring it to the notice of our customer service within <strong>7 days of receiving the product</strong>.</p>
+            <p className="mt-3">The customer service team after looking into your complaint will take an appropriate decision.</p>
+          </PolicySection>
+
+          <PolicySection title="5. Products with Manufacturer's Warranty">
+            <p>In case of complaints regarding the products that come with a warranty from the manufacturers, please refer the issue to them directly.</p>
+          </PolicySection>
+
+          <PolicySection title="6. Refund Processing Time">
+            <div className="bg-green-50 border-l-4 border-green-600 p-4">
+              <p className="font-semibold text-sm">Refund Timeline:</p>
+              <p className="text-sm mt-2">In case of any refunds approved by NITAI GEMS, it will take <strong>21 days</strong> for the refund to be processed to you.</p>
+              <p className="text-sm mt-2">Refunds will be processed to the original payment method used during purchase.</p>
+            </div>
+          </PolicySection>
+
+          <PolicySection title="7. Contact for Cancellation/Refund">
+            <p>To initiate a cancellation or refund request, please contact our customer service team using the contact information provided on our website during business hours.</p>
+          </PolicySection>
+        </section>
+
+        {/* RETURN POLICY */}
+        <section id="return" className="mb-16 scroll-mt-32">
+          <div className="flex items-center gap-3 mb-6">
+            <RotateCcw size={32} style={{ color: '#12054b' }} />
+            <h2 className="text-2xl sm:text-3xl font-bold" style={{ color: '#12054b' }}>Return Policy</h2>
+          </div>
+
+          <PolicySection title="Return Period">
+            <div className="bg-blue-50 border-l-4 p-4 mb-4" style={{ borderColor: '#12054b' }}>
+              <p className="font-semibold text-lg" style={{ color: '#12054b' }}>21 Days Return Window</p>
+              <p className="text-sm mt-2">We offer refund/exchange within first <strong>21 days</strong> from the date of your purchase.</p>
+            </div>
+            <div className="bg-red-50 border-l-4 border-red-600 p-4">
+              <p className="font-semibold text-sm">Important:</p>
+              <p className="text-sm mt-1">If 21 days have passed since your purchase, you will not be offered a return, exchange or refund of any kind.</p>
+            </div>
+          </PolicySection>
+
+          <PolicySection title="Eligibility Criteria for Returns/Exchanges">
+            <p>In order to become eligible for a return or an exchange, the following conditions must be met:</p>
+            <ul className="list-disc pl-6 mt-3 space-y-2">
+              <li>The purchased item should be <strong>unused and in the same condition</strong> as you received it</li>
+              <li>The item must have <strong>original packaging</strong></li>
+              <li>If the item that you purchased on a sale, then the item <strong>may not be eligible</strong> for a return/exchange</li>
+            </ul>
+            <p className="mt-3">Further, only such items are replaced by us (based on an exchange request), if such items are found <strong>defective or damaged</strong>.</p>
+          </PolicySection>
+
+          <PolicySection title="Exempted Categories">
+            <p>You agree that there may be a certain category of products/items that are exempted from returns or refunds. Such categories of the products would be identified to you at the time of purchase.</p>
+          </PolicySection>
+
+          <PolicySection title="Return/Exchange Process">
+            <p>For exchange/return accepted request(s) (as applicable), once your returned product/item is received and inspected by us, we will send you an email to notify you about receipt of the returned/exchanged product.</p>
+            <p className="mt-3">Further, if the same has been approved after the quality check at our end, your request (i.e. return/exchange) will be processed in accordance with our policies.</p>
+          </PolicySection>
+
+          <PolicySection title="How to Initiate a Return">
+            <p>To initiate a return or exchange, please contact our customer service team using the contact information provided on our website during business hours (Monday - Friday, 9:00 AM - 6:00 PM).</p>
+          </PolicySection>
+        </section>
+
       </main>
 
       {/* Footer */}
-      <footer className="bg-white border-t mt-12">
-        <div className="max-w-6xl mx-auto px-4 py-6 text-center text-black">
-          <p className="font-medium text-base sm:text-lg" style={{ color: '#12054b' }}>NITAI GEMS</p>
-          <p className="text-xs sm:text-sm mt-2">Nand Sadan, Gopaj ji ka Rasta, Johri Bazar, Jaipur</p>
-          <p className="text-xs sm:text-sm mt-1">For grievances or queries, please contact us through our website</p>
+      <footer className="bg-gray-50 border-t-2 mt-12" style={{ borderColor: '#12054b' }}>
+        <div className="max-w-6xl mx-auto px-4 py-8 sm:py-12">
+          <div className="text-center">
+            <h3 className="text-xl sm:text-2xl font-bold font-serif mb-4" style={{ color: '#12054b' }}>NITAI GEMS</h3>
+            <div className="space-y-2 text-sm sm:text-base text-gray-700">
+              <p><strong>Registered Office:</strong></p>
+              <p>Nand Sadan, Gopaj ji ka Rasta</p>
+              <p>Johri Bazar, Jaipur</p>
+              <p className="mt-4"><strong>Customer Service Hours:</strong></p>
+              <p>Monday - Friday: 9:00 AM - 6:00 PM</p>
+            </div>
+            <div className="mt-6 pt-6 border-t border-gray-300">
+              <p className="text-xs sm:text-sm text-gray-600">
+                For grievances, queries, or concerns regarding these policies, please contact us through our website.
+              </p>
+              <p className="text-xs sm:text-sm text-gray-600 mt-2">
+                Company incorporated under the Companies Act, 1956
+              </p>
+              <p className="text-xs text-gray-500 mt-4">
+                © {new Date().getFullYear()} NITAI GEMS. All rights reserved.
+              </p>
+            </div>
+          </div>
         </div>
       </footer>
     </div>
   );
 }
 
-function TermsContent() {
+function PolicySection({ title, children }) {
   return (
-    <div className="prose max-w-none">
-      <div className="bg-gray-50 p-4 sm:p-6 rounded-lg mb-4 sm:mb-6" style={{ borderLeft: '4px solid #12054b' }}>
-        <h2 className="text-xl sm:text-2xl font-bold mb-2 sm:mb-4" style={{ color: '#12054b' }}>Terms & Conditions</h2>
-        <p className="text-black text-xs sm:text-sm">
-          Last Updated: As per Information Technology Act, 2000
-        </p>
-      </div>
-
-      <Section title="Important Notice">
-        <p className="text-sm sm:text-base">This document is an electronic record under the Information Technology Act, 2000 and does not require physical or digital signatures. By accessing, browsing, or using the Platform (nitaigems.com), you agree to all terms and conditions outlined here.</p>
-      </Section>
-
-      <Section title="About This Agreement">
-        <p className="text-sm sm:text-base">The Platform is owned by <strong>NITAI GEMS</strong>, a company incorporated under the Companies Act, 1956, with its registered office at Nand Sadan, Gopaj ji ka Rasta, Johri Bazar, Jaipur.</p>
-        <p className="mt-3 text-sm sm:text-base">These Terms of Use govern your access to our website, services, and tools. Any additional terms proposed by you that conflict with these Terms are expressly rejected.</p>
-      </Section>
-
-      <Section title="Key Terms of Use">
-        <div className="space-y-3 sm:space-y-4">
-          <div className="pl-3 sm:pl-4 border-l-2" style={{ borderColor: '#12054b' }}>
-            <h4 className="font-semibold mb-2 text-sm sm:text-base">1. Account Registration</h4>
-            <p className="text-sm sm:text-base">You agree to provide true, accurate, and complete information during registration and shall be responsible for all activities through your account.</p>
-          </div>
-
-          <div className="pl-3 sm:pl-4 border-l-2" style={{ borderColor: '#12054b' }}>
-            <h4 className="font-semibold mb-2 text-sm sm:text-base">2. No Warranties</h4>
-            <p className="text-sm sm:text-base">Neither we nor third parties provide warranty regarding accuracy, timeliness, or completeness of information on the Platform. You acknowledge materials may contain errors.</p>
-          </div>
-
-          <div className="pl-3 sm:pl-4 border-l-2" style={{ borderColor: '#12054b' }}>
-            <h4 className="font-semibold mb-2 text-sm sm:text-base">3. Use at Your Own Risk</h4>
-            <p className="text-sm sm:text-base">Your use of our Services and Platform is at your own risk. You must independently assess that the Services meet your requirements.</p>
-          </div>
-
-          <div className="pl-3 sm:pl-4 border-l-2" style={{ borderColor: '#12054b' }}>
-            <h4 className="font-semibold mb-2 text-sm sm:text-base">4. Intellectual Property</h4>
-            <p className="text-sm sm:text-base">Platform contents are proprietary and licensed to us. You have no authority to claim intellectual property rights over design, layout, graphics, or other content.</p>
-          </div>
-
-          <div className="pl-3 sm:pl-4 border-l-2" style={{ borderColor: '#12054b' }}>
-            <h4 className="font-semibold mb-2 text-sm sm:text-base">5. Lawful Use Only</h4>
-            <p className="text-sm sm:text-base">You agree not to use the Platform for any unlawful, illegal, or forbidden purpose under these Terms or applicable Indian laws.</p>
-          </div>
-
-          <div className="pl-3 sm:pl-4 border-l-2" style={{ borderColor: '#12054b' }}>
-            <h4 className="font-semibold mb-2 text-sm sm:text-base">6. Payment of Charges</h4>
-            <p className="text-sm sm:text-base">You agree to pay all charges associated with availing the Services.</p>
-          </div>
-
-          <div className="pl-3 sm:pl-4 border-l-2" style={{ borderColor: '#12054b' }}>
-            <h4 className="font-semibold mb-2 text-sm sm:text-base">7. Third-Party Links</h4>
-            <p className="text-sm sm:text-base">The Platform may contain links to third-party websites. You will be governed by their respective terms and policies when accessing those links.</p>
-          </div>
-
-          <div className="pl-3 sm:pl-4 border-l-2" style={{ borderColor: '#12054b' }}>
-            <h4 className="font-semibold mb-2 text-sm sm:text-base">8. Binding Contract</h4>
-            <p className="text-sm sm:text-base">Upon initiating a transaction, you enter into a legally binding contract with NITAI GEMS for the Services.</p>
-          </div>
-
-          <div className="pl-3 sm:pl-4 border-l-2" style={{ borderColor: '#12054b' }}>
-            <h4 className="font-semibold mb-2 text-sm sm:text-base">9. Indemnification</h4>
-            <p className="text-sm sm:text-base">You shall indemnify and hold harmless NITAI GEMS, its affiliates, officers, directors, and employees from any claims, demands, or actions arising from your breach of these Terms.</p>
-          </div>
-
-          <div className="pl-3 sm:pl-4 border-l-2" style={{ borderColor: '#12054b' }}>
-            <h4 className="font-semibold mb-2 text-sm sm:text-base">10. Force Majeure</h4>
-            <p className="text-sm sm:text-base">Neither party shall be liable for failure to perform obligations if prevented by force majeure events.</p>
-          </div>
-        </div>
-      </Section>
-
-      <Section title="Refund and Cancellation Policy">
-        <div className="space-y-3 sm:space-y-4">
-          <div className="pl-3 sm:pl-4 border-l-2" style={{ borderColor: '#12054b' }}>
-            <h4 className="font-semibold mb-2 text-sm sm:text-base">1. Cancellation Period</h4>
-            <p className="text-sm sm:text-base">Cancellations will only be considered if the request is made within 21 days of placing the order. However, cancellation requests may not be entertained if the orders have been communicated to sellers/merchants listed on the Platform and they have initiated the process of shipping them, or the product is out for delivery. In such an event, you may choose to reject the product at the doorstep.</p>
-          </div>
-
-          <div className="pl-3 sm:pl-4 border-l-2" style={{ borderColor: '#12054b' }}>
-            <h4 className="font-semibold mb-2 text-sm sm:text-base">2. Perishable Items</h4>
-            <p className="text-sm sm:text-base">NITAI GEMS does not accept cancellation requests for perishable items like flowers, eatables, etc. However, refund/replacement can be made if the user establishes that the quality of the product delivered is not good.</p>
-          </div>
-
-          <div className="pl-3 sm:pl-4 border-l-2" style={{ borderColor: '#12054b' }}>
-            <h4 className="font-semibold mb-2 text-sm sm:text-base">3. Damaged or Defective Items</h4>
-            <p className="text-sm sm:text-base">In case of receipt of damaged or defective items, please report to our customer service team. The request would be entertained once the seller/merchant listed on the Platform has checked and determined the same at its own end. This should be reported within 21 days of receipt of products.</p>
-          </div>
-
-          <div className="pl-3 sm:pl-4 border-l-2" style={{ borderColor: '#12054b' }}>
-            <h4 className="font-semibold mb-2 text-sm sm:text-base">4. Product Not as Expected</h4>
-            <p className="text-sm sm:text-base">In case you feel that the product received is not as shown on the site or as per your expectations, you must bring it to the notice of our customer service within 21 days of receiving the product. The customer service team after looking into your complaint will take an appropriate decision.</p>
-          </div>
-
-          <div className="pl-3 sm:pl-4 border-l-2" style={{ borderColor: '#12054b' }}>
-            <h4 className="font-semibold mb-2 text-sm sm:text-base">5. Warranty Products</h4>
-            <p className="text-sm sm:text-base">In case of complaints regarding the products that come with a warranty from the manufacturers, please refer the issue to them.</p>
-          </div>
-
-          <div className="pl-3 sm:pl-4 border-l-2" style={{ borderColor: '#12054b' }}>
-            <h4 className="font-semibold mb-2 text-sm sm:text-base">6. Refund Processing</h4>
-            <p className="text-sm sm:text-base">In case of any refunds approved by NITAI GEMS, it will take 21 days for the refund to be processed to you.</p>
-          </div>
-        </div>
-      </Section>
-
-      <Section title="Return Policy">
-        <p className="text-sm sm:text-base">We offer refund/exchange within first 21 days from the date of your purchase. If 21 days have passed since your purchase, you will not be offered a return, exchange or refund of any kind.</p>
-        <p className="mt-3 text-sm sm:text-base">In order to become eligible for a return or an exchange:</p>
-        <ul className="list-disc pl-5 sm:pl-6 mt-3 space-y-2">
-          <li className="text-sm sm:text-base">The purchased item should be unused and in the same condition as you received it</li>
-          <li className="text-sm sm:text-base">The item must have original packaging</li>
-          <li className="text-sm sm:text-base">If the item that you purchased on a sale, then the item may not be eligible for a return/exchange</li>
-        </ul>
-        <p className="mt-3 text-sm sm:text-base">Further, only such items are replaced by us (based on an exchange request), if such items are found defective or damaged.</p>
-        <p className="mt-3 text-sm sm:text-base">You agree that there may be a certain category of products/items that are exempted from returns or refunds. Such categories of the products would be identified to you at the item of purchase.</p>
-        <p className="mt-3 text-sm sm:text-base">For exchange/return accepted request(s) (as applicable), once your returned product/item is received and inspected by us, we will send you an email to notify you about receipt of the returned/exchanged product. Further, if the same has been approved after the quality check at our end, your request (i.e. return/exchange) will be processed in accordance with our policies.</p>
-      </Section>
-
-      <Section title="Governing Law & Jurisdiction">
-        <p className="text-sm sm:text-base">These Terms shall be governed by the laws of India. All disputes shall be subject to the exclusive jurisdiction of courts in <strong>Jaipur and Rajasthan</strong>.</p>
-      </Section>
-
-      <Section title="Modifications">
-        <p className="text-sm sm:text-base">These Terms can be modified at any time without prior notice. It is your responsibility to periodically review these Terms to stay informed of updates.</p>
-      </Section>
-
-      <Section title="Contact Us">
-        <p className="text-sm sm:text-base">All concerns or communications relating to these Terms must be communicated using the contact information provided on our website.</p>
-      </Section>
-    </div>
-  );
-}
-
-function PrivacyContent() {
-  return (
-    <div className="prose max-w-none">
-      <div className="bg-gray-50 p-4 sm:p-6 rounded-lg mb-4 sm:mb-6" style={{ borderLeft: '4px solid #12054b' }}>
-        <h2 className="text-xl sm:text-2xl font-bold mb-2 sm:mb-4" style={{ color: '#12054b' }}>Privacy Policy</h2>
-        <p className="text-black text-xs sm:text-sm">
-          Your privacy is important to us
-        </p>
-      </div>
-
-      <Section title="Introduction">
-        <p className="text-sm sm:text-base">This Privacy Policy describes how NITAI GEMS and its affiliates collect, use, share, protect or otherwise process your personal data through nitaigems.com. We do not offer products or services outside India, and your personal data will primarily be stored and processed in India.</p>
-        <p className="mt-3 text-sm sm:text-base">By visiting this Platform or availing any service, you expressly agree to be bound by this Privacy Policy, Terms of Use, and applicable laws of India including data protection and privacy laws.</p>
-      </Section>
-
-      <Section title="Information Collection">
-        <p className="text-sm sm:text-base">We collect your personal data when you use our Platform or interact with us. Information collected may include:</p>
-        <ul className="list-disc pl-5 sm:pl-6 mt-3 space-y-2">
-          <li className="text-sm sm:text-base">Personal information: name, date of birth, address, telephone/mobile number, email ID</li>
-          <li className="text-sm sm:text-base">Identity or address proof documents</li>
-          <li className="text-sm sm:text-base">Payment information: bank account, credit/debit card details</li>
-          <li className="text-sm sm:text-base">Biometric information: facial features or physiological data (when you opt for certain features)</li>
-          <li className="text-sm sm:text-base">Behavioral data: preferences and transaction information</li>
-        </ul>
-        <p className="mt-3 text-sm sm:text-base">You always have the option not to provide information by choosing not to use a particular service or feature. Information is collected in accordance with applicable laws.</p>
-        <div className="mt-3 p-3 sm:p-4 bg-red-50 rounded-lg border-l-4" style={{ borderColor: '#12054b' }}>
-          <p className="text-xs sm:text-sm font-semibold mb-2" style={{ color: '#12054b' }}>
-            Important Security Notice:
-          </p>
-          <p className="text-xs sm:text-sm">
-            If you receive an email or call from a person/association claiming to be NITAI GEMS seeking any personal data like debit/credit card PIN, net-banking or mobile banking password, we request you to never provide such information. If you have already revealed such information, report it immediately to an appropriate law enforcement agency.
-          </p>
-        </div>
-      </Section>
-
-      <Section title="How We Use Your Information">
-        <p className="text-sm sm:text-base">We use your personal data to:</p>
-        <ul className="list-disc pl-5 sm:pl-6 mt-3 space-y-2">
-          <li className="text-sm sm:text-base">Provide requested services and fulfill orders</li>
-          <li className="text-sm sm:text-base">Enhance customer experience and customize your experience</li>
-          <li className="text-sm sm:text-base">Resolve disputes and troubleshoot problems</li>
-          <li className="text-sm sm:text-base">Inform you about offers, products, services, and updates</li>
-          <li className="text-sm sm:text-base">Detect and protect against fraud and other criminal activity</li>
-          <li className="text-sm sm:text-base">Enforce our terms and conditions</li>
-          <li className="text-sm sm:text-base">Conduct marketing research, analysis, and surveys</li>
-        </ul>
-        <p className="mt-3 text-sm sm:text-base">We provide the ability to opt-out of marketing uses of your personal data. You understand that your access to these products/services may be affected in the event permission is not provided to us.</p>
-      </Section>
-
-      <Section title="Information Sharing">
-        <p className="text-sm sm:text-base">We may share your personal data with:</p>
-        <ul className="list-disc pl-5 sm:pl-6 mt-3 space-y-2">
-          <li className="text-sm sm:text-base">Our group entities, corporate entities, and affiliates to provide services</li>
-          <li className="text-sm sm:text-base">Third parties such as sellers, business partners, logistics partners, prepaid payment instrument issuers, third-party reward programs and other payment options</li>
-          <li className="text-sm sm:text-base">Government agencies or law enforcement if required by law or in good faith belief</li>
-          <li className="text-sm sm:text-base">Third party rights owners when necessary to protect rights, property or personal safety</li>
-        </ul>
-        <p className="mt-3 text-sm sm:text-base">Entities we share data with may market to you unless you explicitly opt-out. We may disclose data to comply with legal obligations, prevent fraud, and enforce our policies.</p>
-      </Section>
-
-      <Section title="Security Measures">
-        <p className="text-sm sm:text-base">We adopt reasonable security practices and procedures to protect your personal data from unauthorized access, disclosure, loss, or misuse. When you access your account, we adhere to security guidelines and offer secure server usage.</p>
-        <p className="mt-3 text-sm sm:text-base">However, the transmission of information is not completely secure for reasons beyond our control. By using the Platform, you accept the security implications of data transmission over the internet which cannot always be guaranteed as completely secure.</p>
-        <p className="mt-3 text-sm sm:text-base">Users are responsible for protecting their login credentials and password records for their account.</p>
-      </Section>
-
-      <Section title="Data Deletion and Retention">
-        <p className="text-sm sm:text-base">You can delete your account by visiting your profile and settings, which will result in losing all information related to your account. You may also contact us for assistance with deletion requests.</p>
-        <p className="mt-3 text-sm sm:text-base">We may refuse or delay account deletion if there are pending grievances, claims, pending shipments or any other services. Once deleted, you lose access to the account.</p>
-        <p className="mt-3 text-sm sm:text-base">We retain personal data only as long as required for the purpose collected or as required under applicable law. However, we may retain data if we believe it may be necessary to prevent fraud or future abuse or for other legitimate purposes.</p>
-        <p className="mt-3 text-sm sm:text-base">We may continue to retain your data in anonymised form for analytical and research purposes.</p>
-      </Section>
-
-      <Section title="Your Rights">
-        <p className="text-sm sm:text-base">You may access, rectify, and update your personal data directly through the functionalities provided on the Platform.</p>
-      </Section>
-
-      <Section title="Your Consent">
-        <p className="text-sm sm:text-base">By visiting our Platform or providing information, you consent to the collection, use, storage, disclosure, and processing of your information in accordance with this Privacy Policy. If you disclose to us any personal data relating to other people, you represent that you have the authority to do so and permit us to use the information in accordance with this Privacy Policy.</p>
-        <p className="mt-3 text-sm sm:text-base">You consent to us (including our other corporate entities, affiliates, lending partners, technology partners, marketing channels, business partners and other third parties) contacting you through SMS, instant messaging apps, calls, and email for purposes specified in this Policy.</p>
-        <p className="mt-3 text-sm sm:text-base">You may withdraw consent by contacting our Grievance Officer with "Withdrawal of consent for processing personal data" in the subject line. We may verify such requests before acting on them.</p>
-        <p className="mt-3 text-sm sm:text-base">Note that withdrawal of consent will not be retrospective and will be in accordance with the Terms of Use, this Privacy Policy, and applicable laws. We reserve the right to restrict or deny services if we consider the information necessary.</p>
-      </Section>
-
-      <Section title="Policy Changes">
-        <p className="text-sm sm:text-base">Please check our Privacy Policy periodically for changes. We may update this Policy to reflect changes to our information practices and will notify you of significant changes as required by law.</p>
-      </Section>
-
-      <Section title="Contact Information">
-        <p className="text-sm sm:text-base">For grievances or queries, please contact our Grievance Officer using the contact information provided on our website.</p>
-        <p className="mt-2 text-sm sm:text-base"><strong>Phone Hours:</strong> Monday - Friday (9:00 AM - 6:00 PM)</p>
-      </Section>
-    </div>
-  );
-}
-
-function ShippingContent() {
-  return (
-    <div className="prose max-w-none">
-      <div className="bg-gray-50 p-4 sm:p-6 rounded-lg mb-4 sm:mb-6" style={{ borderLeft: '4px solid #12054b' }}>
-        <h2 className="text-xl sm:text-2xl font-bold mb-2 sm:mb-4" style={{ color: '#12054b' }}>Shipping Policy</h2>
-        <p className="text-black text-xs sm:text-sm">
-          Information about order delivery and shipping
-        </p>
-      </div>
-
-      <Section title="Shipping Method">
-        <p className="text-sm sm:text-base">Orders are shipped through registered domestic courier companies and/or speed post only. We partner with reliable courier services to ensure safe delivery of your orders.</p>
-      </Section>
-
-      <Section title="Shipping Timeline">
-        <div className="bg-gray-50 p-3 sm:p-4 rounded-lg mt-3">
-          <p className="font-semibold text-sm sm:text-base" style={{ color: '#12054b' }}>Standard Shipping: 15 Days</p>
-          <p className="mt-2 text-xs sm:text-sm">Orders are shipped within <strong>15 days</strong> from the date of order and/or payment, or as per the delivery date agreed at the time of order confirmation.</p>
-        </div>
-        <p className="mt-3 text-sm sm:text-base">Delivery timeline is subject to courier company and post office norms. Actual delivery times may vary based on your location and courier service availability.</p>
-      </Section>
-
-      <Section title="Delivery Address">
-        <p className="text-sm sm:text-base">Delivery of all orders will be made to the address provided by the buyer at the time of purchase. Please ensure your delivery address is complete and accurate to avoid delays.</p>
-        <p className="mt-3 text-sm sm:text-base">Delivery confirmation for services will be sent to your registered email ID as specified during registration.</p>
-      </Section>
-
-      <Section title="Shipping Costs">
-        <p className="text-sm sm:text-base">If there are any shipping costs levied by the seller or Platform Owner, these charges are <strong>non-refundable</strong>.</p>
-      </Section>
-
-      <Section title="Limitation of Liability">
-        <p className="text-sm sm:text-base">NITAI GEMS (Platform Owner) shall not be liable for any delay in delivery caused by the courier company or postal authority. We make every effort to ensure timely dispatch, but delivery times are ultimately dependent on third-party services.</p>
-      </Section>
-
-      <div className="bg-gray-50 p-4 sm:p-6 rounded-lg mt-6" style={{ borderLeft: '4px solid #12054b' }}>
-        <h3 className="font-semibold mb-2 text-sm sm:text-base" style={{ color: '#12054b' }}>Need Help?</h3>
-        <p className="text-xs sm:text-sm">For shipping-related queries or concerns, please contact us using the information provided on our website during business hours (Monday - Friday, 9:00 AM - 6:00 PM).</p>
-      </div>
-    </div>
-  );
-}
-
-function Section({ title, children }) {
-  return (
-    <div className="mb-6 sm:mb-8">
-      <h3 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4" style={{ color: '#12054b' }}>{title}</h3>
-      <div className="text-black leading-relaxed">
+    <div className="mb-8">
+      <h3 className="text-lg sm:text-xl font-bold mb-4" style={{ color: '#12054b' }}>{title}</h3>
+      <div className="text-gray-800 leading-relaxed text-sm sm:text-base">
         {children}
       </div>
     </div>
