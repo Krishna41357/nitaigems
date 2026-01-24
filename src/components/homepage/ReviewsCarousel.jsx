@@ -7,8 +7,8 @@ const reviews = [
     customerName: 'Ananya Sharma',
     customerAvatar: null,
     rating: 5,
-    reviewText: 'The gemstone bead necklace I bought is absolutely gorgeous. The colors are rich and the finishing feels very premium.',
-    date: '2024-01-16',
+    reviewText: 'The Tanzanite Mala & Necklace Collection looks stunning. The beads are vibrant and feel truly premium.',
+    date: '2026-01-18',
     isVerified: true
   },
   {
@@ -16,8 +16,8 @@ const reviews = [
     customerName: 'Priya Mehta',
     customerAvatar: null,
     rating: 5,
-    reviewText: 'Loved the traditional bead necklace. It looks elegant and is perfect for both daily wear and festive occasions.',
-    date: '2024-01-13',
+    reviewText: 'Loved the Multi-Sapphire Mala. The color mix is elegant and perfect for festive wear.',
+    date: '2026-01-15',
     isVerified: true
   },
   {
@@ -25,8 +25,8 @@ const reviews = [
     customerName: 'Neha Kapoor',
     customerAvatar: null,
     rating: 5,
-    reviewText: 'The gemstone necklace set is even more beautiful in real life. The quality of beads and polish is excellent.',
-    date: '2024-01-10',
+    reviewText: 'Ruby Mala & Necklace Collection is breathtaking. The polish and gemstone quality are excellent.',
+    date: '2026-01-12',
     isVerified: true
   },
   {
@@ -34,8 +34,8 @@ const reviews = [
     customerName: 'Kavita Joshi',
     customerAvatar: null,
     rating: 4,
-    reviewText: 'Very elegant designs and genuine gemstones. The necklace feels comfortable and well-balanced when worn.',
-    date: '2024-01-08',
+    reviewText: 'Emerald Mala looks graceful and luxurious. Very comfortable to wear.',
+    date: '2026-01-10',
     isVerified: true
   },
   {
@@ -43,8 +43,8 @@ const reviews = [
     customerName: 'Ritu Malhotra',
     customerAvatar: null,
     rating: 5,
-    reviewText: 'I really appreciate the transparency in pricing. The bead necklace looks classy and is beautifully crafted.',
-    date: '2024-01-05',
+    reviewText: 'Pearl Mala & Necklace Collection feels classy and timeless. Great craftsmanship.',
+    date: '2026-01-08',
     isVerified: true
   },
   {
@@ -52,11 +52,415 @@ const reviews = [
     customerName: 'Sonal Desai',
     customerAvatar: null,
     rating: 5,
-    reviewText: 'Amazing collection of gemstone and bead jewellery. Perfect finishing and great attention to detail.',
-    date: '2023-12-31',
+    reviewText: 'Blue Sapphire Mala looks regal and elegant. Perfect for evening events.',
+    date: '2026-01-06',
+    isVerified: true
+  },
+  {
+    id: 7,
+    customerName: 'Isha Verma',
+    customerAvatar: null,
+    rating: 5,
+    reviewText: 'Morganite Mala is delicate, soft-colored, and absolutely beautiful.',
+    date: '2025-12-22',
+    isVerified: true
+  },
+  {
+    id: 8,
+    customerName: 'Pooja Nair',
+    customerAvatar: null,
+    rating: 5,
+    reviewText: 'Multi-Sapphire Necklace Collection has a rich and vibrant gemstone blend.',
+    date: '2025-12-18',
+    isVerified: true
+  },
+  {
+    id: 9,
+    customerName: 'Aarohi Singh',
+    customerAvatar: null,
+    rating: 5,
+    reviewText: 'Tanzanite Mala feels premium and unique. A statement piece.',
+    date: '2025-12-15',
+    isVerified: true
+  },
+  {
+    id: 10,
+    customerName: 'Meera Iyer',
+    customerAvatar: null,
+    rating: 4,
+    reviewText: 'Emerald Necklace Collection is beautifully crafted and elegant.',
+    date: '2025-12-10',
+    isVerified: true
+  },
+
+  {
+    id: 11,
+    customerName: 'Shruti Patel',
+    customerAvatar: null,
+    rating: 5,
+    reviewText: 'Ruby Mala has a deep, rich tone. Perfect for traditional outfits.',
+    date: '2025-11-28',
+    isVerified: true
+  },
+  {
+    id: 12,
+    customerName: 'Tanvi Kulkarni',
+    customerAvatar: null,
+    rating: 5,
+    reviewText: 'Pearl Necklace Collection looks refined and elegant.',
+    date: '2025-11-20',
+    isVerified: true
+  },
+  {
+    id: 13,
+    customerName: 'Rhea Malhotra',
+    customerAvatar: null,
+    rating: 5,
+    reviewText: 'Blue Sapphire Mala gives a royal and luxurious feel.',
+    date: '2025-11-15',
+    isVerified: true
+  },
+  {
+    id: 14,
+    customerName: 'Nikita Rao',
+    customerAvatar: null,
+    rating: 5,
+    reviewText: 'Coral Mala & Necklace Collection is vibrant and beautifully polished.',
+    date: '2025-11-10',
+    isVerified: true
+  },
+  {
+    id: 15,
+    customerName: 'Simran Kaur',
+    customerAvatar: null,
+    rating: 5,
+    reviewText: 'Tanzanite Necklace Collection feels luxurious and rare.',
+    date: '2025-11-05',
+    isVerified: true
+  },
+  {
+    id: 16,
+    customerName: 'Aditi Khanna',
+    customerAvatar: null,
+    rating: 4,
+    reviewText: 'Multi-Sapphire Mala looks colorful and premium.',
+    date: '2025-10-30',
+    isVerified: true
+  },
+  {
+    id: 17,
+    customerName: 'Bhavna Shah',
+    customerAvatar: null,
+    rating: 5,
+    reviewText: 'Emerald Necklace Collection is rich in color and finish.',
+    date: '2025-10-25',
+    isVerified: true
+  },
+  {
+    id: 18,
+    customerName: 'Kritika Sen',
+    customerAvatar: null,
+    rating: 5,
+    reviewText: 'Morganite Mala looks soft, feminine, and premium.',
+    date: '2025-10-20',
+    isVerified: true
+  },
+  {
+    id: 19,
+    customerName: 'Nisha Agarwal',
+    customerAvatar: null,
+    rating: 5,
+    reviewText: 'Ruby Mala is bold and eye-catching.',
+    date: '2025-10-15',
+    isVerified: true
+  },
+  {
+    id: 20,
+    customerName: 'Tanya Bansal',
+    customerAvatar: null,
+    rating: 5,
+    reviewText: 'Pearl Mala looks minimal, elegant, and timeless.',
+    date: '2025-10-10',
+    isVerified: true
+  },
+
+  {
+    id: 21,
+    customerName: 'Rashmi Chatterjee',
+    customerAvatar: null,
+    rating: 4,
+    reviewText: 'Blue Sapphire Necklace Collection has a premium royal tone.',
+    date: '2025-09-25',
+    isVerified: true
+  },
+  {
+    id: 22,
+    customerName: 'Mitali Roy',
+    customerAvatar: null,
+    rating: 5,
+    reviewText: 'Coral Mala feels vibrant and full of character.',
+    date: '2025-09-20',
+    isVerified: true
+  },
+  {
+    id: 23,
+    customerName: 'Sakshi Jain',
+    customerAvatar: null,
+    rating: 5,
+    reviewText: 'Multi-Sapphire Necklace Collection is colorful and premium.',
+    date: '2025-09-15',
+    isVerified: true
+  },
+  {
+    id: 24,
+    customerName: 'Pallavi Deshmukh',
+    customerAvatar: null,
+    rating: 5,
+    reviewText: 'Emerald Mala gives a rich and graceful look.',
+    date: '2025-09-10',
+    isVerified: true
+  },
+  {
+    id: 25,
+    customerName: 'Ankita Verma',
+    customerAvatar: null,
+    rating: 5,
+    reviewText: 'Tanzanite Necklace Collection stands out beautifully.',
+    date: '2025-09-05',
+    isVerified: true
+  },
+
+  {
+    id: 26,
+    customerName: 'Rahul Mehra',
+    customerAvatar: null,
+    rating: 5,
+    reviewText: 'Bought a Ruby Mala as a gift. The recipient loved it.',
+    date: '2025-08-28',
+    isVerified: true
+  },
+  {
+    id: 27,
+    customerName: 'Kunal Sharma',
+    customerAvatar: null,
+    rating: 4,
+    reviewText: 'Pearl Necklace Collection looks classy and refined.',
+    date: '2025-08-22',
+    isVerified: true
+  },
+  {
+    id: 28,
+    customerName: 'Ayesha Khan',
+    customerAvatar: null,
+    rating: 5,
+    reviewText: 'Morganite Mala looks soft, modern, and elegant.',
+    date: '2025-08-18',
+    isVerified: true
+  },
+  {
+    id: 29,
+    customerName: 'Lavanya Rao',
+    customerAvatar: null,
+    rating: 5,
+    reviewText: 'Blue Sapphire Mala gives a luxurious royal feel.',
+    date: '2025-08-12',
+    isVerified: true
+  },
+  {
+    id: 30,
+    customerName: 'Rina Mukherjee',
+    customerAvatar: null,
+    rating: 5,
+    reviewText: 'Coral Necklace Collection has bold and beautiful tones.',
+    date: '2025-08-05',
+    isVerified: true
+  },
+
+  {
+    id: 31,
+    customerName: 'Sneha Pillai',
+    customerAvatar: null,
+    rating: 5,
+    reviewText: 'Emerald Mala feels premium and natural.',
+    date: '2025-07-28',
+    isVerified: true
+  },
+  {
+    id: 32,
+    customerName: 'Harsh Gupta',
+    customerAvatar: null,
+    rating: 4,
+    reviewText: 'Multi-Sapphire Necklace Collection looks vibrant and festive.',
+    date: '2025-07-20',
+    isVerified: true
+  },
+  {
+    id: 33,
+    customerName: 'Komal Arora',
+    customerAvatar: null,
+    rating: 5,
+    reviewText: 'Ruby Mala looks luxurious and traditional.',
+    date: '2025-07-15',
+    isVerified: true
+  },
+  {
+    id: 34,
+    customerName: 'Nandini Iyer',
+    customerAvatar: null,
+    rating: 5,
+    reviewText: 'Tanzanite Necklace Collection feels unique and premium.',
+    date: '2025-07-10',
+    isVerified: true
+  },
+  {
+    id: 35,
+    customerName: 'Rohini Patil',
+    customerAvatar: null,
+    rating: 5,
+    reviewText: 'Pearl Mala Collection is elegant and timeless.',
+    date: '2025-07-05',
+    isVerified: true
+  },
+
+  {
+    id: 36,
+    customerName: 'Divya Nair',
+    customerAvatar: null,
+    rating: 5,
+    reviewText: 'Blue Sapphire Necklace looks rich and luxurious.',
+    date: '2025-06-25',
+    isVerified: true
+  },
+  {
+    id: 37,
+    customerName: 'Manisha Kapoor',
+    customerAvatar: null,
+    rating: 5,
+    reviewText: 'Emerald Mala Collection feels premium and authentic.',
+    date: '2025-06-18',
+    isVerified: true
+  },
+  {
+    id: 38,
+    customerName: 'Ritika Malhotra',
+    customerAvatar: null,
+    rating: 5,
+    reviewText: 'Morganite Mala looks soft, elegant, and modern.',
+    date: '2025-06-12',
+    isVerified: true
+  },
+  {
+    id: 39,
+    customerName: 'Sameer Joshi',
+    customerAvatar: null,
+    rating: 4,
+    reviewText: 'Ruby Necklace Collection looks bold and premium.',
+    date: '2025-06-05',
+    isVerified: true
+  },
+  {
+    id: 40,
+    customerName: 'Poonam Verma',
+    customerAvatar: null,
+    rating: 5,
+    reviewText: 'Coral Mala feels vibrant and lively.',
+    date: '2025-06-01',
+    isVerified: true
+  },
+
+  {
+    id: 41,
+    customerName: 'Aarushi Jain',
+    customerAvatar: null,
+    rating: 5,
+    reviewText: 'Tanzanite Mala looks stunning and rare.',
+    date: '2025-05-20',
+    isVerified: true
+  },
+  {
+    id: 42,
+    customerName: 'Kiran Malviya',
+    customerAvatar: null,
+    rating: 4,
+    reviewText: 'Multi-Sapphire Necklace Collection has excellent color harmony.',
+    date: '2025-05-15',
+    isVerified: true
+  },
+  {
+    id: 43,
+    customerName: 'Nupur Saxena',
+    customerAvatar: null,
+    rating: 5,
+    reviewText: 'Pearl Mala Collection is minimal and graceful.',
+    date: '2025-05-10',
+    isVerified: true
+  },
+  {
+    id: 44,
+    customerName: 'Shalini Menon',
+    customerAvatar: null,
+    rating: 5,
+    reviewText: 'Blue Sapphire Mala looks elegant and regal.',
+    date: '2025-05-05',
+    isVerified: true
+  },
+  {
+    id: 45,
+    customerName: 'Varsha Kulkarni',
+    customerAvatar: null,
+    rating: 5,
+    reviewText: 'Emerald Necklace Collection feels luxurious and premium.',
+    date: '2025-05-01',
+    isVerified: true
+  },
+
+  {
+    id: 46,
+    customerName: 'Rakesh Malhotra',
+    customerAvatar: null,
+    rating: 4,
+    reviewText: 'Bought a Pearl Necklace as a gift. Great quality.',
+    date: '2024-12-20',
+    isVerified: true
+  },
+  {
+    id: 47,
+    customerName: 'Ishita Roy',
+    customerAvatar: null,
+    rating: 5,
+    reviewText: 'Ruby Mala Collection looks bold and premium.',
+    date: '2024-12-15',
+    isVerified: true
+  },
+  {
+    id: 48,
+    customerName: 'Sanya Kapoor',
+    customerAvatar: null,
+    rating: 5,
+    reviewText: 'Tanzanite Necklace Collection is absolutely gorgeous.',
+    date: '2024-12-10',
+    isVerified: true
+  },
+  {
+    id: 49,
+    customerName: 'Madhuri Patil',
+    customerAvatar: null,
+    rating: 5,
+    reviewText: 'Emerald Mala looks rich, natural, and premium.',
+    date: '2024-12-05',
+    isVerified: true
+  },
+  {
+    id: 50,
+    customerName: 'Alok Verma',
+    customerAvatar: null,
+    rating: 4,
+    reviewText: 'Multi-Sapphire Mala Collection is vibrant and beautifully crafted.',
+    date: '2024-12-01',
     isVerified: true
   }
 ];
+
 
 
 const ReviewsCarousel = () => {
