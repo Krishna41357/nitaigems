@@ -34,10 +34,9 @@ const Footer = () => {
   ];
 
   const socials = [
-    { icon: Instagram, label: 'Instagram' },
-    { icon: Facebook, label: 'Facebook' },
-    { icon: Twitter, label: 'Twitter' },
-    { icon: Youtube, label: 'YouTube' },
+    { icon: Instagram, label: 'Instagram', link: "https://www.instagram.com/nitai_gems_?igsh=MW1sYXU2NTBldmlieA==" },
+    { icon: Facebook, label: 'Facebook', link: "https://www.facebook.com/share/1GiAN3k2ps/" },
+    
   ];
 
   return (
@@ -167,7 +166,7 @@ const Footer = () => {
                     return (
                       <a
                         key={social.label}
-                        href="#"
+                        href={social.link}
                         aria-label={social.label}
                         className="social-link" >
                         
